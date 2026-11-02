@@ -1,261 +1,92 @@
-<p align="center">
-  <a href="https://evolutionfoundation.com.br">
-    <img src="./public/hover-evolution.png" alt="Evolution Foundation" />
-  </a>
-</p>
+<div align="center">
 
-<h1 align="center">Evolution Go</h1>
+# 🚀 API WhatsApp BOB — Repositório Oficial
+### A União Definitiva do Motor em Go da **Evolution Go** com Todas as Funções e Integrações da **Evolution API**
 
-<p align="center">
-  High-performance WhatsApp API built in Go — part of the Evolution Foundation ecosystem.
-</p>
+[![Repositório Oficial](https://img.shields.io/badge/Rep%C3%B3sitorio-Oficial-success?style=for-the-badge&logo=github)](https://github.com/Edton180/API-Whatsapp-BOB-)
+[![Motor](https://img.shields.io/badge/Engine-Evolution%20Go%20(Golang)-00ADD8?style=for-the-badge&logo=go)](https://github.com/evolution-foundation/evolution-go)
+[![Funções](https://img.shields.io/badge/Features-Evolution%20API%20Full-25D366?style=for-the-badge&logo=whatsapp)](https://github.com/evolution-foundation/evolution-api)
+[![Criador](https://img.shields.io/badge/Criador-Edton%20Kaik%20Braz%20Da%20Concei%C3%A7%C3%A3o-0A66C2?style=for-the-badge)](https://github.com/Edton180)
+[![Contribuições](https://img.shields.io/badge/Comunidade-Contribua%20no%20Oficial-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
 
-<p align="center">
-  <a href="https://github.com/evolution-foundation/evolution-go/releases/latest"><img src="https://img.shields.io/github/v/release/evolution-foundation/evolution-go?include_prereleases&label=version&color=00ffa7" alt="Latest version" /></a>
-  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0" /></a>
-  <a href="https://docs.evolutionfoundation.com.br"><img src="https://img.shields.io/badge/Docs-evolutionfoundation.com.br-00ffa7" alt="Documentation" /></a>
-  <a href="https://evolutionfoundation.com.br/community"><img src="https://img.shields.io/badge/Community-Join%20us-white" alt="Community" /></a>
-  <a href="https://hub.docker.com/r/evoapicloud/evolution-go"><img src="https://img.shields.io/badge/Docker-evoapicloud-blue" alt="Docker image" /></a>
-</p>
-
-<p align="center">
-  <a href="https://evolutionfoundation.com.br">Website</a> &middot;
-  <a href="https://docs.evolutionfoundation.com.br">Documentation</a> &middot;
-  <a href="https://evolutionfoundation.com.br/community">Community</a> &middot;
-  <a href="mailto:suporte@evofoundation.com.br">Support</a>
-</p>
-
+</div>
 
 ---
 
-## About
+## 📖 Arquitetura: O Melhor dos Dois Mundos em Go
 
-**Evolution Go** is a high-performance WhatsApp API built in Go. Part of the Evolution Foundation ecosystem, it provides a robust, lightweight solution for WhatsApp integration using the [whatsmeow](https://github.com/tulir/whatsmeow) library.
+A **API WhatsApp BOB** une a velocidade e leveza da linguagem **Go (Golang)** com a riqueza completa de recursos da **Evolution API**:
 
-## Part of the Evolution Foundation ecosystem
-
-Evolution Go is one of the messaging engines maintained by Evolution Foundation. It is used as a WhatsApp provider by the [Evo CRM Community](https://github.com/evolution-foundation/evo-crm-community) and other projects in the ecosystem.
-
----
-
-## Features
-
-- **High performance** — built with Go for minimal resource usage
-- **RESTful API** — clean, well-documented REST endpoints with Swagger
-- **Real-time events** — WebSocket, Webhook, AMQP/RabbitMQ and NATS support
-- **Media support** — images, videos, audio, documents with MinIO/S3 storage
-- **Message storage** — optional PostgreSQL persistence
-- **QR code pairing** — built-in QR code generation for device linking
-- **License management** — built-in licensing with registration, activation, and heartbeat
-- **Docker ready** — production-ready Docker configuration
+1. **Baseada na [Evolution Go](https://github.com/evolution-foundation/evolution-go):** Construída em **Golang** sobre `whatsmeow`, garantindo consumo mínimo de RAM, altíssima velocidade de disparo, estabilidade multi-device e suporte a múltiplas instâncias simultâneas.
+2. **Com Todas as Funções da [Evolution API](https://github.com/evolution-foundation/evolution-api):** Enquanto a Evolution Go padrão possui apenas funções básicas e travas de licença, a **API WhatsApp BOB** traz todos os endpoints de **Mensagens (Texto, Mídia, Áudio PTT, Enquetes, Botões, Listas, Localização, Reações, Stickers, Stories)**, **Gestão Completa de Grupos**, **Chats/Perfil**, **Configurações de Instância** e **Integrações Nativas (N8N, Chatwoot, Typebot, OpenAI, Dify, Evolution Bot, RabbitMQ, SQS e WebSocket)** diretamente para o motor em Go!
+3. **100% Open Source e Sem Travas (Zero Erro 503):** Funciona livremente para qualquer sistema externo, ERP, CRM ou SaaS, além de ser o motor oficial de alta velocidade da plataforma **OmniFlow - Plataforma Multi-Tenant de Atendimento**.
 
 ---
 
-## Quick Start
+## 👨‍💻 Criador e Autor do Projeto
 
-### Docker (recommended)
+* **Criador e Mantenedor Oficial:** **Edton Kaik Braz Da Conceição** ([@Edton180](https://github.com/Edton180))
+* **Localização:** Tucuruí - Pará, Brasil
+* **Repositório Oficial:** [https://github.com/Edton180/API-Whatsapp-BOB-](https://github.com/Edton180/API-Whatsapp-BOB-)
+
+---
+
+## 🏦 Apoie o Projeto Oficial (Doação via PIX)
+
+A **API WhatsApp BOB** é 100% livre, aberta e gratuita para toda a comunidade. Apoie o criador **Edton Kaik Braz Da Conceição** na manutenção e evolução contínua do projeto enviando qualquer valor via **PIX**:
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center" width="320">
+      <br>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=10&data=00020126360014br.gov.bcb.pix0111046469472855204000053039865802BR5925EDTON%20KAIK%20BRAZ%20DA%20CONCEI6007TUCURUI62070503%2A%2A%2A63046E07" alt="QR Code PIX Oficial - Edton Kaik Braz Da Conceição" width="240" height="240" />
+      <br><br>
+      <b>📱 Abra o aplicativo do seu banco e escaneie o QR Code</b>
+    </td>
+    <td align="left" width="460">
+      <h3>💠 Comprovante / Dados Bancários PIX</h3>
+      <ul>
+        <li><b>Favorecido / Criador:</b> Edton Kaik Braz Da Conceição</li>
+        <li><b>Chave PIX (CPF):</b> <code>04646947285</code></li>
+        <li><b>CPF Formatado:</b> <code>046.469.472-85</code></li>
+        <li><b>Cidade:</b> Tucuruí - PA</li>
+        <li><b>Valor:</b> Livre (Qualquer valor apoia o projeto)</li>
+      </ul>
+      <p><b>📋 PIX Copia e Cola (Padrão Oficial EMV Banco Central):</b></p>
+      <pre>00020126360014br.gov.bcb.pix0111046469472855204000053039865802BR5925EDTON KAIK BRAZ DA CONCEI6007TUCURUI62070503***63046E07</pre>
+    </td>
+  </tr>
+</table>
+</div>
+
+---
+
+## 🔌 Paridade Completa de Funções (Evolution Go + Evolution API)
+
+| Módulo | Endpoints Nativos em Go |
+| :--- | :--- |
+| **Instâncias & Conexão** | `/instance/create`, `/instance/connect`, `/instance/fetchInstances`, `/instance/delete`, `/settings/set/:instance`, `/settings/find/:instance` |
+| **Mensagens Completas** | `/message/sendText/:instance`, `/message/sendMedia/:instance`, `/message/sendWhatsAppAudio/:instance`, `/message/sendPoll/:instance`, `/message/sendList/:instance`, `/message/sendButtons/:instance`, `/message/sendLocation/:instance`, `/message/sendReaction/:instance`, `/message/sendSticker/:instance`, `/message/sendContact/:instance`, `/message/sendStatus/:instance` |
+| **Gestão de Grupos** | `/group/create/:instance`, `/group/fetchAllGroups/:instance`, `/group/findGroupInfos/:instance`, `/group/updateParticipant/:instance`, `/group/updateSubject/:instance`, `/group/updateDescription/:instance`, `/group/updateSetting/:instance`, `/group/inviteCode/:instance`, `/group/revokeInviteCode/:instance`, `/group/leaveGroup/:instance` |
+| **Chats, Contatos & Perfil** | `/chat/whatsappNumbers/:instance`, `/chat/markMessageAsRead/:instance`, `/chat/archiveChat/:instance`, `/chat/deleteMessageForEveryone/:instance`, `/chat/sendPresence/:instance`, `/chat/fetchProfile/:instance`, `/chat/updateProfileName/:instance`, `/chat/updateProfileStatus/:instance`, `/chat/updateProfilePicture/:instance` |
+| **Integrações Nativas** | `/chatwoot/set/:instance`, `/typebot/set/:instance`, `/n8n/set/:instance`, `/openai/set/:instance`, `/dify/set/:instance`, `/evolutionBot/set/:instance`, `/webhook/set/:instance`, `/rabbitmq/set/:instance`, `/sqs/set/:instance`, `/websocket/set/:instance` |
+
+---
+
+## 🔄 Sincronização Seletiva Contínua (`evolution-go` + `evolution-api` + `OmniFlow`)
+
+Sempre que a `evolution-go` ou a `evolution-api` lançarem atualizações, você puxa apenas as partes atualizadas para a **API WhatsApp BOB** (e reflete no **OmniFlow**) executando:
 
 ```bash
-git clone https://github.com/evolution-foundation/evolution-go.git
-cd evolution-go
-make docker-build
-make docker-run
-```
-
-### Local development
-
-```bash
-git clone https://github.com/evolution-foundation/evolution-go.git
-cd evolution-go
-
-# Setup, configure and run
-make setup
-cp .env.example .env
-make dev
-```
-
-> Run `make help` to see all available commands. See [COMMANDS.md](./COMMANDS.md) for detailed workflows.
-
----
-
-## Configuration
-
-Create a `.env` file:
-
-```env
-# Server
-SERVER_PORT=8080
-CLIENT_NAME=evolution
-
-# Security
-GLOBAL_API_KEY=your-secure-api-key-here
-
-# Database
-POSTGRES_AUTH_DB=postgresql://postgres:password@localhost:5432/evogo_auth?sslmode=disable
-POSTGRES_USERS_DB=postgresql://postgres:password@localhost:5432/evogo_users?sslmode=disable
-DATABASE_SAVE_MESSAGES=false
-
-# Logging
-WADEBUG=DEBUG
-LOGTYPE=console
-
-# Optional
-# AMQP_URL=amqp://guest:guest@localhost:5672/
-# NATS_URL=nats://localhost:4222
-# WEBHOOK_URL=https://your-webhook-url.com/webhook
-# MINIO_ENABLED=true
-# MINIO_ENDPOINT=localhost:9000
-# MINIO_ACCESS_KEY=minioadmin
-# MINIO_SECRET_KEY=minioadmin
-```
-
-| Variable | Description | Default |
-|---|---|---|
-| `SERVER_PORT` | Server port | `8080` |
-| `CLIENT_NAME` | Client identifier | `evolution` |
-| `GLOBAL_API_KEY` | API authentication key | **Required** |
-| `DATABASE_SAVE_MESSAGES` | Enable message storage | `false` |
-| `WADEBUG` | WhatsApp debug level | `INFO` |
-
----
-
-## License Activation
-
-Evolution Go requires a license to operate. On first run:
-
-1. Start the server — API endpoints return `503` until activated
-2. Open the **Manager** at `http://localhost:8080/manager/login`
-3. Enter your API URL and `GLOBAL_API_KEY`
-4. Complete the license registration flow
-5. Once activated, the API is fully operational
-
-The license status persists in the database (`runtime_configs` table). Heartbeats are sent periodically to maintain activation.
-
----
-
-## API Documentation
-
-Swagger UI available at:
-
-```
-http://localhost:8080/swagger/index.html
-```
-
-### Key Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/instance/create` | Create WhatsApp instance |
-| `GET` | `/instance/{name}/qrcode` | Get QR code for pairing |
-| `POST` | `/message/sendText` | Send text message |
-| `POST` | `/message/sendMedia` | Send media message |
-| `GET` | `/instance/{name}/status` | Get instance status |
-| `DELETE` | `/instance/{name}` | Delete instance |
-
----
-
-## Project Structure
-
-```
-evolution-go/
-├── cmd/evolution-go/     # Application entry point
-├── pkg/
-│   ├── core/            # License management & middleware
-│   ├── instance/        # Instance management
-│   ├── message/         # Message handling
-│   ├── sendMessage/     # Message sending
-│   ├── routes/          # HTTP routes
-│   ├── middleware/      # Auth & validation middleware
-│   ├── config/          # Configuration
-│   ├── events/          # Event producers (AMQP, NATS, Webhook, WS)
-│   └── storage/         # Media storage (MinIO)
-├── docs/                # Swagger documentation
-├── Dockerfile
-├── Makefile
-└── VERSION
+./scripts/sync-upstreams.sh
 ```
 
 ---
 
-## Tech Stack
+## 🤝 Contribua Diretamente no Repositório Oficial
 
-| Component | Technology |
-|---|---|
-| Language | Go 1.24+ |
-| HTTP framework | Gin |
-| WhatsApp | [whatsmeow](https://github.com/tulir/whatsmeow) |
-| Database | PostgreSQL |
-| ORM | GORM |
-| Message queue | RabbitMQ, NATS |
-| Object storage | MinIO/S3 |
-| Documentation | Swagger/OpenAPI |
-| Container | Docker |
-
----
-
-## Documentation
-
-| Resource | Link |
-|---|---|
-| Website | [evolutionfoundation.com.br](https://evolutionfoundation.com.br) |
-| Documentation | [docs.evolutionfoundation.com.br](https://docs.evolutionfoundation.com.br) |
-| Community | [evolutionfoundation.com.br/community](https://evolutionfoundation.com.br/community) |
-| Docker Hub | [evoapicloud/evolution-go](https://hub.docker.com/r/evoapicloud/evolution-go) |
-| Changelog | [CHANGELOG.md](./CHANGELOG.md) |
-| Contributing | [CONTRIBUTING.md](./CONTRIBUTING.md) |
-| Security | [SECURITY.md](./SECURITY.md) |
-
----
-
-## Hosting
-
-Deploy Evolution Go with optimized infrastructure through our HostGator partnership:
-
-[**Evolution Go VPS — HostGator**](https://evolution-api.com/vps-evolution-go)
-
----
-
-## Telemetry
-
-Evolution Go collects anonymous telemetry data (routes used, API version) to help improve the service. **No sensitive or personal data is collected.**
-
----
-
-## Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to submit issues, propose features, and open pull requests.
-
-Join our [community](https://evolutionfoundation.com.br/community) to discuss ideas and collaborate.
-
----
-
-## Security
-
-For security issues, **do not open a public issue**. Email **suporte@evofoundation.com.br** or use GitHub's private vulnerability reporting. See [SECURITY.md](./SECURITY.md) for details.
-
----
-
-## Acknowledgments
-
-- [whatsmeow](https://github.com/tulir/whatsmeow) by [Tulir Asokan](https://github.com/tulir) — WhatsApp protocol library
-- [Evolution API](https://github.com/evolution-foundation/evolution-api) — Node.js sister project
-
----
-
-## License
-
-Evolution Go is licensed under the Apache License 2.0, with additional brand-protection conditions (LOGO/copyright preservation and Usage Notification requirement). See [LICENSE](./LICENSE) for full details.
-
-For licensing inquiries, contact **suporte@evofoundation.com.br**.
-
-## Trademarks
-
-"Evolution Foundation", "Evolution" and "Evolution Go" are trademarks of Evolution Foundation. See [TRADEMARKS.md](./TRADEMARKS.md) for the brand assets policy.
-
-Third-party attributions are documented in [NOTICE](./NOTICE).
-
----
-
-<p align="center">
-  Made by <a href="https://evolutionfoundation.com.br">Evolution Foundation</a> · © 2026
-</p>
+Não divida esforços! Toda a comunidade é convidada a **contribuir e melhorar diretamente este Repositório Oficial (`https://github.com/Edton180/API-Whatsapp-BOB-`)**:
+* Abra **[Issues Oficiais](https://github.com/Edton180/API-Whatsapp-BOB-/issues)** para relatar bugs ou sugerir melhorias.
+* Envie **[Pull Requests](https://github.com/Edton180/API-Whatsapp-BOB-/pulls)** diretamente para a branch `main` oficial para evoluirmos juntos a API mais rápida em Go do Brasil!
+* Leia nosso [Guia de Contribuição Oficial (CONTRIBUTING.md)](CONTRIBUTING.md).
