@@ -241,6 +241,16 @@ func (i instances) Connect(data *ConnectStruct, instance *instance_model.Instanc
 		return nil, "", "", err
 	}
 
+	// BOB: um cliente registrado mas sem conexão e sem sessão (QR expirado ou falha
+	// ao abrir o WebSocket) é recriado; antes ele bloqueava novos QR Codes.
+	if stale := i.clientPointer[instance.Id]; stale != nil && !stale.IsConnected() && !stale.IsLoggedIn() {
+		i.loggerWrapper.GetLogger(instance.Id).LogWarn("[%s] Stale client without connection, restarting for a new QR code", instance.Id)
+		if err := i.whatsmeowService.ReconnectClient(instance.Id); err != nil {
+			i.loggerWrapper.GetLogger(instance.Id).LogError("[%s] Error restarting stale client: %v", instance.Id, err)
+		}
+		return instance, instance.Jid, eventString, nil
+	}
+
 	// Verifica se a instância já está rodando
 	isInstanceRunning := i.clientPointer[instance.Id] != nil
 

@@ -404,6 +404,14 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 		}
 	}
 
+	// BOB: a versão enviada no login (ClientPayload) vem de store.GetWAVersion(),
+	// e não de DeviceProps. Sem isto o motor se apresenta com a versão compilada
+	// na biblioteca, o WhatsApp responde "cliente desatualizado" (405) e o QR
+	// Code nunca é gerado.
+	if version.Major > 0 && version.Patch > 0 {
+		store.SetWAVersion(store.WAVersionContainer{uint32(version.Major), uint32(version.Minor), uint32(version.Patch)})
+	}
+
 	// 🔒 FIX: Sempre criar logger, mesmo que WaDebug esteja vazio
 	// Usar "INFO" como nível mínimo para garantir que logs importantes apareçam
 	minLevel := w.config.WaDebug
@@ -513,6 +521,7 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 				err = client.Connect()
 				if err != nil {
 					w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Falha na segunda tentativa de conexão: %v", cd.Instance.Id, err)
+					w.dropFailedClient(cd.Instance.Id, client)
 					return
 				}
 			} else if strings.Contains(err.Error(), "username/password authentication failed") {
@@ -525,11 +534,13 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 				err = client.Connect()
 				if err != nil {
 					w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Failed to connect even without proxy: %v", cd.Instance.Id, err)
+					w.dropFailedClient(cd.Instance.Id, client)
 					return
 				}
 				w.loggerWrapper.GetLogger(cd.Instance.Id).LogInfo("[%s] Successfully connected without proxy", cd.Instance.Id)
 			} else {
 				w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Failed to connect: %v", cd.Instance.Id, err)
+				w.dropFailedClient(cd.Instance.Id, client)
 				return
 			}
 		}
@@ -548,6 +559,7 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 				err = client.Connect()
 				if err != nil {
 					w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Falha na segunda tentativa de conexão: %v", cd.Instance.Id, err)
+					w.dropFailedClient(cd.Instance.Id, client)
 					return
 				}
 			} else if strings.Contains(err.Error(), "username/password authentication failed") {
@@ -560,11 +572,13 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 				err = client.Connect()
 				if err != nil {
 					w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Failed to connect even without proxy: %v", cd.Instance.Id, err)
+					w.dropFailedClient(cd.Instance.Id, client)
 					return
 				}
 				w.loggerWrapper.GetLogger(cd.Instance.Id).LogInfo("[%s] Successfully connected without proxy", cd.Instance.Id)
 			} else {
 				w.loggerWrapper.GetLogger(cd.Instance.Id).LogError("[%s] Failed to connect: %v", cd.Instance.Id, err)
+				w.dropFailedClient(cd.Instance.Id, client)
 				return
 			}
 		}
@@ -633,6 +647,23 @@ func (w whatsmeowService) StartClient(cd *ClientData) {
 			time.Sleep(1000 * time.Millisecond)
 		}
 	}
+}
+
+// dropFailedClient tira do mapa um cliente cuja conexão com o WhatsApp falhou.
+// BOB: antes ele ficava registrado, desconectado; /instance/connect achava que a
+// instância estava rodando, não abria outra conexão e o QR Code nunca aparecia
+// até reiniciar o contêiner.
+func (w whatsmeowService) dropFailedClient(instanceId string, client *whatsmeow.Client) {
+	if w.clientPointer[instanceId] != client {
+		return
+	}
+	if mycli, ok := w.myClientPointer[instanceId]; ok && mycli.eventHandlerID != 0 {
+		client.RemoveEventHandler(mycli.eventHandlerID)
+	}
+	delete(w.clientPointer, instanceId)
+	delete(w.myClientPointer, instanceId)
+	delete(w.killChannel, instanceId)
+	w.loggerWrapper.GetLogger(instanceId).LogWarn("[%s] Conexão com o WhatsApp falhou; cliente liberado para nova tentativa", instanceId)
 }
 
 func schedulePresenceUpdates(mycli *MyClient) {
@@ -2620,7 +2651,23 @@ func fetchWhatsAppWebVersion() (*clientVersion, error) {
 		return cachedWebVersion, nil
 	}
 
-	resp, err := http.Get("https://web.whatsapp.com/sw.js")
+	// BOB: primeiro a consulta oficial da biblioteca (cabeçalhos de navegador);
+	// o sw.js abaixo fica como alternativa.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	latest, latestErr := whatsmeow.GetLatestVersion(ctx, nil)
+	cancel()
+	if latestErr == nil && latest != nil && latest[2] > 0 {
+		cachedWebVersion = &clientVersion{Major: int(latest[0]), Minor: int(latest[1]), Patch: int(latest[2])}
+		cachedWebVersionAt = time.Now()
+		return cachedWebVersion, nil
+	}
+
+	req, err := http.NewRequest(http.MethodGet, "https://web.whatsapp.com/sw.js", nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch WhatsApp Web version: %v", err)
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36")
+	resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch WhatsApp Web version: %v", err)
 	}
