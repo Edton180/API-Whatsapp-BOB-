@@ -144,6 +144,7 @@ func (s *Server) Router() *gin.Engine {
 
 	// grupos, comunidades, canais, chamadas e perfil (complementos)
 	s.registerExtra(r, inst)
+	s.registerHistory(r, inst, s.requireNamed())
 
 	// rotas no padrão da Evolution API v2 (/message/sendText/:instance...)
 	s.registerV2(r)

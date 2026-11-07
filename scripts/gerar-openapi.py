@@ -117,6 +117,11 @@ R += [
   ("Canais", "post", "/newsletter/mute", I, "Silencia o canal", {"newsletterId": "120363000000000000@newsletter"}),
   ("Canais", "post", "/newsletter/unmute", I, "Tira o silêncio", {"newsletterId": "120363000000000000@newsletter"}),
   ("Canais", "post", "/newsletter/messages", I, "Últimas mensagens do canal", {"newsletterId": "120363000000000000@newsletter", "count": 20}),
+  ("Histórico", "get", "/chat/list", I, "Conversas salvas (?limit=100&offset=0), as mais recentes primeiro", None),
+  ("Histórico", "get", "/chat/messages", I, "Mensagens de uma conversa (?chat=&limit=50&offset=0&before=&after=&fromMe=)", None),
+  ("Histórico", "post", "/chat/history", I, "Pede ao celular mensagens mais antigas da conversa (chegam pelo evento HistorySync)", {"chat": N, "count": 50}),
+  ("Histórico", "get", "/message/get", I, "Uma mensagem do histórico (?id=)", None),
+  ("Histórico", "get", "/message/poll", I, "Votos somados de uma enquete (?id=)", None),
 ]
 R = [r for r in R if "#" not in r[2]]
 
@@ -160,6 +165,9 @@ V2 = [
   ("Conversas", "post", "/chat/fetchProfile/{instance}", V, "Perfil (nome, recado, foto, comercial)", {"number": N}),
   ("Conversas", "post", "/chat/fetchBusinessProfile/{instance}", V, "Perfil comercial", {"number": N}),
   ("Conversas", "post", "/chat/findContacts/{instance}", V, "Contatos da agenda", {"where": {}}),
+  ("Conversas", "post", "/chat/findMessages/{instance}", V, "Mensagens do histórico (offset = quantidade por página)", {"where": {"key": {"remoteJid": N + "@s.whatsapp.net"}}, "page": 1, "offset": 50}),
+  ("Conversas", "post", "/chat/findChats/{instance}", V, "Conversas do histórico com a última mensagem", {"where": {}}),
+  ("Conversas", "post", "/chat/findStatusMessage/{instance}", V, "Status de entrega das mensagens", {"where": {"remoteJid": N + "@s.whatsapp.net", "id": "3EB0..."}}),
   ("Conversas", "post", "/chat/getBase64FromMediaMessage/{instance}", V, "Mídia em base64 (mensagem do webhook ou id recente)", {"message": {"key": {"id": "3EB0..."}}}),
   ("Conversas", "post", "/chat/updateProfileName/{instance}", V, "Nome do perfil", {"name": "Atendimento"}),
   ("Conversas", "post", "/chat/updateProfileStatus/{instance}", V, "Recado", {"status": "Atendimento das 8h às 18h"}),

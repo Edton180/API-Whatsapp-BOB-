@@ -24,7 +24,7 @@ Lista vazia ou `ALL` envia tudo.
 
 | Categoria | Eventos |
 |---|---|
-| `MESSAGE` | `Message`, `UndecryptableMessage`, `MediaRetry` |
+| `MESSAGE` | `Message`, `PollVote` (voto de enquete já com o nome das opções, veja [historico.md](historico.md)), `UndecryptableMessage`, `MediaRetry` |
 | `SEND_MESSAGE` | `SendMessage` (mensagem enviada pela API) |
 | `READ_RECEIPT` | `Receipt` (`Type`: vazio = entregue, `read` = lida, `played` = ouvida) |
 | `CONNECTION` | `Connected`, `PairSuccess`, `LoggedOut`, `Disconnected`, `ConnectFailure`, `TemporaryBan`, `StreamReplaced`... |

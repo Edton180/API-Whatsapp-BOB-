@@ -39,6 +39,8 @@ type Config struct {
 	CheckUserExists  bool
 	PanelEnabled     bool
 	PublicURL        string
+	StoreMessages    bool // guarda o histórico de mensagens e conversas no banco
+	StoreDays        int  // apaga do histórico as mensagens mais antigas que N dias (0 = nunca)
 	Proxy            Proxy
 }
 
@@ -69,6 +71,8 @@ func Load() *Config {
 		CheckUserExists:  envBool("CHECK_USER_EXISTS", true),
 		PanelEnabled:     envBool("PANEL_ENABLED", true),
 		PublicURL:        strings.TrimRight(env("PUBLIC_URL", ""), "/"),
+		StoreMessages:    envBool("STORE_MESSAGES", true),
+		StoreDays:        envInt("STORE_MESSAGES_DAYS", 0),
 		Proxy: Proxy{
 			Protocol: env("PROXY_PROTOCOL", ""),
 			Host:     env("PROXY_HOST", ""),

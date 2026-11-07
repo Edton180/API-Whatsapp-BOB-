@@ -111,7 +111,7 @@ func Open(dsn, dataDir string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("banco da BOB: %w", err)
 	}
-	if err := db.AutoMigrate(&Instance{}, &Label{}); err != nil {
+	if err := db.AutoMigrate(&Instance{}, &Label{}, &Message{}, &Chat{}, &PollVote{}); err != nil {
 		return nil, fmt.Errorf("tabelas da BOB: %w", err)
 	}
 	return db, nil
@@ -193,6 +193,7 @@ func (r *Repo) Update(id string, fields map[string]any) error {
 
 func (r *Repo) Delete(id string) error {
 	r.DB.Where("instance_id = ?", id).Delete(&Label{})
+	deleteHistory(r.DB, id)
 	return r.DB.Where("id = ?", id).Delete(&Instance{}).Error
 }
 

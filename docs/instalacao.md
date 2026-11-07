@@ -102,6 +102,8 @@ Depois, `sudo certbot --nginx -d bob.seudominio.com.br`.
 | `CONNECT_ON_STARTUP` | `true` | Reconecta sozinho os números ao iniciar |
 | `WEBHOOK_FILES` | `true` | Envia a mídia recebida em base64 no webhook |
 | `WEBHOOK_URL` | vazio | Webhook padrão para instâncias sem webhook |
+| `STORE_MESSAGES` | `true` | Guarda o histórico de mensagens e conversas no banco |
+| `STORE_MESSAGES_DAYS` | `0` | Apaga do histórico mensagens com mais de N dias (`0` = nunca) |
 | `EVENT_IGNORE_GROUP` | `false` | Ignora mensagens de grupos em todas as instâncias |
 | `EVENT_IGNORE_STATUS` | `true` | Ignora status (stories) |
 | `QRCODE_MAX_COUNT` | `5` | QR Codes gerados antes de desistir |
