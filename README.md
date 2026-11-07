@@ -72,7 +72,7 @@ O motor herdado exige a ativação gratuita da licença da Evolution Go no prime
 
 ## Integrações (Chatwoot, Typebot, N8N)
 
-Hoje a BOB integra com essas ferramentas pelos eventos (webhook, RabbitMQ, NATS, WebSocket). As integrações nativas no estilo da Evolution API estão no roteiro do projeto. Veja como ligar cada uma em [docs/integracoes.md](docs/integracoes.md).
+A BOB tem integrações nativas com Chatwoot, Typebot e N8N, com as mesmas rotas da Evolution API (`/chatwoot/set`, `/typebot/set`, `/n8n/set`), escritas em Go. Os eventos também continuam saindo por webhook, RabbitMQ, NATS e WebSocket. Veja como ligar cada uma em [docs/integracoes.md](docs/integracoes.md).
 
 ## Contribua
 

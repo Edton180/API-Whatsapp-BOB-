@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	bob_integrations "github.com/evolution-foundation/evolution-go/pkg/bob/integrations"
 	"image/png"
 	"io"
 	"math/rand"
@@ -2107,6 +2108,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 }
 
 func (w *whatsmeowService) CallWebhook(instance *instance_model.Instance, queueName string, jsonData []byte) {
+	bob_integrations.Dispatch(instance, jsonData) // API WhatsApp BOB: Chatwoot, Typebot e N8N
 	var data map[string]interface{}
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		return
