@@ -11,6 +11,7 @@ import (
 	call_handler "github.com/evolution-foundation/evolution-go/pkg/call/handler"
 	chat_handler "github.com/evolution-foundation/evolution-go/pkg/chat/handler"
 	community_handler "github.com/evolution-foundation/evolution-go/pkg/community/handler"
+	"github.com/evolution-foundation/evolution-go/pkg/evolutionapi"
 	group_handler "github.com/evolution-foundation/evolution-go/pkg/group/handler"
 	instance_handler "github.com/evolution-foundation/evolution-go/pkg/instance/handler"
 	label_handler "github.com/evolution-foundation/evolution-go/pkg/label/handler"
@@ -38,6 +39,7 @@ type Routes struct {
 	newsletterHandler       newsletter_handler.NewsletterHandler
 	pollHandler             *poll_handler.PollHandler
 	serverHandler           server_handler.ServerHandler
+	evolutionAPI            *evolutionapi.Handler
 }
 
 func (r *Routes) AssignRoutes(eng *gin.Engine) {
@@ -81,10 +83,10 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 	{
 		routes.Use(r.authMiddleware.AuthAdmin)
 		{
-			routes.POST("/create", r.instanceHandler.Create)
+			routes.POST("/create", r.evolutionAPI.CreateOrNative(r.instanceHandler.Create))
 			routes.GET("/all", r.instanceHandler.All)
 			routes.GET("/info/:instanceId", r.instanceHandler.Info)
-			routes.DELETE("/delete/:instanceId", r.instanceHandler.Delete)
+			routes.DELETE("/delete/:instanceId", r.evolutionAPI.DeleteOrNative(r.instanceHandler.Delete))
 			routes.POST("/proxy/:instanceId", r.instanceHandler.SetProxy)
 			routes.DELETE("/proxy/:instanceId", r.instanceHandler.DeleteProxy)
 			routes.POST("/forcereconnect/:instanceId", r.instanceHandler.ForceReconnect)
@@ -245,6 +247,8 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 		}
 	}
 
+	// Evolution API v2 compatible routes (/<module>/<action>/:instance).
+	r.evolutionAPI.Register(eng)
 }
 
 func NewRouter(
@@ -261,6 +265,7 @@ func NewRouter(
 	newsletterHandler newsletter_handler.NewsletterHandler,
 	pollHandler *poll_handler.PollHandler,
 	serverHandler server_handler.ServerHandler,
+	evolutionAPI *evolutionapi.Handler,
 ) *Routes {
 	return &Routes{
 		authMiddleware:          authMiddleware,
@@ -277,5 +282,6 @@ func NewRouter(
 		newsletterHandler:       newsletterHandler,
 		pollHandler:             pollHandler,
 		serverHandler:           serverHandler,
+		evolutionAPI:            evolutionAPI,
 	}
 }

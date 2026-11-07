@@ -82,6 +82,7 @@ Referência completa de todos os endpoints disponíveis.
 | [**Mensagens**](./guias-api/api-messages.md) | 16 | Enviar texto, mídia, enquetes, stickers |
 | [**Usuários**](./guias-api/api-user.md) | 13 | Perfil, contatos, privacidade, bloqueio |
 | [**Grupos**](./guias-api/api-groups.md) | 11 | Criar e administrar grupos |
+| [**Evolution API v2**](./guias-api/api-evolution-v2.md) | 70+ | Rotas compatíveis com a Evolution API v2 |
 | [**Chats**](./guias-api/api-chats.md) | 7 | Pin, archive, mute, histórico |
 | [**Labels**](./guias-api/api-labels.md) | 6 | Etiquetar chats e mensagens |
 | [**Chamadas**](./guias-api/api-call.md) | 1 | Rejeitar chamadas recebidas |

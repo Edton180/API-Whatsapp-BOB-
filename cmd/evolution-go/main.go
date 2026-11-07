@@ -34,6 +34,7 @@ import (
 	rabbitmq_producer "github.com/evolution-foundation/evolution-go/pkg/events/rabbitmq"
 	webhook_producer "github.com/evolution-foundation/evolution-go/pkg/events/webhook"
 	websocket_producer "github.com/evolution-foundation/evolution-go/pkg/events/websocket"
+	"github.com/evolution-foundation/evolution-go/pkg/evolutionapi"
 	group_handler "github.com/evolution-foundation/evolution-go/pkg/group/handler"
 	group_service "github.com/evolution-foundation/evolution-go/pkg/group/service"
 	instance_handler "github.com/evolution-foundation/evolution-go/pkg/instance/handler"
@@ -239,6 +240,20 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 		newsletter_handler.NewNewsletterHandler(newsletterService),
 		pollHandler,
 		server_handler.NewServerHandler(),
+		evolutionapi.New(evolutionapi.Deps{
+			Config:             config,
+			ClientPointer:      clientPointer,
+			InstanceRepository: instanceRepository,
+			InstanceService:    instanceService,
+			WhatsmeowService:   whatsmeowService,
+			SendService:        sendMessageService,
+			MessageService:     messageService,
+			UserService:        userService,
+			ChatService:        chatService,
+			GroupService:       groupService,
+			LabelService:       labelService,
+			CallService:        callService,
+		}),
 	).AssignRoutes(r)
 
 	if config.ConnectOnStartup {

@@ -76,7 +76,7 @@ O motor (`cmd/evolution-go`) expõe as rotas da Evolution Go. A instância é id
 | **Grupos e comunidades** | `/group/list`, `/group/info`, `/group/invitelink`, `/group/photo`, `/group/name`, `/group/description`, `/group/create`, `/group/participant`, `/group/join`, `/group/leave`, `/group/settings`, `/community/create`, `/community/add`, `/community/remove` |
 | **Labels, newsletters, chamadas, enquetes** | `/label/*`, `/unlabel/*`, `/newsletter/*`, `/call/reject`, `/polls/:id/results` |
 
-A documentação completa fica em `/swagger/index.html` e em [`docs/wiki`](docs/wiki/README.md). As rotas no formato da Evolution API v2 (`/message/sendText/:instance` etc.) estão sendo adicionadas sobre este motor.
+A documentação completa fica em `/swagger/index.html` e em [`docs/wiki`](docs/wiki/README.md). A API Bob também responde às rotas da **Evolution API v2** (`/message/sendText/:instance`, `/group/fetchAllGroups/:instance`, `/chat/whatsappNumbers/:instance`...). Veja [Compatibilidade com a Evolution API v2](docs/wiki/guias-api/api-evolution-v2.md).
 
 --- | :--- |
 | **Instâncias & Conexão** | `/instance/create`, `/instance/connect`, `/instance/fetchInstances`, `/instance/delete`, `/settings/set/:instance`, `/settings/find/:instance` |
