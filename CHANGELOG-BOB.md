@@ -2,6 +2,10 @@
 
 O histórico do motor herdado fica em [CHANGELOG.md](CHANGELOG.md) (Evolution Go).
 
+## 1.0.1 - 2026-11-07
+
+- A página `/` informa o commit compilado (`commit`) e o commit da Evolution Go contido (`upstream_commit`), para o OmniFlow saber se há atualização.
+
 ## 1.0.0 - 2026-11-07
 
 - Base: Evolution Go 0.7.2 (commit `9337afc`).

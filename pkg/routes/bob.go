@@ -8,6 +8,24 @@ import (
 	"strings"
 )
 
+// bobFile lê um arquivo curto do diretório atual ou de /app (onde o Docker copia).
+func bobFile(name string) string {
+	for _, p := range []string{name, "/app/" + name} {
+		if b, err := os.ReadFile(p); err == nil {
+			if v := strings.TrimSpace(string(b)); v != "" {
+				return v
+			}
+		}
+	}
+	return ""
+}
+
+// BobCommit é o commit da BOB compilado na imagem (vazio fora do Docker).
+func BobCommit() string { return bobFile("COMMIT") }
+
+// BobUpstream é o commit da Evolution Go oficial contido nesta versão.
+func BobUpstream() string { return bobFile("UPSTREAM") }
+
 // BobVersion lê o arquivo VERSION (o mesmo que o Docker copia para /app/VERSION).
 func BobVersion() string {
 	for _, p := range []string{"VERSION", "/app/VERSION"} {
