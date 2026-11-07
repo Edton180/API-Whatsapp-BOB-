@@ -23,7 +23,7 @@ git fetch upstream-api main
 echo "🔀 [3/3] Aplicando atualizações do motor Go sem sobrescrever os pacotes exclusivos da API WhatsApp BOB..."
 git merge upstream-go/main --no-commit --no-ff || true
 
-git checkout HEAD -- README.md CONTRIBUTING.md cmd/bob-server/ pkg/core/ pkg/controllers/ pkg/integrations/ pkg/routes/ scripts/ 2>/dev/null || true
+git checkout HEAD -- README.md CONTRIBUTING.md scripts/ 2>/dev/null || true
 
 echo ""
 echo "📊 Últimos commits lançados na Evolution API (para referência de paridade):"

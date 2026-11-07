@@ -18,8 +18,8 @@
 A **API WhatsApp BOB** une a velocidade e leveza da linguagem **Go (Golang)** com a riqueza completa de recursos da **Evolution API**:
 
 1. **Baseada na [Evolution Go](https://github.com/evolution-foundation/evolution-go):** Construída em **Golang** sobre `whatsmeow`, garantindo consumo mínimo de RAM, altíssima velocidade de disparo, estabilidade multi-device e suporte a múltiplas instâncias simultâneas.
-2. **Com Todas as Funções da [Evolution API](https://github.com/evolution-foundation/evolution-api):** Enquanto a Evolution Go padrão possui apenas funções básicas e travas de licença, a **API WhatsApp BOB** traz todos os endpoints de **Mensagens (Texto, Mídia, Áudio PTT, Enquetes, Botões, Listas, Localização, Reações, Stickers, Stories)**, **Gestão Completa de Grupos**, **Chats/Perfil**, **Configurações de Instância** e **Integrações Nativas (N8N, Chatwoot, Typebot, OpenAI, Dify, Evolution Bot, RabbitMQ, SQS e WebSocket)** diretamente para o motor em Go!
-3. **100% Open Source e Sem Travas (Zero Erro 503):** Funciona livremente para qualquer sistema externo, ERP, CRM ou SaaS, além de ser o motor oficial de alta velocidade da plataforma **OmniFlow - Plataforma Multi-Tenant de Atendimento**.
+2. **Rumo à paridade com a [Evolution API](https://github.com/evolution-foundation/evolution-api):** o objetivo é oferecer, sobre o motor em Go, os mesmos endpoints da Evolution API v2 (mensagens, grupos, chats, perfil, configurações e webhooks). Veja a tabela abaixo para o que já está disponível.
+3. **Licença:** o motor segue a licença da Evolution Go (Apache 2.0 com condições adicionais, veja [LICENSE](LICENSE)), incluindo a ativação de licença exigida pelo motor. É o motor de alta velocidade da plataforma **OmniFlow - Plataforma Multi-Tenant de Atendimento**.
 
 ---
 
@@ -62,10 +62,23 @@ A **API WhatsApp BOB** é 100% livre, aberta e gratuita para toda a comunidade. 
 
 ---
 
-## 🔌 Paridade Completa de Funções (Evolution Go + Evolution API)
+## 🔌 Endpoints disponíveis
 
-| Módulo | Endpoints Nativos em Go |
+O motor (`cmd/evolution-go`) expõe as rotas da Evolution Go. A instância é identificada pelo token dela no header `apikey`; rotas de administração (`/instance/create`, `/instance/all`...) usam a `GLOBAL_API_KEY`.
+
+| Módulo | Rotas |
 | :--- | :--- |
+| **Instâncias** | `/instance/create`, `/instance/all`, `/instance/info/:id`, `/instance/delete/:id`, `/instance/connect`, `/instance/status`, `/instance/qr`, `/instance/pair`, `/instance/disconnect`, `/instance/reconnect`, `/instance/logout`, `/instance/proxy/:id`, `/instance/:id/advanced-settings` |
+| **Envio** | `/send/text`, `/send/link`, `/send/media`, `/send/poll`, `/send/sticker`, `/send/location`, `/send/contact`, `/send/button`, `/send/list`, `/send/carousel`, `/send/status/text`, `/send/status/media` |
+| **Mensagens** | `/message/react`, `/message/presence`, `/message/markread`, `/message/markplayed`, `/message/downloadmedia`, `/message/status`, `/message/delete`, `/message/edit` |
+| **Usuário e contatos** | `/user/info`, `/user/check`, `/user/avatar`, `/user/contacts`, `/user/privacy`, `/user/block`, `/user/unblock`, `/user/blocklist`, `/user/profilePicture`, `/user/profileName`, `/user/profileStatus` |
+| **Chats** | `/chat/pin`, `/chat/unpin`, `/chat/archive`, `/chat/unarchive`, `/chat/mute`, `/chat/unmute`, `/chat/history-sync` |
+| **Grupos e comunidades** | `/group/list`, `/group/info`, `/group/invitelink`, `/group/photo`, `/group/name`, `/group/description`, `/group/create`, `/group/participant`, `/group/join`, `/group/leave`, `/group/settings`, `/community/create`, `/community/add`, `/community/remove` |
+| **Labels, newsletters, chamadas, enquetes** | `/label/*`, `/unlabel/*`, `/newsletter/*`, `/call/reject`, `/polls/:id/results` |
+
+A documentação completa fica em `/swagger/index.html` e em [`docs/wiki`](docs/wiki/README.md). As rotas no formato da Evolution API v2 (`/message/sendText/:instance` etc.) estão sendo adicionadas sobre este motor.
+
+--- | :--- |
 | **Instâncias & Conexão** | `/instance/create`, `/instance/connect`, `/instance/fetchInstances`, `/instance/delete`, `/settings/set/:instance`, `/settings/find/:instance` |
 | **Mensagens Completas** | `/message/sendText/:instance`, `/message/sendMedia/:instance`, `/message/sendWhatsAppAudio/:instance`, `/message/sendPoll/:instance`, `/message/sendList/:instance`, `/message/sendButtons/:instance`, `/message/sendLocation/:instance`, `/message/sendReaction/:instance`, `/message/sendSticker/:instance`, `/message/sendContact/:instance`, `/message/sendStatus/:instance` |
 | **Gestão de Grupos** | `/group/create/:instance`, `/group/fetchAllGroups/:instance`, `/group/findGroupInfos/:instance`, `/group/updateParticipant/:instance`, `/group/updateSubject/:instance`, `/group/updateDescription/:instance`, `/group/updateSetting/:instance`, `/group/inviteCode/:instance`, `/group/revokeInviteCode/:instance`, `/group/leaveGroup/:instance` |
