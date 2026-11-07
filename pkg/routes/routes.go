@@ -67,15 +67,17 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 	// A administração (números, QR Code, licença, atualização) fica no menu "API WhatsApp BOB" do OmniFlow.
 	bobInfo := func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"name":     "API WhatsApp BOB",
-			"version":  BobVersion(),
-			"based_on": "Evolution Go (Evolution Foundation) - Apache License 2.0",
-			"docs":     "/swagger/index.html",
-			"panel":    "Administre pelo menu API WhatsApp BOB do OmniFlow ou pela API",
-			"creator":  BobCreator,
-			"repo":     BobRepository,
-			"upstream": []string{"https://github.com/evolution-foundation/evolution-go"},
-			"donate":   "/donate/pix",
+			"name":            "API WhatsApp BOB",
+			"version":         BobVersion(),
+			"commit":          BobCommit(),
+			"upstream_commit": BobUpstream(),
+			"based_on":        "Evolution Go (Evolution Foundation) - Apache License 2.0",
+			"docs":            "/swagger/index.html",
+			"panel":           "Administre pelo menu API WhatsApp BOB do OmniFlow ou pela API",
+			"creator":         BobCreator,
+			"repo":            BobRepository,
+			"upstream":        []string{"https://github.com/evolution-foundation/evolution-go"},
+			"donate":          "/donate/pix",
 		})
 	}
 	eng.GET("/donate/pix", func(c *gin.Context) { c.JSON(http.StatusOK, BobPixInfo()) })

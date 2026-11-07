@@ -19,6 +19,9 @@ WORKDIR /app
 COPY --from=build /build/server ./server
 COPY --from=build /build/VERSION /build/UPSTREAM /build/UPSTREAM_VERSION ./
 COPY --from=build /build/LICENSE /build/NOTICE /build/TRADEMARKS.md ./
+# Commit do código compilado (o OmniFlow mostra e compara com o repositório para saber se há novidade)
+ARG COMMIT=""
+RUN printf '%s' "${COMMIT}" > /app/COMMIT
 ENV TZ=America/Sao_Paulo
 EXPOSE 4000
 HEALTHCHECK --interval=15s --timeout=5s --retries=10 CMD wget -qO- http://127.0.0.1:4000/server/ok >/dev/null || exit 1
