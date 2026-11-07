@@ -28,7 +28,7 @@ type Payload struct {
 
 // Categorias aceitas em "subscribe" ao conectar a instância.
 var categories = map[string][]string{
-	"MESSAGE":       {"Message", "UndecryptableMessage", "MediaRetry"},
+	"MESSAGE":       {"Message", "PollVote", "UndecryptableMessage", "MediaRetry"},
 	"SEND_MESSAGE":  {"SendMessage"},
 	"READ_RECEIPT":  {"Receipt"},
 	"PRESENCE":      {"Presence"},

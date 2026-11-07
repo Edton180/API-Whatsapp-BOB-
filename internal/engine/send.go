@@ -112,6 +112,10 @@ func (s *Session) Send(ctx context.Context, to types.JID, msg *waE2E.Message, op
 	if c.Store.ID != nil {
 		own = c.Store.ID.ToNonAD()
 	}
+	s.record(types.MessageInfo{
+		MessageSource: types.MessageSource{Chat: to, Sender: own, IsFromMe: true, IsGroup: to.Server == types.GroupServer},
+		ID:            resp.ID, Timestamp: resp.Timestamp,
+	}, msg, "SERVER_ACK", false)
 	info := map[string]any{
 		"ID": resp.ID, "Chat": to.String(), "Sender": own.String(), "IsFromMe": true,
 		"IsGroup": to.Server == types.GroupServer, "Timestamp": resp.Timestamp, "ServerID": resp.ServerID,
@@ -144,7 +148,7 @@ func (s *Session) decorate(ctx context.Context, c *whatsmeow.Client, to types.JI
 			participant = digits(participant) + "@" + types.DefaultUserServer
 		}
 		ci.Participant = proto.String(participant)
-		if quoted := s.recent.get(q.MessageID); quoted != nil {
+		if quoted := s.lookup(q.MessageID); quoted != nil {
 			ci.QuotedMessage = quoted
 		} else {
 			ci.QuotedMessage = &waE2E.Message{Conversation: proto.String("")}

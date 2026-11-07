@@ -138,7 +138,7 @@ func (s *Session) DownloadMedia(ctx context.Context, raw json.RawMessage, id str
 			return nil, "", fmt.Errorf("mensagem inválida: %w", err)
 		}
 	} else if id != "" {
-		msg = s.recent.get(id)
+		msg = s.lookup(id)
 	}
 	if msg == nil {
 		return nil, "", errors.New("mensagem não encontrada: envie o campo message recebido no webhook")
@@ -355,7 +355,11 @@ func (s *Session) Chat(ctx context.Context, action, chat string, muteHours int) 
 	default:
 		return fmt.Errorf("ação desconhecida: %s", action)
 	}
-	return c.SendAppState(ctx, patch)
+	if err := c.SendAppState(ctx, patch); err != nil {
+		return err
+	}
+	s.chatChanged(jid, action)
+	return nil
 }
 
 // ---------------------------------------------------------------- etiquetas

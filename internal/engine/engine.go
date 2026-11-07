@@ -116,6 +116,7 @@ func refreshVersion() {
 // Start lê a versão atual do WhatsApp Web e reconecta as instâncias que já tinham sessão.
 func (e *Engine) Start() {
 	refreshVersion()
+	go e.purgeLoop()
 	if !e.Cfg.ConnectOnStartup {
 		return
 	}

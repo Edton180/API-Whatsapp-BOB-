@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.1.0
+  version: 2.2.0
   description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
 
 
@@ -33,6 +33,7 @@ tags:
 - name: Canais
 - name: Comunidades
 - name: Chamadas
+- name: Histórico
 - name: Padrão v2 · Instâncias
 - name: Padrão v2 · Envio
 - name: Padrão v2 · Conversas
@@ -3378,6 +3379,145 @@ paths:
             example:
               newsletterId: 120363000000000000@newsletter
               count: 20
+  /chat/list:
+    get:
+      tags:
+      - Histórico
+      summary: Conversas salvas (?limit=100&offset=0), as mais recentes primeiro
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /chat/messages:
+    get:
+      tags:
+      - Histórico
+      summary: Mensagens de uma conversa (?chat=&limit=50&offset=0&before=&after=&fromMe=)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /chat/history:
+    post:
+      tags:
+      - Histórico
+      summary: Pede ao celular mensagens mais antigas da conversa (chegam pelo evento HistorySync)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+              count: 50
+  /message/get:
+    get:
+      tags:
+      - Histórico
+      summary: Uma mensagem do histórico (?id=)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /message/poll:
+    get:
+      tags:
+      - Histórico
+      summary: Votos somados de uma enquete (?id=)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
   /instance/fetchInstances:
     get:
       tags:
@@ -4836,6 +4976,132 @@ paths:
               type: object
             example:
               where: {}
+  /chat/findMessages/{instance}:
+    post:
+      tags:
+      - Padrão v2 · Conversas
+      summary: Mensagens do histórico (offset = quantidade por página)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: instance
+        in: path
+        required: true
+        schema:
+          type: string
+        description: nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              where:
+                key:
+                  remoteJid: 5511999998888@s.whatsapp.net
+              page: 1
+              offset: 50
+  /chat/findChats/{instance}:
+    post:
+      tags:
+      - Padrão v2 · Conversas
+      summary: Conversas do histórico com a última mensagem
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: instance
+        in: path
+        required: true
+        schema:
+          type: string
+        description: nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              where: {}
+  /chat/findStatusMessage/{instance}:
+    post:
+      tags:
+      - Padrão v2 · Conversas
+      summary: Status de entrega das mensagens
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: instance
+        in: path
+        required: true
+        schema:
+          type: string
+        description: nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              where:
+                remoteJid: 5511999998888@s.whatsapp.net
+                id: 3EB0...
   /chat/getBase64FromMediaMessage/{instance}:
     post:
       tags:

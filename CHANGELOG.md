@@ -1,5 +1,17 @@
 # Histórico de versões
 
+## 2.2.0 - 2026-11-07
+
+- **Histórico de mensagens e conversas** no banco: recebidas, enviadas e sincronizadas do celular, com status de
+  entrega e leitura (`SERVER_ACK`, `DELIVERY_ACK`, `READ`, `PLAYED`), edições e mensagens apagadas para todos.
+  Rotas `/chat/list`, `/chat/messages`, `/message/get` e, no padrão v2, `findMessages`, `findChats` e
+  `findStatusMessage`. Veja `docs/historico.md`.
+- **Buscar mensagens antigas** no celular: `POST /chat/history`.
+- **Votos de enquete decifrados**: evento `PollVote` com o nome das opções e `GET /message/poll` com o resultado.
+- Responder citando e baixar mídia funcionam com mensagens antigas, mesmo depois de reiniciar.
+- Arquivar e marcar como lida/não lida usam a última mensagem guardada quando ela não é informada.
+- Novas variáveis `STORE_MESSAGES` (padrão `true`) e `STORE_MESSAGES_DAYS` (padrão `0`, guarda para sempre).
+
 ## 2.1.0 - 2026-11-07
 
 - **Rotas no padrão v2** (`/message/sendText/{instância}`, `/group/fetchAllGroups/{instância}`...): mais de 60 rotas no formato

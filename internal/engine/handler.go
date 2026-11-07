@@ -24,6 +24,7 @@ func (s *Session) handle(raw any) {
 	case *events.Message:
 		s.onMessage(v)
 	case *events.Receipt:
+		s.onReceipt(v)
 		s.emit("Receipt", v)
 	case *events.Connected:
 		s.onConnected()
@@ -75,11 +76,14 @@ func (s *Session) handle(raw any) {
 		s.emit("LabelEdit", v)
 	case *events.HistorySync:
 		// O histórico completo é grande demais para um webhook: só o resumo.
+		// gravar o histórico pode demorar: fica fora da fila de eventos da whatsmeow
+		go s.onHistory(v)
 		d := v.Data
 		s.emit("HistorySync", map[string]any{"syncType": d.GetSyncType().String(), "conversations": len(d.GetConversations()), "progress": d.GetProgress()})
 	case *events.QR, *events.AppStateSyncComplete, *events.AppState, *events.KeepAliveTimeout, *events.KeepAliveRestored:
 		// tratados internamente
 	default:
+		s.onChatSync(raw)
 		name := eventName(raw)
 		if name != "" && knownEvents[name] {
 			s.emit(name, raw)
@@ -160,6 +164,14 @@ func (s *Session) onMessage(v *events.Message) {
 		return
 	}
 	s.recent.put(v.Info.ID, v.Message)
+	status := "DELIVERY_ACK"
+	if v.Info.IsFromMe {
+		status = "SERVER_ACK"
+	}
+	s.record(v.Info, v.Message, status, false)
+	if v.Message.GetPollUpdateMessage() != nil {
+		s.onPollVote(v)
+	}
 	if inst.ReadMessages && !v.Info.IsFromMe {
 		if c := s.client(); c != nil {
 			_ = c.MarkRead(context.Background(), []types.MessageID{v.Info.ID}, time.Now(), chat, v.Info.Sender)

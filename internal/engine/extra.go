@@ -282,9 +282,6 @@ type LastMessage struct {
 
 // ChatWithLast arquiva, desarquiva ou marca como lida/não lida informando a última mensagem.
 func (s *Session) ChatWithLast(ctx context.Context, action, chat string, last *LastMessage) error {
-	if last == nil || last.ID == "" {
-		return s.Chat(ctx, action, chat, 0)
-	}
 	c, err := s.Client()
 	if err != nil {
 		return err
@@ -292,6 +289,13 @@ func (s *Session) ChatWithLast(ctx context.Context, action, chat string, last *L
 	jid, err := s.ResolveJID(ctx, chat)
 	if err != nil {
 		return err
+	}
+	if last == nil || last.ID == "" {
+		// sem a última mensagem informada, usa a do histórico
+		last = s.lastMessage(jid)
+	}
+	if last == nil || last.ID == "" {
+		return s.Chat(ctx, action, chat, 0)
 	}
 	ts := last.Timestamp
 	if ts.IsZero() {
@@ -314,7 +318,11 @@ func (s *Session) ChatWithLast(ctx context.Context, action, chat string, last *L
 	default:
 		return s.Chat(ctx, action, chat, 0)
 	}
-	return c.SendAppState(ctx, patch)
+	if err := c.SendAppState(ctx, patch); err != nil {
+		return err
+	}
+	s.chatChanged(jid, action)
+	return nil
 }
 
 // RevokeAs apaga uma mensagem para todos. Com sender vazio apaga uma mensagem da própria
