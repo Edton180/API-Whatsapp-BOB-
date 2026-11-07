@@ -1,9 +1,9 @@
 .env
-logs/*
+dbdata/
+logs/
 build/
 *.prof
 coverage.*
-.air.toml
 .idea/
 .vscode/
 .DS_Store

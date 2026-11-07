@@ -1,27 +1,16 @@
-Evolution Go
-Copyright 2026 Evolution Foundation
-
-This product includes software developed by Evolution Foundation
-(https://evolutionfoundation.com.br).
-
-Trademark notice
-"Evolution Foundation", "Evolution" and "Evolution Go" are trademarks of
-Evolution Foundation. The Evolution Go logo, wordmark, and visual identity
-are governed by the Trademark and Brand Assets Policy included in this
-repository (TRADEMARKS.md).
-
-Third-party attributions
-
-This product includes software developed by external contributors:
-
-- whatsmeow (https://github.com/tulir/whatsmeow) by Tulir Asokan, used as the
-  WhatsApp protocol library.
-
--------------------------------------------------------------------------------
 API WhatsApp BOB
+Copyright 2026 Edton Braz (https://github.com/Edton180)
 
-API WhatsApp BOB is a modified distribution of Evolution Go, based on Evolution Go
-(https://github.com/evolution-foundation/evolution-go), licensed under the Apache
-License 2.0 with the additional conditions in LICENSE. Modifications by Edton Braz.
-It is not affiliated with or endorsed by Evolution Foundation. It does not ship the
-Evolution Go web manager or any Evolution Go brand assets (see TRADEMARKS.md).
+Licenciada sob a Apache License 2.0 (arquivo LICENSE).
+Desenvolvido por Edton Braz.
+
+Componentes de terceiros usados como dependência (não fazem parte do código da BOB,
+são baixados na compilação, cada um com a sua licença):
+
+- whatsmeow (https://github.com/tulir/whatsmeow), de Tulir Asokan, Mozilla Public
+  License 2.0: biblioteca do protocolo do WhatsApp Web usada pelo motor da BOB.
+- Gin, GORM, gorilla/websocket, go-qrcode, chai2010/webp, mimetype, lib/pq,
+  go-sqlite3 e golang.org/x: licenças MIT, BSD ou Apache 2.0.
+
+"WhatsApp" é marca da Meta Platforms, Inc. A API WhatsApp BOB não é afiliada à Meta
+nem ao WhatsApp.

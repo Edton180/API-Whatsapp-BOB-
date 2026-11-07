@@ -1,29 +1,18 @@
-## Description
-<!-- Describe your changes in detail -->
+## O que muda
+<!-- Explique a mudança -->
 
-## Related Issue
-<!-- Link to the issue this PR addresses -->
-Closes #(issue_number)
+## Issue relacionada
+<!-- Ex.: Closes #12 -->
 
-## Type of Change
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Refactoring (no functional changes)
-- [ ] Performance improvement
+## Tipo
+- [ ] Correção
+- [ ] Nova função
+- [ ] Mudança que quebra compatibilidade
+- [ ] Documentação
+- [ ] Refatoração
 
-## Testing
-- [ ] Manual testing completed
-- [ ] Functionality verified in development environment
-- [ ] No breaking changes introduced
+## Testes
+- [ ] `make test` passou
+- [ ] Testado com um número de WhatsApp (quando aplicável)
 
-## Screenshots (if applicable)
-
-## Checklist
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have tested my changes thoroughly
-- [ ] Any dependent changes have been merged and published
-
-## Additional Notes
+## Capturas de tela (se mudar o painel)
