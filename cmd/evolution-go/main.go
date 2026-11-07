@@ -326,9 +326,9 @@ func initPostgresAuthDB(config *config.Config) (*sql.DB, error) {
 	return db, nil
 }
 
-// @title Evolution GO
+// @title API WhatsApp BOB
 // @version 1.0
-// @description Evolution GO - whatsmeow
+// @description API WhatsApp BOB - baseada na Evolution Go (Evolution Foundation, Apache 2.0)
 func main() {
 	flag.Parse()
 	if *devMode {
