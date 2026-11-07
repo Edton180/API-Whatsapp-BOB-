@@ -1,5 +1,19 @@
 # Histórico de versões
 
+## 2.1.0 - 2026-11-07
+
+- **Rotas no padrão v2** (`/message/sendText/{instância}`, `/group/fetchAllGroups/{instância}`...): mais de 60 rotas no formato
+  usado pela Evolution API v2, para sistemas já feitos nesse padrão migrarem trocando só o endereço. Veja `docs/padrao-v2.md`.
+- **Grupos**: quem envia e quem edita, aprovação de entrada, pedidos pendentes (aprovar/recusar), ver convite sem entrar,
+  mensagens temporárias, apagar foto.
+- **Comunidades**: criar, ligar e desligar grupos, listar grupos.
+- **Canais**: criar, ver por id ou link, seguir, deixar de seguir, silenciar, ler mensagens.
+- **Perfil**: perfil comercial, alterar privacidade, apagar foto, ficar online/offline.
+- **Envio**: vídeo redondo (`type: ptv`) e áudio como arquivo comum (`type: audio-file`).
+- **Chamadas**: `/call/reject`.
+- Arquivar e marcar como não lida aceitam a última mensagem da conversa, como o WhatsApp exige para refletir no celular.
+- Biblioteca whatsmeow atualizada para a versão de 2026-11-07.
+
 ## 2.0.0 - 2026-11-07
 
 A BOB passa a ter motor, painel e documentação próprios.

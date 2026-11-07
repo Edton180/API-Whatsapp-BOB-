@@ -224,7 +224,7 @@ func Link(text, link, title, description string) *waE2E.Message {
 // MediaInput descreve um arquivo a enviar.
 type MediaInput struct {
 	Data     []byte
-	Type     string // image, video, audio, ptt, document
+	Type     string // image, video, ptv, audio (nota de voz), audio-file, document
 	Mime     string
 	Caption  string
 	Filename string
@@ -266,19 +266,26 @@ func (s *Session) Media(ctx context.Context, in MediaInput) (*waE2E.Message, err
 			FileSHA256: up.FileSHA256, FileLength: proto.Uint64(up.FileLength), Mimetype: proto.String(in.Mime),
 			Caption: optional(in.Caption), JPEGThumbnail: media.Thumbnail(in.Data),
 		}}, nil
-	case "video":
+	case "video", "ptv":
 		up, err := c.Upload(ctx, in.Data, whatsmeow.MediaVideo)
 		if err != nil {
 			return nil, fmt.Errorf("upload do vídeo: %w", err)
 		}
-		return &waE2E.Message{VideoMessage: &waE2E.VideoMessage{
+		video := &waE2E.VideoMessage{
 			URL: &up.URL, DirectPath: &up.DirectPath, MediaKey: up.MediaKey, FileEncSHA256: up.FileEncSHA256,
 			FileSHA256: up.FileSHA256, FileLength: proto.Uint64(up.FileLength), Mimetype: proto.String(in.Mime),
-			Caption: optional(in.Caption),
-		}}, nil
-	case "audio", "ptt", "voice":
+		}
+		if typ == "ptv" {
+			// vídeo redondo (recado de vídeo), sem legenda
+			return &waE2E.Message{PtvMessage: video}, nil
+		}
+		video.Caption = optional(in.Caption)
+		return &waE2E.Message{VideoMessage: video}, nil
+	case "audio", "ptt", "voice", "audio-file":
 		data, mime, seconds, ptt := in.Data, in.Mime, uint32(0), true
-		if conv, secs, err := media.VoiceNote(ctx, in.Data); err == nil {
+		if typ == "audio-file" {
+			ptt = false // arquivo de áudio comum, sem virar nota de voz
+		} else if conv, secs, err := media.VoiceNote(ctx, in.Data); err == nil {
 			data, mime, seconds = conv, "audio/ogg; codecs=opus", secs
 		} else if !strings.Contains(in.Mime, "ogg") {
 			ptt = false // sem ffmpeg: vai como arquivo de áudio comum
