@@ -63,17 +63,25 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 		c.Status(http.StatusNoContent)
 	})
 
-	// Rotas para o gerenciador React (sem autenticação)
-	eng.Static("/assets", "./manager/dist/assets")
-
-	// Ajuste nas rotas do manager para suportar client-side routing do React
-	eng.GET("/manager/*any", func(c *gin.Context) {
-		c.File("manager/dist/index.html")
-	})
-
-	eng.GET("/manager", func(c *gin.Context) {
-		c.File("manager/dist/index.html")
-	})
+	// API WhatsApp BOB: não distribui o painel web da Evolution Go (marca protegida, ver TRADEMARKS.md).
+	// A administração (números, QR Code, licença, atualização) fica no menu "API WhatsApp BOB" do OmniFlow.
+	bobInfo := func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"name":     "API WhatsApp BOB",
+			"version":  BobVersion(),
+			"based_on": "Evolution Go (Evolution Foundation) - Apache License 2.0",
+			"docs":     "/swagger/index.html",
+			"panel":    "Administre pelo menu API WhatsApp BOB do OmniFlow ou pela API",
+			"creator":  BobCreator,
+			"repo":     BobRepository,
+			"upstream": []string{"https://github.com/evolution-foundation/evolution-go"},
+			"donate":   "/donate/pix",
+		})
+	}
+	eng.GET("/donate/pix", func(c *gin.Context) { c.JSON(http.StatusOK, BobPixInfo()) })
+	eng.GET("/", bobInfo)
+	eng.GET("/manager", bobInfo)
+	eng.GET("/manager/*any", bobInfo)
 
 	eng.GET("/server/ok", r.serverHandler.ServerOk)
 

@@ -1610,27 +1610,23 @@ func (s *sendService) SendSticker(data *StickerStruct, instance *instance_model.
 	var uploaded whatsmeow.UploadResponse
 	var filedata []byte
 
-	if strings.HasPrefix(data.Sticker, "http") {
-		webpData, err := convertToWebP(data.Sticker)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert image to WebP: %v", err)
-		}
+	// BOB: URL ou base64; qualquer formato vira WebP 512x512 (WebP animado vai como está)
+	webpData, err := prepareSticker(data.Sticker)
+	if err != nil {
+		return nil, err
+	}
+	filedata = webpData
 
-		filedata = webpData
-
-		uploaded, err = client.Upload(context.Background(), filedata, whatsmeow.MediaImage)
-		if err != nil {
-			return nil, fmt.Errorf("failed to upload sticker: %v", err)
-		}
-	} else {
-		return nil, fmt.Errorf("invalid sticker URL")
+	uploaded, err = client.Upload(context.Background(), filedata, whatsmeow.MediaImage)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload sticker: %v", err)
 	}
 
 	msg := &waE2E.Message{StickerMessage: &waE2E.StickerMessage{
 		URL:           proto.String(uploaded.URL),
 		DirectPath:    proto.String(uploaded.DirectPath),
 		MediaKey:      uploaded.MediaKey,
-		Mimetype:      proto.String(http.DetectContentType(filedata)),
+		Mimetype:      proto.String("image/webp"),
 		FileEncSHA256: uploaded.FileEncSHA256,
 		FileSHA256:    uploaded.FileSHA256,
 		FileLength:    proto.Uint64(uint64(len(filedata))),

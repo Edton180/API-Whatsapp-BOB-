@@ -1,12 +1,26 @@
-# 🤝 Guia de Contribuição Oficial — API WhatsApp BOB
+# Como contribuir com a API WhatsApp BOB
 
-Criador e Mantenedor Principal: **Edton Kaik Braz Da Conceição** ([@Edton180](https://github.com/Edton180))
+Criador e mantenedor: **Edton Kaik Braz Da Conceição** ([@Edton180](https://github.com/Edton180)).
 
-A **API WhatsApp BOB** é um projeto Open Source unificado. Nosso objetivo é concentrar toda a inteligência, correções de bugs, novas integrações e melhorias de performance diretamente neste **Repositório Oficial (`https://github.com/Edton180/API-Whatsapp-BOB-`)** para que toda a comunidade e os sistemas integrados (como o *OmniFlow*) evoluam juntos!
+A BOB é livre e aberta. Toda ajuda conta: correção de bug, nova função, teste, documentação ou tradução.
 
-## Como Colaborar no Repositório Oficial
+## Passo a passo
 
-1. **Abra uma Issue ou Discussão:** Encontrou um bug ou quer propor uma melhoria no motor Go, no Chatwoot, Typebot ou N8N? Abra uma [Issue no Repositório Oficial](https://github.com/Edton180/API-Whatsapp-BOB-/issues).
-2. **Crie uma Branch de Melhoria:** Desenvolva sua funcionalidade ou correção em uma branch semântica (`feat/nova-funcao`, `fix/correcao-conexao`, `perf/otimizacao-memoria`).
-3. **Padrão de Código e Commits:** Utilize *Conventional Commits* (`feat:`, `fix:`, `chore:`, `docs:`) e mantenha o código em Go limpo, rápido e modular.
-4. **Envie seu Pull Request (PR) para a `main` Oficial:** Submeta seu PR diretamente para este repositório oficial para revisão e mesclagem pelo mantenedor **Edton Kaik Braz Da Conceição**.
+1. Abra uma [issue](https://github.com/Edton180/API-Whatsapp-BOB-/issues) descrevendo o bug ou a ideia.
+2. Faça um fork e crie um ramo: `feat/nome-da-funcao`, `fix/descricao`, `docs/assunto`.
+3. Escreva o código em Go com `gofmt`, e um teste para o que você mudou.
+4. Rode `go build ./cmd/evolution-go` e `go test ./pkg/... -run Bob`.
+5. Use commits no padrão *Conventional Commits* (`feat:`, `fix:`, `docs:`...).
+6. Envie o pull request para a `main` deste repositório.
+
+## Regras do projeto
+
+- **Código da Evolution Go:** prefira colocar melhorias em arquivos novos com prefixo `bob_` em vez de reescrever arquivos do motor. Isso deixa a sincronização com o oficial ([docs/sincronizacao.md](docs/sincronizacao.md)) sem conflitos.
+- **Licença:** contribuições entram sob a mesma licença do projeto ([LICENSE](LICENSE)). Mantenha os avisos de copyright existentes e o [NOTICE](NOTICE).
+- **Marca:** não adicione logos, cores ou o painel da Evolution Go ([TRADEMARKS.md](TRADEMARKS.md)).
+- **Mecanismo de licença da Evolution Go:** não remova nem contorne. Ele faz parte das condições do projeto oficial.
+- **Nada de rota de mentira:** uma rota só entra se fizer o que diz (por exemplo, enviar a mensagem de verdade).
+
+## Apoie
+
+Se a BOB ajuda o seu trabalho, considere uma doação por Pix (veja o [README](README.md#apoie-o-projeto-pix)).
