@@ -21,7 +21,9 @@ jobs:
       - name: Compilar
         run: CGO_ENABLED=1 go build -o /tmp/bob ./cmd/evolution-go
       - name: Testes da BOB
-        run: go test ./pkg/sendMessage/service/ ./pkg/routes/ -run Bob -count=1
+        run: |
+          go test ./pkg/sendMessage/service/ ./pkg/routes/ -run Bob -count=1
+          go test -race ./pkg/bob/... -count=1
   docker:
     name: Imagem Docker
     runs-on: ubuntu-latest

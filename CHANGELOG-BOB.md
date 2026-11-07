@@ -2,6 +2,14 @@
 
 O histórico do motor herdado fica em [CHANGELOG.md](CHANGELOG.md) (Evolution Go).
 
+## 1.1.0 - 2026-11-07
+
+- Integrações nativas com Chatwoot, Typebot e N8N (`pkg/bob/integrations`), com as rotas no estilo da Evolution API: `/chatwoot/set`, `/typebot/set`, `/n8n/set`, `/find`, `DELETE` e `/session/clear`.
+- Chatwoot: contato e conversa criados sozinhos, mensagens do celular importadas, resposta do atendente (com assinatura opcional e anexos) enviada ao WhatsApp por `/chatwoot/webhook/{instancia}/{segredo}`, sem eco.
+- Typebot: sessão por contato, palavra-chave de início e de saída, expiração, texto formatado, mídia e opções numeradas.
+- N8N: mesmo corpo enviado pela Evolution API, autenticação básica, resposta em uma ou várias mensagens e mídia.
+- Tabelas `bob_integrations` e `bob_bot_sessions` criadas sozinhas; testes em `go test ./pkg/bob/...`.
+
 ## 1.0.1 - 2026-11-07
 
 - A página `/` informa o commit compilado (`commit`) e o commit da Evolution Go contido (`upstream_commit`), para o OmniFlow saber se há atualização.

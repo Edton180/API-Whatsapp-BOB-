@@ -28,3 +28,15 @@ O painel web (`manager/`), as imagens de marca (`public/`), o binário compilado
 ## Evolution API
 
 A [Evolution API](https://github.com/evolution-foundation/evolution-api) é escrita em TypeScript e serve de referência de funções. Não há merge de código dela: cada função é reimplementada em Go, com atribuição no [NOTICE](../NOTICE) quando a lógica for adaptada.
+
+## Arquivos do motor alterados pela BOB
+
+Para os conflitos serem raros, a BOB mexe pouco nos arquivos da Evolution Go. Se a sincronização acusar
+conflito em um deles, mantenha a mudança da BOB junto com a nova versão oficial:
+
+| Arquivo | Mudança da BOB |
+| --- | --- |
+| `cmd/evolution-go/main.go` | Liga as integrações (`bob_integrations`) e o envio `bobSender` |
+| `pkg/whatsmeow/service/whatsmeow.go` | Uma linha no início de `CallWebhook`: `bob_integrations.Dispatch(...)` |
+| `pkg/routes/routes.go` | Página `/` e `/donate/pix` |
+| `Dockerfile` | Grava o commit compilado em `/app/COMMIT` |

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	bob_integrations "github.com/evolution-foundation/evolution-go/pkg/bob/integrations"
 	"log"
 	"net/http"
 	"os"
@@ -225,8 +226,23 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 	// web.whatsapp.com origin, gated only by an opaque ephemeral token).
 	passkey_handler.RegisterRoutes(r, whatsmeowService)
 
+	authMiddleware := auth_middleware.NewMiddleware(config, instanceService)
+
+	// API WhatsApp BOB: integrações nativas (Chatwoot, Typebot e N8N)
+	if bobStore, err := bob_integrations.NewGormStore(db); err != nil {
+		logger.LogError("BOB integrations disabled: %v", err)
+	} else {
+		bobManager := &bob_integrations.Manager{
+			Store:    bobStore,
+			Sender:   bobSender{send: sendMessageService},
+			Instance: instanceRepository.GetInstanceByID,
+		}
+		bob_integrations.SetDefault(bobManager)
+		bobManager.Register(r, authMiddleware.Auth)
+	}
+
 	routes.NewRouter(
-		auth_middleware.NewMiddleware(config, instanceService),
+		authMiddleware,
 		instance_handler.NewInstanceHandler(instanceService, config),
 		user_handler.NewUserHandler(userService),
 		send_handler.NewSendHandler(sendMessageService),
@@ -444,4 +460,23 @@ func main() {
 	}
 
 	logger.LogInfo("[SHUTDOWN] Server exited")
+}
+
+// bobSender liga as integrações da BOB ao serviço de envio da Evolution Go.
+type bobSender struct{ send send_service.SendService }
+
+func (b bobSender) Text(inst *instance_model.Instance, number, text string) (string, error) {
+	res, err := b.send.SendText(&send_service.TextStruct{Number: number, Text: text}, inst)
+	if err != nil || res == nil {
+		return "", err
+	}
+	return res.Info.ID, nil
+}
+
+func (b bobSender) Media(inst *instance_model.Instance, number, url, mediaType, caption string) (string, error) {
+	res, err := b.send.SendMediaUrl(&send_service.MediaStruct{Number: number, Url: url, Type: mediaType, Caption: caption}, inst)
+	if err != nil || res == nil {
+		return "", err
+	}
+	return res.Info.ID, nil
 }
