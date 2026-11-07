@@ -54,7 +54,7 @@ func (s *Server) Router() *gin.Engine {
 
 	// instâncias (chave global)
 	g := r.Group("/instance")
-	g.POST("/create", global, s.instanceCreate)
+	g.POST("/create", global, s.v2CreateOrNative(s.instanceCreate))
 	g.GET("/all", global, s.instanceAll)
 	g.GET("/info/:id", global, s.instanceInfo)
 	g.DELETE("/delete/:id", global, s.instanceDelete)
@@ -141,6 +141,12 @@ func (s *Server) Router() *gin.Engine {
 	gg.POST("/leave", s.groupLeave)
 
 	r.GET("/newsletter/list", inst, s.newsletterList)
+
+	// grupos, comunidades, canais, chamadas e perfil (complementos)
+	s.registerExtra(r, inst)
+
+	// rotas no padrão da Evolution API v2 (/message/sendText/:instance...)
+	s.registerV2(r)
 
 	// integrações (Chatwoot, Typebot, N8N)
 	if s.Integrations != nil {

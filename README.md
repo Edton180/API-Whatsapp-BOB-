@@ -42,15 +42,17 @@ As capturas foram feitas com dados de exemplo.
 | Instâncias | Vários números no mesmo servidor; criar, listar, conectar por **QR Code** ou **código de pareamento**, desconectar mantendo o login, reconectar, sair, excluir, proxy por número, registro de eventos |
 | Envio | Texto (com resposta citada, menções e "digitando..."), link, imagem, vídeo, **áudio como nota de voz**, documento, **figurinha** (PNG/JPG/GIF/WebP viram WebP 512×512), localização, contato, enquete, **botões** (resposta, link, ligar, copiar, Pix), lista, status |
 | Mensagens | Reagir, marcar como lida, apagar para todos, editar, presença, baixar mídia |
-| Contatos | Verificar número (corrige o nono dígito), foto, recado, agenda, bloquear, privacidade, nome, recado e foto do perfil |
+| Contatos | Verificar número (corrige o nono dígito), foto, recado, perfil comercial, agenda, bloquear, ler e alterar privacidade, nome, recado, foto do perfil (trocar e apagar), online/offline |
 | Conversas | Arquivar, fixar, silenciar, marcar como lida ou não lida |
-| Grupos | Listar, dados, criar, participantes, nome, descrição, foto, convite, entrar, sair |
+| Grupos | Listar, dados, criar, participantes, nome, descrição, foto, convite, ver convite sem entrar, entrar, sair, quem envia e quem edita, aprovação de entrada e pedidos, mensagens temporárias |
+| Comunidades e canais | Criar comunidade e ligar grupos; criar canal, ver, seguir, silenciar e ler mensagens |
+| Chamadas | Recusar ligação (automático ou pela API) |
 | Etiquetas | Listar, etiquetar conversa ou mensagem, criar e editar (WhatsApp Business) |
 | Eventos | Webhook com fila e novas tentativas, WebSocket, mídia recebida em base64 |
 | Integrações | Chatwoot, Typebot e N8N nativos |
 | Comportamento | Recusar ligações com mensagem, ler automaticamente, sempre online, ignorar grupos e status |
 
-São mais de 80 rotas, todas em `/swagger/index.html` com exemplos prontos.
+São mais de 160 rotas, todas em `/swagger/index.html` com exemplos prontos. Também responde no formato de rotas da Evolution API v2 (`/message/sendText/{instância}`...), veja [docs/padrao-v2.md](docs/padrao-v2.md).
 
 ## Instalação rápida
 
@@ -91,6 +93,7 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 | [docs/painel.md](docs/painel.md) | Telas do painel |
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
 | [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
+| [docs/padrao-v2.md](docs/padrao-v2.md) | Rotas `/message/sendText/{instância}`... para sistemas feitos no padrão Evolution API v2 |
 | [docs/atualizacao.md](docs/atualizacao.md) | Atualizar sem perder números conectados |
 | `/swagger/index.html` | Todas as rotas, com exemplos (também em `/openapi.yaml`) |
 | [CHANGELOG.md](CHANGELOG.md) | Histórico de versões |
