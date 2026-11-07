@@ -2,6 +2,12 @@
 
 O histórico do motor herdado fica em [CHANGELOG.md](CHANGELOG.md) (Evolution Go).
 
+## 1.1.1 - 2026-11-07
+
+- QR Code: o login passa a usar a versão atual do WhatsApp Web (`store.SetWAVersion`). Antes só `DeviceProps` era atualizado e o motor se apresentava com a versão compilada na biblioteca; o WhatsApp recusava a conexão como "cliente desatualizado" e o QR Code não aparecia.
+- A versão é obtida por `whatsmeow.GetLatestVersion` (cabeçalhos de navegador, limite de 10 s), com o `sw.js` como alternativa.
+- Cliente cuja conexão falhou não fica mais preso na memória: `/instance/connect` recria a sessão e gera um QR Code novo sem reiniciar o contêiner.
+
 ## 1.1.0 - 2026-11-07
 
 - Integrações nativas com Chatwoot, Typebot e N8N (`pkg/bob/integrations`), com as rotas no estilo da Evolution API: `/chatwoot/set`, `/typebot/set`, `/n8n/set`, `/find`, `DELETE` e `/session/clear`.
