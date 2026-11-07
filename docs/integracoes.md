@@ -1,11 +1,11 @@
 # Integrações nativas: Chatwoot, Typebot e N8N
 
-A BOB tem integrações nativas, escritas em Go e ligadas direto ao motor de eventos. As rotas seguem o
-estilo da [Evolution API](https://github.com/evolution-foundation/evolution-api), então quem já usa a Evolution
-API reaproveita a configuração. É código próprio da BOB: nenhum código TypeScript da Evolution API foi copiado.
+A BOB tem integrações nativas, escritas em Go e ligadas direto ao motor de eventos. As rotas usam nomes
+já conhecidos no mercado (`/chatwoot/set`, `/typebot/set`, `/n8n/set`), então quem troca de API reaproveita a
+configuração e os fluxos.
 
-Todas as rotas usam o cabeçalho `apikey` com o **token da instância**. A licença gratuita da Evolution Go precisa
-estar ativa (o motor bloqueia as rotas antes disso).
+Todas as rotas usam o cabeçalho `apikey` com o **token da instância**. Também dá para configurar tudo pelo
+painel: **Instâncias › Configurar › Integrações**.
 
 | Ação | Rota |
 | --- | --- |
@@ -85,7 +85,7 @@ curl -X POST https://SUA-BOB/n8n/set -H "apikey: TOKEN_DA_INSTANCIA" -H "Content
 }'
 ```
 
-O N8N recebe (mesmo formato da Evolution API):
+O N8N recebe (formato já usado pelos fluxos de WhatsApp do N8N):
 
 ```json
 { "chatInput": "texto", "sessionId": "55...@s.whatsapp.net", "remoteJid": "55...@s.whatsapp.net",
@@ -116,12 +116,12 @@ funciona junto com qualquer um dos dois.
 
 ## Outros meios
 
-Os eventos continuam saindo por webhook (`webhookUrl` em `/instance/connect`), RabbitMQ (`AMQP_URL`), NATS
-(`NATS_URL`) e WebSocket, como na Evolution Go. As integrações nativas não mudam esses envios.
+Os eventos continuam saindo por webhook (`webhookUrl` em `/instance/connect` ou pelo painel) e por WebSocket
+(`/ws`). As integrações nativas não mudam esses envios. Veja [eventos.md](eventos.md).
 
 ## Como funciona por dentro
 
-O código fica em `pkg/bob/integrations`. O motor chama `bob_integrations.Dispatch` no início de `CallWebhook`
-(uma linha em `pkg/whatsmeow/service/whatsmeow.go`), e o resto roda em goroutines, sem atrasar os eventos. As
-configurações ficam nas tabelas `bob_integrations` e `bob_bot_sessions`, criadas sozinhas no banco da BOB. Os
-testes (`go test ./pkg/bob/...`) simulam Chatwoot, Typebot e N8N.
+O código fica em `internal/integrations`. Todo evento `Message` passa pelo gerenciador das integrações em
+goroutines, sem atrasar os webhooks. As configurações ficam nas tabelas `bob_integrations` e
+`bob_bot_sessions`, criadas sozinhas no banco da BOB. Os testes (`go test ./internal/integrations/`) simulam
+Chatwoot, Typebot e N8N.

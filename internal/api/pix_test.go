@@ -20,8 +20,8 @@ func TestPixPayload(t *testing.T) {
 	if want := fmt.Sprintf("%04X", PixCRC16(body)); crc != want {
 		t.Fatalf("CRC %s, esperado %s", crc, want)
 	}
-	if strings.Contains(strings.ToUpper(p), "TUCURUI") {
-		t.Fatal("o BR Code não deve trazer a cidade do criador")
+	if !strings.Contains(p, "6006BRASIL") {
+		t.Fatal("o campo de cidade do BR Code deve ser genérico (BRASIL)")
 	}
 	// CRC conferido com o valor de referência do algoritmo CCITT-FALSE
 	if PixCRC16("123456789") != 0x29B1 {

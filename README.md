@@ -1,111 +1,133 @@
 <div align="center">
 
+<img src="docs/imagens/logo.jpg" alt="API WhatsApp BOB" width="420">
+
 # API WhatsApp BOB
 
-**API de WhatsApp livre, rápida e leve, escrita em Go e baseada na [Evolution Go](https://github.com/evolution-foundation/evolution-go).**
+**API de WhatsApp livre, rápida e leve, com painel web próprio. Escrita em Go.**
 
 [![CI](https://github.com/Edton180/API-Whatsapp-BOB-/actions/workflows/ci.yml/badge.svg)](https://github.com/Edton180/API-Whatsapp-BOB-/actions/workflows/ci.yml)
-[![Licença](https://img.shields.io/badge/licen%C3%A7a-Apache%202.0%20%2B%20condi%C3%A7%C3%B5es-blue)](LICENSE)
-[![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go)](go.mod)
-[![Contribua](https://img.shields.io/badge/contribui%C3%A7%C3%B5es-bem--vindas-brightgreen)](CONTRIBUTING.md)
+![Go](https://img.shields.io/badge/Go-1.26-00ADD8)
+![Licença](https://img.shields.io/badge/licen%C3%A7a-Apache%202.0-39e15a)
 
-Criada e mantida por **Edton Kaik Braz Da Conceição** ([@Edton180](https://github.com/Edton180)), Tucuruí (PA).
+Desenvolvido por **Edton Braz** ([@Edton180](https://github.com/Edton180))
 
 </div>
 
----
-
 ## O que é
 
-A API WhatsApp BOB é uma distribuição modificada da **Evolution Go** (Evolution Foundation), o servidor de WhatsApp em Go sobre a biblioteca [whatsmeow](https://github.com/tulir/whatsmeow). Ela mantém todo o motor da Evolution Go e acrescenta melhorias próprias, sempre podendo receber as atualizações do projeto oficial.
+A API WhatsApp BOB conecta números de WhatsApp a qualquer sistema (CRM, ERP, SaaS, lojas, automações) por uma
+API HTTP simples. Ela tem motor próprio, construído sobre a biblioteca aberta
+[whatsmeow](https://github.com/tulir/whatsmeow), painel web, webhooks, WebSocket e integrações nativas com
+Chatwoot, Typebot e N8N. Não precisa de licença nem de ativação.
 
-Pode ser usada por qualquer sistema (CRM, ERP, SaaS, automações) e é o motor de WhatsApp do **OmniFlow**.
+É o motor de WhatsApp do OmniFlow, mas funciona sozinha com qualquer sistema.
 
-> A BOB não é afiliada à Evolution Foundation nem endossada por ela. "Evolution", "Evolution Go" e "Evolution Foundation" são marcas da Evolution Foundation, citadas aqui só para indicar a origem do código (veja [TRADEMARKS.md](TRADEMARKS.md)).
+## Telas
 
-## Projetos oficiais de origem
+| | |
+|---|---|
+| ![Instâncias](docs/imagens/telas/02-instancias.jpg) **Instâncias** | ![Conectar](docs/imagens/telas/03-conectar-qr.jpg) **Conectar por QR Code ou código** |
+| ![Webhook](docs/imagens/telas/04-webhook.jpg) **Webhook e eventos** | ![Comportamento](docs/imagens/telas/05-comportamento.jpg) **Comportamento** |
+| ![Integrações](docs/imagens/telas/06-integracoes.jpg) **Chatwoot, Typebot e N8N** | ![Enviar](docs/imagens/telas/07-enviar.jpg) **Envio de teste** |
+| ![Servidor](docs/imagens/telas/08-servidor.jpg) **Servidor** | ![Documentação](docs/imagens/telas/10-documentacao.jpg) **Documentação da API** |
+| ![Entrada](docs/imagens/telas/01-entrada.jpg) **Entrada** | <img src="docs/imagens/telas/02-instancias-celular.jpg" width="220" alt="Celular"> **No celular** |
 
-| Projeto | Papel na BOB | Licença |
-| --- | --- | --- |
-| [evolution-foundation/evolution-go](https://github.com/evolution-foundation/evolution-go) | Código-base (motor Go). Commit sincronizado em [`UPSTREAM`](UPSTREAM), versão em [`UPSTREAM_VERSION`](UPSTREAM_VERSION). | Apache 2.0 + condições ([LICENSE](LICENSE)) |
-| [evolution-foundation/evolution-api](https://github.com/evolution-foundation/evolution-api) | Referência de funções e integrações (Chatwoot, Typebot, N8N...). Nenhum código TypeScript é copiado; as funções são reimplementadas em Go. | Apache 2.0 + condições |
-| [tulir/whatsmeow](https://github.com/tulir/whatsmeow) | Protocolo do WhatsApp (dependência da Evolution Go). | MPL 2.0 |
+As capturas foram feitas com dados de exemplo.
 
-## O que a BOB acrescenta
+## Funções
 
-- **Figurinhas de verdade:** `/send/sticker` aceita URL, base64 ou data URI em PNG, JPG, GIF ou WebP e converte para WebP 512×512 (até 500 KB), como o WhatsApp exige. WebP animado passa direto.
-- **Sincronização incremental com a Evolution Go:** só as partes que mudaram no projeto oficial são aplicadas, sem perder as melhorias da BOB ([docs/sincronizacao.md](docs/sincronizacao.md)).
-- **Imagem Docker enxuta e com cache de compilação**, healthcheck e arquivos de licença dentro da imagem.
-- **Sem o painel web da Evolution Go:** a marca do painel é protegida, então a administração é feita pela API, pelo Swagger ou pelo menu *API WhatsApp BOB* do OmniFlow.
-- Página `/` com versão, criador e origem, e `/donate/pix` com os dados de doação.
+| Grupo | O que faz |
+|---|---|
+| Instâncias | Vários números no mesmo servidor; criar, listar, conectar por **QR Code** ou **código de pareamento**, desconectar mantendo o login, reconectar, sair, excluir, proxy por número, registro de eventos |
+| Envio | Texto (com resposta citada, menções e "digitando..."), link, imagem, vídeo, **áudio como nota de voz**, documento, **figurinha** (PNG/JPG/GIF/WebP viram WebP 512×512), localização, contato, enquete, **botões** (resposta, link, ligar, copiar, Pix), lista, status |
+| Mensagens | Reagir, marcar como lida, apagar para todos, editar, presença, baixar mídia |
+| Contatos | Verificar número (corrige o nono dígito), foto, recado, agenda, bloquear, privacidade, nome, recado e foto do perfil |
+| Conversas | Arquivar, fixar, silenciar, marcar como lida ou não lida |
+| Grupos | Listar, dados, criar, participantes, nome, descrição, foto, convite, entrar, sair |
+| Etiquetas | Listar, etiquetar conversa ou mensagem, criar e editar (WhatsApp Business) |
+| Eventos | Webhook com fila e novas tentativas, WebSocket, mídia recebida em base64 |
+| Integrações | Chatwoot, Typebot e N8N nativos |
+| Comportamento | Recusar ligações com mensagem, ler automaticamente, sempre online, ignorar grupos e status |
 
-## Funções disponíveis (motor Evolution Go)
+São mais de 80 rotas, todas em `/swagger/index.html` com exemplos prontos.
 
-| Grupo | Rotas |
-| --- | --- |
-| Instâncias | `/instance/create`, `/all`, `/info`, `/delete`, `/connect`, `/qr`, `/pair`, `/status`, `/disconnect`, `/reconnect`, `/logout`, proxy, logs, configurações avançadas |
-| Envio | `/send/text`, `/link`, `/media`, `/poll`, `/sticker`, `/location`, `/contact`, `/button`, `/list`, `/carousel`, `/status/text`, `/status/media` |
-| Mensagens | reagir, presença, marcar lida/ouvida, baixar mídia, apagar, editar |
-| Chats | fixar, arquivar, silenciar, sincronizar histórico |
-| Usuário | info, verificar número, foto, contatos, privacidade, bloquear, nome e recado do perfil |
-| Grupos e comunidades | criar, listar, participantes, nome, descrição, foto, convite, entrar, sair, configurações |
-| Outros | etiquetas, canais (newsletter), resultados de enquete, rejeitar chamada |
-| Eventos | webhook, RabbitMQ, NATS e WebSocket; mídia no MinIO/S3 |
-
-A referência completa fica no Swagger (`/swagger/index.html`) e na pasta [docs/wiki](docs/wiki).
-
-## Instalação rápida (Docker)
+## Instalação rápida
 
 ```bash
 git clone https://github.com/Edton180/API-Whatsapp-BOB-.git api-whatsapp-bob
 cd api-whatsapp-bob
-cp .env.example .env        # defina GLOBAL_API_KEY e o PostgreSQL
-docker build -t api-whatsapp-bob .
-docker run -d --name bob --env-file .env -p 8080:8080 api-whatsapp-bob
+cp .env.example .env                                   # defina GLOBAL_API_KEY
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)" >> .env
+docker compose up -d --build
 ```
 
-Mais opções (sem Docker, variáveis, produção): [docs/instalacao.md](docs/instalacao.md).
+Abra `http://IP-DO-SERVIDOR:8080/painel/`, entre com a `GLOBAL_API_KEY`, crie uma instância e leia o QR Code.
 
-### Licença da Evolution Go
+Sem Docker, com SQLite e systemd, HTTPS com Nginx e todas as variáveis: [docs/instalacao.md](docs/instalacao.md).
 
-O motor herdado exige a ativação gratuita da licença da Evolution Go no primeiro uso (rotas `/license/*`). A BOB mantém esse mecanismo como está, porque ele faz parte do código e das condições do projeto oficial.
+## Primeiro envio
 
-## Integrações (Chatwoot, Typebot, N8N)
+```bash
+# 1. cria a instância (chave global)
+curl -X POST http://localhost:8080/instance/create -H "apikey: CHAVE_GLOBAL" \
+  -H "Content-Type: application/json" -d '{"name":"vendas"}'
 
-A BOB tem integrações nativas com Chatwoot, Typebot e N8N, com as mesmas rotas da Evolution API (`/chatwoot/set`, `/typebot/set`, `/n8n/set`), escritas em Go. Os eventos também continuam saindo por webhook, RabbitMQ, NATS e WebSocket. Veja como ligar cada uma em [docs/integracoes.md](docs/integracoes.md).
+# 2. conecta e lê o QR Code (token devolvido no passo 1)
+curl -X POST http://localhost:8080/instance/connect -H "apikey: TOKEN" \
+  -H "Content-Type: application/json" -d '{"webhookUrl":"https://seu-sistema/webhook","subscribe":["MESSAGE","CONNECTION"]}'
+curl http://localhost:8080/instance/qr -H "apikey: TOKEN"
+
+# 3. envia
+curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
+  -H "Content-Type: application/json" -d '{"number":"5511999998888","text":"Olá! 👋"}'
+```
+
+## Documentação
+
+| Documento | Assunto |
+|---|---|
+| [docs/instalacao.md](docs/instalacao.md) | Docker, sem Docker, OmniFlow, HTTPS, variáveis e backup |
+| [docs/painel.md](docs/painel.md) | Telas do painel |
+| [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
+| [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
+| [docs/atualizacao.md](docs/atualizacao.md) | Atualizar sem perder números conectados |
+| `/swagger/index.html` | Todas as rotas, com exemplos (também em `/openapi.yaml`) |
+| [CHANGELOG.md](CHANGELOG.md) | Histórico de versões |
+
+## Estrutura
+
+```
+cmd/bob/              início do servidor
+internal/engine/      motor: sessões do WhatsApp, eventos, envios e ações
+internal/api/         rotas HTTP
+internal/events/      webhook e WebSocket
+internal/integrations Chatwoot, Typebot e N8N
+internal/panel/       painel web e documentação (embutidos no programa)
+internal/store/       banco (PostgreSQL ou SQLite)
+internal/media/       figurinhas, áudio, miniaturas
+```
 
 ## Contribua
 
-A BOB é livre e aberta. Correções, novas funções e documentação são muito bem-vindas: leia o [CONTRIBUTING.md](CONTRIBUTING.md), abra uma [issue](https://github.com/Edton180/API-Whatsapp-BOB-/issues) ou envie um pull request.
+A BOB é livre e aberta. Correções, novas funções e documentação são bem-vindas: leia o
+[CONTRIBUTING.md](CONTRIBUTING.md), abra uma issue ou envie um pull request.
 
 ## Apoie o projeto (Pix)
 
-<table>
-<tr>
-<td align="center"><img src="docs/pix-qrcode.png" alt="QR Code Pix para apoiar a API WhatsApp BOB" width="220"></td>
-<td>
+<img src="docs/imagens/pix-qrcode.png" alt="QR Code Pix" width="200">
 
-Abra o app do seu banco, escolha **Pix → Ler QR Code** ou **Pix Copia e Cola**, e digite o valor que quiser.
+Abra o app do seu banco, escolha **Pix › Ler QR Code** ou **Pix Copia e Cola** e digite o valor que quiser.
 
 - **Favorecido:** Edton Kaik Braz Da Conceição
-- **Chave Pix (CPF):** `04646947285`
-
-**Pix Copia e Cola:**
-
-```
-00020126330014br.gov.bcb.pix0111046469472855204000053039865802BR5915EDTON KAIK BRAZ6007TUCURUI62070503***6304DBF1
-```
-
-</td>
-</tr>
-</table>
-
-O código segue o padrão BR Code do Banco Central, com CRC16 conferido por teste automático (`pkg/routes/bob_test.go`). Para gerar de novo: `python3 scripts/gerar-pix.py`.
+- **Chave Pix (CPF):** 04646947285
+- **Pix Copia e Cola:** também na tela **Apoie o projeto** do painel e em `GET /donate/pix`.
 
 ## Licença
 
-Apache License 2.0 com as condições adicionais da Evolution Go ([LICENSE](LICENSE)), atribuições em [NOTICE](NOTICE) e política de marca em [TRADEMARKS.md](TRADEMARKS.md). Ao usar a BOB dentro de outro sistema, mostre aos administradores um aviso de que ela é baseada na Evolution Go (condição 1.b da licença).
+[Apache License 2.0](LICENSE). Componentes de terceiros e créditos em [NOTICE](NOTICE). "WhatsApp" é marca da
+Meta Platforms, Inc.; a BOB não é afiliada à Meta.
 
 ---
 
-<div align="center">Desenvolvido por <b>Edton Braz</b>, baseado na Evolution Go.</div>
+<div align="center">Desenvolvido por <strong>Edton Braz</strong></div>
