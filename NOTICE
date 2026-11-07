@@ -1,0 +1,16 @@
+API WhatsApp BOB
+Copyright 2026 Edton Braz (https://github.com/Edton180)
+
+Licenciada sob a Apache License 2.0 (arquivo LICENSE).
+Desenvolvido por Edton Braz.
+
+Componentes de terceiros usados como dependência (não fazem parte do código da BOB,
+são baixados na compilação, cada um com a sua licença):
+
+- whatsmeow (https://github.com/tulir/whatsmeow), de Tulir Asokan, Mozilla Public
+  License 2.0: biblioteca do protocolo do WhatsApp Web usada pelo motor da BOB.
+- Gin, GORM, gorilla/websocket, go-qrcode, chai2010/webp, mimetype, lib/pq,
+  go-sqlite3 e golang.org/x: licenças MIT, BSD ou Apache 2.0.
+
+"WhatsApp" é marca da Meta Platforms, Inc. A API WhatsApp BOB não é afiliada à Meta
+nem ao WhatsApp.

@@ -1,0 +1,9 @@
+.git
+.github
+docs
+build
+dbdata
+logs
+*.md
+!README.md
+.env

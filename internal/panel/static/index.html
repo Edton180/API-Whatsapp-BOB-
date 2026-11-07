@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel · API WhatsApp BOB</title>
+<link rel="icon" href="icone.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Entrada -->
+<section id="login" class="login hidden">
+  <form id="login-form" class="login-card">
+    <img src="logo.jpg" alt="API WhatsApp BOB" class="login-logo">
+    <h1>Painel da API WhatsApp BOB</h1>
+    <p class="muted">Entre com a chave global da API (variável <code>GLOBAL_API_KEY</code>).</p>
+    <label>Chave global
+      <input id="login-key" type="password" autocomplete="current-password" placeholder="Cole a chave aqui" required>
+    </label>
+    <label class="check"><input id="login-remember" type="checkbox"> Lembrar neste navegador</label>
+    <button class="btn primary block" type="submit">Entrar</button>
+    <p id="login-error" class="error"></p>
+    <p class="muted small">Desenvolvido por Edton Braz</p>
+  </form>
+</section>
+
+<!-- Aplicação -->
+<div id="app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><img src="logo.jpg" alt="API WhatsApp BOB"></div>
+    <nav>
+      <a href="#instancias" data-page="instancias"><span>📱</span> Instâncias</a>
+      <a href="#enviar" data-page="enviar"><span>✉️</span> Enviar mensagem</a>
+      <a href="#eventos" data-page="eventos"><span>⚡</span> Eventos ao vivo</a>
+      <a href="#servidor" data-page="servidor"><span>🖥️</span> Servidor</a>
+      <a href="/swagger/index.html" target="_blank" rel="noopener"><span>📘</span> Documentação da API</a>
+      <a href="#apoie" data-page="apoie"><span>💚</span> Apoie o projeto</a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="version" class="muted small"></span>
+      <button class="btn ghost small" id="logout">Sair</button>
+    </div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <button class="btn ghost menu" id="menu" aria-label="Menu">☰</button>
+      <h2 id="page-title">Instâncias</h2>
+      <span class="spacer"></span>
+      <span id="server-status" class="pill">…</span>
+    </header>
+
+    <section class="page" id="page-instancias">
+      <div class="stats" id="stats"></div>
+      <div class="toolbar">
+        <input id="filter" type="search" placeholder="Buscar instância ou número">
+        <button class="btn primary" id="new-instance">+ Nova instância</button>
+      </div>
+      <div id="instances" class="grid"></div>
+    </section>
+
+    <section class="page hidden" id="page-enviar">
+      <form id="send-form" class="card form">
+        <div class="row">
+          <label>Instância <select id="send-instance" required></select></label>
+          <label>Número (com DDI e DDD) <input id="send-number" placeholder="5511999998888" required></label>
+        </div>
+        <label>Tipo
+          <select id="send-type">
+            <option value="text">Texto</option>
+            <option value="media">Imagem, vídeo, áudio ou documento (URL)</option>
+            <option value="sticker">Figurinha (URL da imagem)</option>
+            <option value="location">Localização</option>
+            <option value="poll">Enquete</option>
+          </select>
+        </label>
+        <div data-type="text"><label>Mensagem <textarea id="send-text" rows="4" placeholder="Olá! Tudo bem?"></textarea></label></div>
+        <div data-type="media" class="hidden">
+          <label>URL do arquivo <input id="send-url" placeholder="https://..."></label>
+          <div class="row">
+            <label>Tipo do arquivo <select id="send-media-type"><option value="">Detectar</option><option value="image">Imagem</option><option value="video">Vídeo</option><option value="audio">Áudio (nota de voz)</option><option value="document">Documento</option></select></label>
+            <label>Legenda <input id="send-caption"></label>
+          </div>
+        </div>
+        <div data-type="sticker" class="hidden"><label>URL da imagem (PNG, JPG, GIF ou WebP) <input id="send-sticker" placeholder="https://..."></label></div>
+        <div data-type="location" class="hidden row">
+          <label>Latitude <input id="send-lat" placeholder="-23.5505"></label>
+          <label>Longitude <input id="send-lng" placeholder="-46.6333"></label>
+          <label>Nome <input id="send-place"></label>
+        </div>
+        <div data-type="poll" class="hidden">
+          <label>Pergunta <input id="send-question"></label>
+          <label>Opções (uma por linha) <textarea id="send-options" rows="3"></textarea></label>
+        </div>
+        <div class="actions"><button class="btn primary" type="submit">Enviar</button></div>
+        <pre id="send-result" class="result hidden"></pre>
+      </form>
+    </section>
+
+    <section class="page hidden" id="page-eventos">
+      <div class="toolbar">
+        <select id="events-instance"><option value="">Todas as instâncias</option></select>
+        <button class="btn" id="events-toggle">Pausar</button>
+        <button class="btn ghost" id="events-clear">Limpar</button>
+        <span id="events-state" class="pill">desconectado</span>
+      </div>
+      <div id="events" class="events"><p class="muted">Os eventos (mensagens, recibos, conexão, QR Code...) aparecem aqui em tempo real.</p></div>
+    </section>
+
+    <section class="page hidden" id="page-servidor">
+      <div id="server" class="grid two"></div>
+    </section>
+
+    <section class="page hidden" id="page-apoie">
+      <div class="card pix">
+        <img src="pix.png" alt="QR Code Pix">
+        <div>
+          <h3>Apoie a API WhatsApp BOB</h3>
+          <p>A BOB é livre. Se ela ajuda o seu negócio, contribua com qualquer valor pelo Pix.</p>
+          <p><strong>Favorecido:</strong> Edton Kaik Braz Da Conceição<br><strong>Chave Pix (CPF):</strong> 04646947285</p>
+          <label>Pix Copia e Cola <textarea id="pix-code" rows="3" readonly></textarea></label>
+          <button class="btn primary" id="pix-copy">Copiar código</button>
+        </div>
+      </div>
+    </section>
+    <footer class="foot muted small">API WhatsApp BOB · Desenvolvido por Edton Braz · motor whatsmeow</footer>
+  </main>
+</div>
+
+<dialog id="modal"><div class="modal-head"><h3 id="modal-title"></h3><button class="btn ghost" id="modal-close" aria-label="Fechar">✕</button></div><div id="modal-body"></div></dialog>
+<div id="toast" class="toast hidden"></div>
+<script src="app.js"></script>
+</body>
+</html>

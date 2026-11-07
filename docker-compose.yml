@@ -1,0 +1,41 @@
+# API WhatsApp BOB - Desenvolvido por Edton Braz.
+#   cp .env.example .env   (defina GLOBAL_API_KEY e POSTGRES_PASSWORD)
+#   docker compose up -d --build
+services:
+  bob:
+    build: .
+    image: api-whatsapp-bob:local
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SERVER_PORT: "4000"
+      DATA_DIR: /app/dbdata
+      POSTGRES_AUTH_DB: postgresql://bob:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}@postgres:5432/bob_auth?sslmode=disable
+      POSTGRES_USERS_DB: postgresql://bob:${POSTGRES_PASSWORD}@postgres:5432/bob_users?sslmode=disable
+    ports:
+      - "${BOB_PORT:-8080}:4000"
+    volumes:
+      - bob-dados:/app/dbdata
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: bob
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: bob_auth
+    volumes:
+      - bob-postgres:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sql:/docker-entrypoint-initdb.d/10-bob.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bob -d bob_auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  bob-dados:
+  bob-postgres:

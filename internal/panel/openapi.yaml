@@ -1,0 +1,2878 @@
+# Gerado por scripts/gerar-openapi.py
+openapi: 3.0.3
+info:
+  title: API WhatsApp BOB
+  version: 2.0.0
+  description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
+
+
+    **Autenticação**: cabeçalho `apikey`. A chave global (GLOBAL_API_KEY) cria e gerencia instâncias; o token da instância envia mensagens e conecta.
+    Com a chave global também dá para usar as rotas da instância informando o cabeçalho `instance` (id ou nome).
+
+
+    **Eventos**: webhook (POST JSON `{event, instanceId, instanceName, instanceToken, data}`) e WebSocket em `/ws?token=`.'
+  license:
+    name: Apache 2.0
+    url: https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE
+servers:
+- url: /
+tags:
+- name: Servidor
+- name: Instâncias
+- name: Conexão
+- name: Envio
+- name: Mensagens
+- name: Usuários
+- name: Conversas
+- name: Etiquetas
+- name: Grupos
+- name: Canais
+- name: Integrações
+paths:
+  /:
+    get:
+      tags:
+      - Servidor
+      summary: Identificação da API (versão, commit, links)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security: []
+  /server/ok:
+    get:
+      tags:
+      - Servidor
+      summary: Saúde da API (healthcheck)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security: []
+  /server/info:
+    get:
+      tags:
+      - Servidor
+      summary: 'Resumo do servidor: versão, uptime, instâncias, memória'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+  /license/status:
+    get:
+      tags:
+      - Servidor
+      summary: 'Compatibilidade: sempre ''active'' (a BOB não exige licença)'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security: []
+  /donate/pix:
+    get:
+      tags:
+      - Servidor
+      summary: Dados de doação ao projeto (Pix)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security: []
+  /instance/create:
+    post:
+      tags:
+      - Instâncias
+      summary: Cria uma instância (um número de WhatsApp)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              name: atendimento
+              token: TOKEN-OPCIONAL
+              webhook: https://seu-sistema/webhook
+              events:
+              - MESSAGE
+              - CONNECTION
+              advancedSettings:
+                rejectCall: true
+                msgRejectCall: Não atendemos ligações
+                readMessages: false
+                ignoreGroups: true
+  /instance/all:
+    get:
+      tags:
+      - Instâncias
+      summary: Lista as instâncias com o estado da conexão
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+  /instance/info/{id}:
+    get:
+      tags:
+      - Instâncias
+      summary: Dados de uma instância (id ou nome)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /instance/delete/{id}:
+    delete:
+      tags:
+      - Instâncias
+      summary: Desconecta, encerra a sessão e apaga a instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /instance/forcereconnect/{id}:
+    post:
+      tags:
+      - Instâncias
+      summary: Força a reconexão de uma instância travada
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /instance/proxy/{id}:
+    post:
+      tags:
+      - Instâncias
+      summary: Define o proxy da instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              protocol: http
+              host: proxy.exemplo.com
+              port: '8080'
+              username: ''
+              password: ''
+    delete:
+      tags:
+      - Instâncias
+      summary: Remove o proxy da instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /instance/logs/{id}:
+    get:
+      tags:
+      - Instâncias
+      summary: Histórico recente de eventos da instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /instance/{id}/advanced-settings:
+    get:
+      tags:
+      - Instâncias
+      summary: Lê as configurações avançadas
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+    put:
+      tags:
+      - Instâncias
+      summary: Altera as configurações avançadas
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              alwaysOnline: false
+              rejectCall: true
+              msgRejectCall: Não atendemos ligações
+              readMessages: false
+              ignoreGroups: true
+              ignoreStatus: true
+  /instance/{id}/webhook:
+    post:
+      tags:
+      - Instâncias
+      summary: Troca o webhook e os eventos sem reconectar
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              webhook: https://seu-sistema/webhook
+              subscribe:
+              - MESSAGE
+              - READ_RECEIPT
+              - CONNECTION
+  /instance/connect:
+    post:
+      tags:
+      - Conexão
+      summary: Inicia a sessão; sem login, gera QR Codes (e código de pareamento se phone for informado)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              webhookUrl: https://seu-sistema/webhook
+              subscribe:
+              - MESSAGE
+              - SEND_MESSAGE
+              - READ_RECEIPT
+              - CONNECTION
+              - QRCODE
+              immediate: true
+              phone: ''
+  /instance/status:
+    get:
+      tags:
+      - Conexão
+      summary: Conectada? Logada? Nome do perfil
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /instance/qr:
+    get:
+      tags:
+      - Conexão
+      summary: QR Code atual (imagem PNG em data URI e texto)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /instance/pair:
+    post:
+      tags:
+      - Conexão
+      summary: Código de 8 caracteres para conectar digitando no celular
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              phone: '5511999998888'
+  /instance/disconnect:
+    post:
+      tags:
+      - Conexão
+      summary: Desconecta mantendo o login (volta sem QR Code)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /instance/reconnect:
+    post:
+      tags:
+      - Conexão
+      summary: Reconecta
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /instance/logout:
+    delete:
+      tags:
+      - Conexão
+      summary: Encerra a sessão no celular (precisa de novo QR Code)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /send/text:
+    post:
+      tags:
+      - Envio
+      summary: Texto
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              text: Olá! 👋
+              delay: 1200
+              quoted:
+                messageId: ''
+                participant: ''
+              mentionedJid: []
+  /send/link:
+    post:
+      tags:
+      - Envio
+      summary: Texto com link
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              text: Veja
+              url: https://github.com/Edton180/API-Whatsapp-BOB-
+              title: API WhatsApp BOB
+              description: API de WhatsApp em Go
+  /send/media:
+    post:
+      tags:
+      - Envio
+      summary: Imagem, vídeo, áudio (vira nota de voz) ou documento. Aceita JSON (url/base64) ou multipart (file)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              url: https://exemplo.com/foto.jpg
+              type: image
+              caption: Legenda
+              filename: ''
+  /send/sticker:
+    post:
+      tags:
+      - Envio
+      summary: 'Figurinha: PNG, JPG, GIF ou WebP vira WebP 512×512'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              sticker: https://exemplo.com/imagem.png
+  /send/location:
+    post:
+      tags:
+      - Envio
+      summary: Localização
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              latitude: -23.55
+              longitude: -46.63
+              name: Escritório
+              address: Av. Paulista
+  /send/contact:
+    post:
+      tags:
+      - Envio
+      summary: Cartão de contato
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              vcard:
+                fullName: Suporte
+                phone: '5511988887777'
+                organization: Empresa
+  /send/poll:
+    post:
+      tags:
+      - Envio
+      summary: Enquete
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              question: Qual horário prefere?
+              options:
+              - Manhã
+              - Tarde
+              maxAnswer: 1
+  /send/button:
+    post:
+      tags:
+      - Envio
+      summary: 'Botões: reply, url, call, copy e pix'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              title: 'Pedido #120'
+              description: Escolha uma opção
+              footer: Loja
+              buttons:
+              - type: reply
+                displayText: Confirmar
+                id: ok
+              - type: url
+                displayText: Site
+                url: https://exemplo.com
+              - type: copy
+                displayText: Copiar código
+                copyCode: ABC123
+  /send/list:
+    post:
+      tags:
+      - Envio
+      summary: Lista de opções
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              title: Cardápio
+              description: Escolha
+              buttonText: Ver opções
+              footerText: ''
+              sections:
+              - title: Lanches
+                rows:
+                - rowId: x1
+                  title: X-Burguer
+                  description: R$ 20
+  /send/status/text:
+    post:
+      tags:
+      - Envio
+      summary: Publica um status de texto
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              text: Novidades!
+              backgroundColor: 4280138324
+              font: 1
+  /send/status/media:
+    post:
+      tags:
+      - Envio
+      summary: Publica um status com imagem ou vídeo
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              url: https://exemplo.com/foto.jpg
+              type: image
+              caption: ''
+  /message/react:
+    post:
+      tags:
+      - Mensagens
+      summary: Reage com emoji (vazio remove)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              id: 3EB0...
+              reaction: 👍
+              fromMe: false
+  /message/markread:
+    post:
+      tags:
+      - Mensagens
+      summary: Marca como lidas
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              id:
+              - 3EB0...
+  /message/delete:
+    post:
+      tags:
+      - Mensagens
+      summary: Apaga para todos (mensagem enviada pela instância)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+              messageId: 3EB0...
+  /message/edit:
+    post:
+      tags:
+      - Mensagens
+      summary: Edita o texto de uma mensagem enviada
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+              messageId: 3EB0...
+              message: Texto corrigido
+  /message/presence:
+    post:
+      tags:
+      - Mensagens
+      summary: Digitando, gravando áudio ou pausado
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              state: composing
+              isAudio: false
+              delay: 3000
+  /message/downloadmedia:
+    post:
+      tags:
+      - Mensagens
+      summary: Baixa a mídia de uma mensagem recebida (campo Message do webhook)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              message:
+                imageMessage: {}
+  /user/check:
+    post:
+      tags:
+      - Usuários
+      summary: Quais números têm WhatsApp
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number:
+              - '5511999998888'
+  /user/info:
+    post:
+      tags:
+      - Usuários
+      summary: Recado e dados comerciais
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number:
+              - '5511999998888'
+  /user/avatar:
+    post:
+      tags:
+      - Usuários
+      summary: URL da foto de perfil
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              preview: false
+  /user/contacts:
+    get:
+      tags:
+      - Usuários
+      summary: Agenda sincronizada do aparelho
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /user/block:
+    post:
+      tags:
+      - Usuários
+      summary: Bloqueia
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+  /user/unblock:
+    post:
+      tags:
+      - Usuários
+      summary: Desbloqueia
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+  /user/blocklist:
+    get:
+      tags:
+      - Usuários
+      summary: Contatos bloqueados
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /user/privacy:
+    get:
+      tags:
+      - Usuários
+      summary: Configurações de privacidade
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /user/profileName:
+    post:
+      tags:
+      - Usuários
+      summary: Troca o nome do perfil
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              name: Atendimento
+  /user/profileStatus:
+    post:
+      tags:
+      - Usuários
+      summary: Troca o recado
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              status: Atendimento das 8h às 18h
+  /user/profilePicture:
+    post:
+      tags:
+      - Usuários
+      summary: Troca a foto do perfil
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              image: https://exemplo.com/logo.png
+  /chat/archive:
+    post:
+      tags:
+      - Conversas
+      summary: Arquiva
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/unarchive:
+    post:
+      tags:
+      - Conversas
+      summary: Desarquiva
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/pin:
+    post:
+      tags:
+      - Conversas
+      summary: Fixa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/unpin:
+    post:
+      tags:
+      - Conversas
+      summary: Desafixa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/mute:
+    post:
+      tags:
+      - Conversas
+      summary: Silencia (duration em horas)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/unmute:
+    post:
+      tags:
+      - Conversas
+      summary: Tira o silêncio
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/read:
+    post:
+      tags:
+      - Conversas
+      summary: Marca a conversa como lida
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /chat/unread:
+    post:
+      tags:
+      - Conversas
+      summary: Marca como não lida
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              chat: '5511999998888'
+  /label/list:
+    get:
+      tags:
+      - Etiquetas
+      summary: Etiquetas do WhatsApp Business
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /label/chat:
+    post:
+      tags:
+      - Etiquetas
+      summary: Etiqueta uma conversa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              jid: '5511999998888'
+              labelId: '1'
+  /unlabel/chat:
+    post:
+      tags:
+      - Etiquetas
+      summary: Tira a etiqueta da conversa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              jid: '5511999998888'
+              labelId: '1'
+  /label/message:
+    post:
+      tags:
+      - Etiquetas
+      summary: Etiqueta uma mensagem
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              jid: '5511999998888'
+              labelId: '1'
+              messageId: 3EB0...
+  /unlabel/message:
+    post:
+      tags:
+      - Etiquetas
+      summary: Tira a etiqueta da mensagem
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              jid: '5511999998888'
+              labelId: '1'
+              messageId: 3EB0...
+  /label/edit:
+    post:
+      tags:
+      - Etiquetas
+      summary: Cria, renomeia ou apaga etiqueta
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              labelId: '1'
+              name: Cliente VIP
+              color: 2
+              deleted: false
+  /group/myall:
+    get:
+      tags:
+      - Grupos
+      summary: Grupos em que o número participa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /group/info:
+    post:
+      tags:
+      - Grupos
+      summary: Dados do grupo
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+  /group/create:
+    post:
+      tags:
+      - Grupos
+      summary: Cria grupo
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupName: Equipe
+              participants:
+              - '5511999998888'
+  /group/participant:
+    post:
+      tags:
+      - Grupos
+      summary: add, remove, promote ou demote
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              action: add
+              participants:
+              - '5511999998888'
+  /group/name:
+    post:
+      tags:
+      - Grupos
+      summary: Troca o nome
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              name: Equipe 2
+  /group/description:
+    post:
+      tags:
+      - Grupos
+      summary: Troca a descrição
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              description: Avisos
+  /group/photo:
+    post:
+      tags:
+      - Grupos
+      summary: Troca a foto
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              image: https://exemplo.com/logo.png
+  /group/invitelink:
+    post:
+      tags:
+      - Grupos
+      summary: Link de convite (reset gera outro)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              reset: false
+  /group/join:
+    post:
+      tags:
+      - Grupos
+      summary: Entra pelo link ou código
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              code: https://chat.whatsapp.com/XXXX
+  /group/leave:
+    post:
+      tags:
+      - Grupos
+      summary: Sai do grupo
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+  /newsletter/list:
+    get:
+      tags:
+      - Canais
+      summary: Canais (newsletters) seguidos
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /chatwoot/set:
+    post:
+      tags:
+      - Integrações
+      summary: Liga e configura o Chatwoot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              enabled: true
+              url: https://chatwoot.exemplo.com
+              accountId: '1'
+              token: TOKEN
+              inboxId: 3
+  /chatwoot/find:
+    get:
+      tags:
+      - Integrações
+      summary: Configuração atual do Chatwoot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /chatwoot:
+    delete:
+      tags:
+      - Integrações
+      summary: Remove o Chatwoot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /typebot/set:
+    post:
+      tags:
+      - Integrações
+      summary: Liga e configura o Typebot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              enabled: true
+              url: https://typebot.exemplo.com
+              typebot: meu-fluxo
+              triggerType: all
+  /typebot/find:
+    get:
+      tags:
+      - Integrações
+      summary: Configuração atual do Typebot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /typebot:
+    delete:
+      tags:
+      - Integrações
+      summary: Remove o Typebot
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /n8n/set:
+    post:
+      tags:
+      - Integrações
+      summary: Liga e configura o N8n
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              enabled: true
+              webhookUrl: https://n8n.exemplo.com/webhook/bob
+              basicAuthUser: ''
+              basicAuthPass: ''
+  /n8n/find:
+    get:
+      tags:
+      - Integrações
+      summary: Configuração atual do N8n
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /n8n:
+    delete:
+      tags:
+      - Integrações
+      summary: Remove o N8n
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+components:
+  securitySchemes:
+    chaveGlobal:
+      type: apiKey
+      in: header
+      name: apikey
+      description: GLOBAL_API_KEY
+    tokenInstancia:
+      type: apiKey
+      in: header
+      name: apikey
+      description: Token da instância
+    instancia:
+      type: apiKey
+      in: header
+      name: instance
+      description: id ou nome da instância (com a chave global)
+  schemas:
+    Resposta:
+      type: object
+      properties:
+        data: {}
+        message:
+          type: string
+          example: success
+    Erro:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string

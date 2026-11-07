@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentação · API WhatsApp BOB</title>
+<link rel="icon" href="/painel/icone.png">
+<style>
+  :root{--bg:#070b08;--panel:#0f1611;--line:#223026;--text:#e8f3ea;--muted:#8fa596;--green:#39e15a;color-scheme:dark;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(7,11,8,.92);backdrop-filter:blur(6px);z-index:2;flex-wrap:wrap}
+  header img{height:44px;border-radius:8px}header a{color:var(--green);font-weight:600;text-decoration:none}
+  header input{margin-left:auto;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:9px 12px;border-radius:10px;min-width:240px;font:inherit}
+  .wrap{max-width:1100px;margin:0 auto;padding:20px 16px}
+  .intro{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;line-height:1.55}
+  .intro code,pre{background:#050806;border:1px solid var(--line);border-radius:8px}
+  .intro code{padding:1px 6px}
+  h2{margin:28px 0 10px;font-size:1.15rem;color:var(--green)}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+  summary{cursor:pointer;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;list-style:none}
+  .m{font-weight:800;font-size:.75rem;padding:4px 8px;border-radius:6px;min-width:62px;text-align:center;color:#04210b}
+  .get{background:#56b4ff}.post{background:var(--green)}.put{background:#ffc93c}.delete{background:#ff5d5d}
+  .p{font-family:ui-monospace,monospace;font-weight:600}.s{color:var(--muted)}.a{margin-left:auto;font-size:.75rem;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:99px}
+  .body{padding:0 14px 14px}pre{padding:12px;overflow:auto;font-size:.8rem;white-space:pre-wrap;word-break:break-all}
+</style>
+</head>
+<body>
+<header><img src="/painel/logo.jpg" alt=""><strong>API WhatsApp BOB · Documentação</strong><a href="/painel/">Abrir painel</a><a href="/openapi.yaml">OpenAPI</a><input id="q" type="search" placeholder="Buscar rota"></header>
+<div class="wrap"><div class="intro" id="intro"></div><div id="list"></div></div>
+<script>
+(async () => {
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const spec = await fetch("/openapi.json").then((r) => r.json());
+  document.getElementById("intro").innerHTML = "<h1 style='margin-top:0'>" + esc(spec.info.title) + " <small class='s'>v" + esc(spec.info.version) + "</small></h1>" +
+    esc(spec.info.description).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`(.+?)`/g, "<code>$1</code>").replace(/\n/g, "<br>");
+  const auth = (op) => !op.security || !op.security.length ? "pública" : op.security.length === 1 && op.security[0].chaveGlobal ? "chave global" : op.security.length === 2 && op.security[0].chaveGlobal ? "global ou token" : "token da instância";
+  const groups = {};
+  for (const [path, ops] of Object.entries(spec.paths)) for (const [m, op] of Object.entries(ops)) (groups[op.tags[0]] ||= []).push({ path, m, op });
+  const origin = location.origin;
+  const render = (q) => {
+    q = q.toLowerCase();
+    document.getElementById("list").innerHTML = Object.entries(groups).map(([tag, items]) => {
+      const rows = items.filter((i) => !q || (i.path + " " + i.op.summary).toLowerCase().includes(q));
+      if (!rows.length) return "";
+      return "<h2>" + esc(tag) + "</h2>" + rows.map(({ path, m, op }) => {
+        const ex = op.requestBody && op.requestBody.content["application/json"].example;
+        const a = auth(op);
+        const curl = "curl -X " + m.toUpperCase() + " " + origin + path + (a === "pública" ? "" : " \\\n  -H \"apikey: " + (a === "chave global" ? "SUA_CHAVE_GLOBAL" : "TOKEN_DA_INSTANCIA") + "\"") +
+          (ex ? " \\\n  -H \"Content-Type: application/json\" \\\n  -d '" + JSON.stringify(ex) + "'" : "");
+        return "<details><summary><span class='m " + m + "'>" + m.toUpperCase() + "</span><span class='p'>" + esc(path) + "</span><span class='s'>" + esc(op.summary) + "</span><span class='a'>" + a + "</span></summary><div class='body'>" +
+          (ex ? "<p class='s'>Corpo de exemplo</p><pre>" + esc(JSON.stringify(ex, null, 2)) + "</pre>" : "") + "<p class='s'>Exemplo com curl</p><pre>" + esc(curl) + "</pre></div></details>";
+      }).join("");
+    }).join("");
+  };
+  render("");
+  document.getElementById("q").addEventListener("input", (e) => render(e.target.value));
+})();
+</script>
+</body>
+</html>

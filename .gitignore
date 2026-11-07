@@ -1,0 +1,9 @@
+.env
+dbdata/
+logs/
+build/
+*.prof
+coverage.*
+.idea/
+.vscode/
+.DS_Store
