@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## 2.4.1 - 2026-11-08
+
+- **QR Code e código de pareamento voltaram a conectar**: no instante em que o celular lia o QR, a BOB fechava o
+  canal do QR Code e isso derrubava a conexão no meio do pareamento ("não foi possível conectar o dispositivo").
+  O canal não é mais cancelado e a BOB espera o WhatsApp concluir o pareamento.
+- Pedidos de conexão repetidos (o OmniFlow consulta o QR a cada poucos segundos) não abrem mais uma segunda conexão
+  por cima da que está pareando. Reconectar nos 45 segundos depois do pareamento é ignorado.
+- Código de pareamento: se o WhatsApp fechar a conexão antes de responder ("websocket disconnected before info
+  query returned response"), a BOB reconecta e tenta de novo uma vez.
+
 ## 2.4.0 - 2026-11-08
 
 - **Chamadas de voz e vídeo pelo navegador**: atender, recusar, fazer ligações, desligar, microfone, câmera e

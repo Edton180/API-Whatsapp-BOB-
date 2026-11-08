@@ -33,9 +33,10 @@ func (s *Session) handle(raw any) {
 		_ = s.e.Repo.Update(s.ID, map[string]any{"jid": v.ID.String(), "qrcode": ""})
 		s.mu.Lock()
 		s.inst.Jid = v.ID.String()
+		s.pairedAt = time.Now()
 		s.mu.Unlock()
+		// Não mexe no canal do QR nem na conexão: a whatsmeow fecha o canal e reconecta sozinha
 		s.clearQR()
-		s.stopQR()
 		s.logf("INFO", "aparelho pareado: %s", v.ID.User)
 		s.emit("PairSuccess", map[string]any{"jid": v.ID.String(), "lid": v.LID.String(), "businessName": v.BusinessName, "platform": v.Platform})
 	case *events.PairError:

@@ -271,13 +271,19 @@ type Session struct {
 	e  *Engine
 	ID string
 
-	mu       sync.Mutex
-	inst     bobstore.Instance
-	cli      *whatsmeow.Client
-	qrImage  string
-	qrCode   string
-	qrCount  int
-	qrCancel context.CancelFunc
+	mu      sync.Mutex
+	inst    bobstore.Instance
+	cli     *whatsmeow.Client
+	qrImage string
+	qrCode  string
+	qrCount int
+	// qrGen identifica o canal de QR Code atual: canais antigos são ignorados, nunca cancelados.
+	// Cancelar o contexto do canal faz a whatsmeow desconectar o cliente, e isso derrubava o
+	// pareamento no instante em que o celular lia o QR Code ou digitava o código.
+	qrGen int
+
+	startMu  sync.Mutex // um start() por vez: conexões paralelas derrubavam o WebSocket
+	pairedAt time.Time  // pareou agora: a whatsmeow reconecta sozinha para concluir o login
 
 	logs      *ring
 	recent    *messageCache
@@ -325,12 +331,20 @@ func (s *Session) Client() (*whatsmeow.Client, error) {
 
 // start cria o cliente (se preciso) e abre a conexão. Sem sessão salva, gera QR Codes.
 func (s *Session) start() error {
+	s.startMu.Lock()
+	defer s.startMu.Unlock()
 	s.mu.Lock()
 	cli := s.cli
 	inst := s.inst
+	paired := s.pairedAt
 	s.mu.Unlock()
 
 	if cli != nil && cli.IsConnected() {
+		return nil
+	}
+	// Logo depois do pareamento o WhatsApp fecha a conexão e a whatsmeow abre outra para concluir
+	// o login. Conectar por cima disso derruba o aparelho recém-pareado ("não foi possível conectar").
+	if cli != nil && cli.Store.ID != nil && time.Since(paired) < pairSettle {
 		return nil
 	}
 	ctx := context.Background()
@@ -360,19 +374,20 @@ func (s *Session) start() error {
 	}
 
 	if cli.Store.ID == nil {
-		s.stopQR()
-		qctx, cancel := context.WithCancel(context.Background())
-		ch, err := cli.GetQRChannel(qctx)
+		// O canal termina sozinho (pareou, desconectou ou acabaram os códigos); o contexto nunca é
+		// cancelado, porque isso desconectaria o cliente.
+		ch, err := cli.GetQRChannel(context.Background())
 		if err != nil {
-			cancel()
 			if !errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
 				return err
 			}
 		} else {
 			s.mu.Lock()
-			s.qrCancel, s.qrCount, s.qrImage, s.qrCode = cancel, 0, "", ""
+			s.qrGen++
+			gen := s.qrGen
+			s.qrCount, s.qrImage, s.qrCode = 0, "", ""
 			s.mu.Unlock()
-			go s.watchQR(ch)
+			go s.watchQR(ch, gen)
 		}
 	}
 	if err := cli.Connect(); err != nil {
@@ -390,18 +405,28 @@ func (s *Session) start() error {
 	return nil
 }
 
+// pairSettle é quanto tempo, depois do pareamento, a sessão fica só com a reconexão da whatsmeow.
+const pairSettle = 45 * time.Second
+
+// stopQR para de publicar os QR Codes do canal atual (sem desconectar o cliente).
 func (s *Session) stopQR() {
 	s.mu.Lock()
-	if s.qrCancel != nil {
-		s.qrCancel()
-		s.qrCancel = nil
-	}
+	s.qrGen++
 	s.mu.Unlock()
 }
 
-func (s *Session) watchQR(ch <-chan whatsmeow.QRChannelItem) {
+func (s *Session) currentQR(gen int) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.qrGen == gen
+}
+
+func (s *Session) watchQR(ch <-chan whatsmeow.QRChannelItem, gen int) {
 	max := s.e.Cfg.QRMaxCount
 	for item := range ch {
+		if !s.currentQR(gen) {
+			continue // canal antigo: só esvazia até a whatsmeow fechar
+		}
 		switch item.Event {
 		case "code":
 			s.mu.Lock()
@@ -412,11 +437,11 @@ func (s *Session) watchQR(ch <-chan whatsmeow.QRChannelItem) {
 				s.clearQR()
 				s.emit("QRTimeout", map[string]any{"reason": "limite de QR Codes atingido", "count": count - 1})
 				s.logf("WARN", "QR Code não lido após %d tentativas; conexão encerrada", max)
-				if c := s.client(); c != nil {
+				s.stopQR()
+				if c := s.client(); c != nil && !c.IsLoggedIn() {
 					c.Disconnect()
 				}
-				s.stopQR()
-				return
+				continue
 			}
 			png, err := qrcode.Encode(item.Code, qrcode.Medium, 320)
 			if err != nil {
@@ -490,6 +515,22 @@ func (s *Session) Pair(ctx context.Context, phone string) (string, error) {
 		return "", ErrNotConnected
 	}
 	code, err := cli.PairPhone(ctx, phone, true, whatsmeow.PairClientChrome, "Chrome (Linux)")
+	if err != nil && !cli.IsLoggedIn() && ctx.Err() == nil {
+		// A conexão caiu no meio do pedido (rede ou WhatsApp reiniciando o WebSocket): abre de novo
+		// e tenta mais uma vez antes de devolver erro.
+		s.logf("WARN", "pedido do código de pareamento falhou (%v); tentando de novo", err)
+		if err2 := s.start(); err2 == nil {
+			deadline = time.Now().Add(15 * time.Second)
+			for !cli.IsConnected() && time.Now().Before(deadline) {
+				time.Sleep(250 * time.Millisecond)
+			}
+			if c2 := s.client(); c2 != nil {
+				cli = c2
+			}
+			time.Sleep(time.Second)
+			code, err = cli.PairPhone(ctx, phone, true, whatsmeow.PairClientChrome, "Chrome (Linux)")
+		}
+	}
 	if err != nil {
 		return "", fmt.Errorf("o WhatsApp recusou o pareamento: %w", err)
 	}
@@ -527,11 +568,22 @@ func (s *Session) Disconnect() {
 
 // Reconnect derruba e abre a conexão de novo.
 func (s *Session) Reconnect() error {
+	if s.settling() {
+		s.logf("INFO", "reconexão ignorada: o aparelho acabou de parear e está concluindo o login")
+		return nil
+	}
 	if c := s.client(); c != nil {
 		c.Disconnect()
 	}
 	time.Sleep(500 * time.Millisecond)
 	return s.start()
+}
+
+// settling diz se a sessão acabou de parear e a whatsmeow ainda está concluindo o login.
+func (s *Session) settling() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.cli != nil && !s.pairedAt.IsZero() && time.Since(s.pairedAt) < pairSettle && !s.cli.IsLoggedIn()
 }
 
 // Rebuild troca o cliente do WhatsApp por um novo com a mesma sessão salva (sem QR Code).
