@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/edton180/api-whatsapp-bob/internal/calls"
 	"github.com/edton180/api-whatsapp-bob/internal/engine"
 	"github.com/edton180/api-whatsapp-bob/internal/integrations"
 	"github.com/edton180/api-whatsapp-bob/internal/panel"
@@ -22,6 +23,7 @@ type Server struct {
 	Engine       *engine.Engine
 	Repo         *store.Repo
 	Integrations *integrations.Manager
+	Calls        *calls.Manager // nil quando o servidor não liga chamadas
 }
 
 // Router monta todas as rotas.
@@ -144,6 +146,7 @@ func (s *Server) Router() *gin.Engine {
 
 	// grupos, comunidades, canais, chamadas e perfil (complementos)
 	s.registerExtra(r, inst)
+	s.registerCalls(r, inst)
 	s.registerHistory(r, inst, s.requireNamed())
 
 	// rotas no padrão da Evolution API v2 (/message/sendText/:instance...)

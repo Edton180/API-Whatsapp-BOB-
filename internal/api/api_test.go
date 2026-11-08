@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/edton180/api-whatsapp-bob/internal/calls"
 	"github.com/edton180/api-whatsapp-bob/internal/config"
 	"github.com/edton180/api-whatsapp-bob/internal/engine"
 	"github.com/edton180/api-whatsapp-bob/internal/events"
@@ -23,7 +24,8 @@ const key = "chave-de-teste"
 func newServer(t *testing.T) http.Handler {
 	t.Helper()
 	dir := t.TempDir()
-	cfg := &config.Config{APIKey: key, DataDir: dir, PanelEnabled: true, QRMaxCount: 5, OSName: "BOB"}
+	cfg := &config.Config{APIKey: key, DataDir: dir, PanelEnabled: true, QRMaxCount: 5, OSName: "BOB",
+		WebRTC: config.WebRTC{ICEServers: []string{"stun:stun.l.google.com:19302"}}}
 	db, err := store.Open("", dir)
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +40,13 @@ func newServer(t *testing.T) http.Handler {
 		t.Fatal(err)
 	}
 	mgr := &integrations.Manager{Store: is, Instance: repo.ByID}
-	return (&Server{Engine: eng, Repo: repo, Integrations: mgr}).Router()
+	cm, err := calls.New(eng, repo, cfg.WebRTC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = cm.Close() })
+	eng.Calls = cm
+	return (&Server{Engine: eng, Repo: repo, Integrations: mgr, Calls: cm}).Router()
 }
 
 type resp struct {

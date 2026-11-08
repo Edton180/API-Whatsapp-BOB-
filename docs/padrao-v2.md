@@ -62,7 +62,7 @@ Erros vêm como `{"status": 400, "error": "Bad Request", "response": {"message":
 | Conversas | `POST /chat/` + `whatsappNumbers`, `markMessageAsRead`, `markChatUnread`, `archiveChat`, `updateMessage`, `sendPresence`, `updateBlockStatus`, `fetchProfilePictureUrl`, `fetchProfile`, `fetchBusinessProfile`, `findContacts`, `findMessages`, `findChats`, `findStatusMessage`, `getBase64FromMediaMessage`, `updateProfileName`, `updateProfileStatus`, `updateProfilePicture`, `updatePrivacySettings`; `DELETE /chat/deleteMessageForEveryone`, `/chat/removeProfilePicture`; `GET /chat/fetchPrivacySettings` |
 | Grupos | `POST /group/create`, `updateGroupSubject`, `updateGroupDescription`, `updateGroupPicture`, `revokeInviteCode`, `sendInvite`, `updateParticipant`, `updateSetting`, `toggleEphemeral`; `GET /group/findGroupInfos`, `fetchAllGroups`, `participants`, `inviteCode`, `inviteInfo`, `acceptInviteCode`; `DELETE /group/leaveGroup` |
 | Etiquetas | `GET /label/findLabels/{i}`, `POST /label/handleLabel/{i}` |
-| Chamadas | `POST /call/offer/{i}` responde 501: o WhatsApp Web não faz ligações |
+| Chamadas | `POST /call/offer/{i}` `{"number", "isVideo", "callDuration"}` faz o número tocar e desliga (com as chamadas ligadas na instância, veja [chamadas.md](chamadas.md)) |
 
 Nas rotas de grupo, o grupo vai em `?groupJid=`, e o convite em `?inviteCode=`.
 

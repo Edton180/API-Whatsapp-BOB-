@@ -50,6 +50,9 @@ type Instance struct {
 	// Webhook no padrão v2: um endereço por evento (URL/messages-upsert...) e mídia em base64.
 	WebhookByEvents bool   `json:"webhookByEvents" gorm:"default:false"`
 	WebhookBase64   string `json:"webhookBase64" gorm:"size:8;default:''"` // "" segue WEBHOOK_FILES; "on" ou "off"
+
+	// Chamadas atendidas pelo navegador (motor VoIP). Mudar exige reconectar a instância.
+	CallsEnabled bool `json:"callsEnabled" gorm:"default:false"`
 }
 
 // Base64 diz se a mídia recebida vai em base64 no webhook desta instância.
@@ -137,7 +140,7 @@ func Open(dsn, dataDir string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("banco da BOB: %w", err)
 	}
-	if err := db.AutoMigrate(&Instance{}, &Label{}, &Message{}, &Chat{}, &PollVote{}); err != nil {
+	if err := db.AutoMigrate(&Instance{}, &Label{}, &Message{}, &Chat{}, &PollVote{}, &Call{}); err != nil {
 		return nil, fmt.Errorf("tabelas da BOB: %w", err)
 	}
 	return db, nil
@@ -220,6 +223,7 @@ func (r *Repo) Update(id string, fields map[string]any) error {
 func (r *Repo) Delete(id string) error {
 	r.DB.Where("instance_id = ?", id).Delete(&Label{})
 	deleteHistory(r.DB, id)
+	r.DB.Where("instance_id = ?", id).Delete(&Call{})
 	return r.DB.Where("id = ?", id).Delete(&Instance{}).Error
 }
 

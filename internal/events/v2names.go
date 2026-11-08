@@ -12,6 +12,7 @@ var v2Names = map[string]string{
 	"Presence":    "PRESENCE_UPDATE", "ChatPresence": "PRESENCE_UPDATE",
 	"HistorySync": "MESSAGES_SET",
 	"CallOffer":   "CALL", "CallAccept": "CALL", "CallTerminate": "CALL", "CallOfferNotice": "CALL", "CallRelayLatency": "CALL",
+	"CallRinging": "CALL", "CallConnected": "CALL", "CallEnded": "CALL", "CallMedia": "CALL",
 	"QRCode": "QRCODE_UPDATED", "QRTimeout": "QRCODE_UPDATED", "QRSuccess": "QRCODE_UPDATED",
 	"Contact": "CONTACTS_UPDATE", "PushName": "CONTACTS_UPDATE", "Picture": "CONTACTS_UPDATE",
 	"BusinessName": "CONTACTS_UPDATE", "UserAbout": "CONTACTS_UPDATE",

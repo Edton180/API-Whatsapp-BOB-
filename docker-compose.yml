@@ -12,8 +12,11 @@ services:
       DATA_DIR: /app/dbdata
       POSTGRES_AUTH_DB: postgresql://bob:${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}@postgres:5432/bob_auth?sslmode=disable
       POSTGRES_USERS_DB: postgresql://bob:${POSTGRES_PASSWORD}@postgres:5432/bob_users?sslmode=disable
+      # Chamadas de voz e vídeo: porta UDP da mídia e IP público (veja docs/chamadas.md)
+      WEBRTC_UDP_MUX_PORT: "${BOB_WEBRTC_PORT:-40000}"
     ports:
       - "${BOB_PORT:-8080}:4000"
+      - "${BOB_WEBRTC_PORT:-40000}:${BOB_WEBRTC_PORT:-40000}/udp"
     volumes:
       - bob-dados:/app/dbdata
     depends_on:

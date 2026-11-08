@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.3.0
+  version: 2.4.0
   description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
 
 
@@ -39,6 +39,7 @@ tags:
 - name: Padrão v2 · Conversas
 - name: Padrão v2 · Grupos
 - name: Padrão v2 · Etiquetas
+- name: Padrão v2 · Chamadas
 - name: Integrações
 paths:
   /:
@@ -3109,7 +3110,7 @@ paths:
     post:
       tags:
       - Chamadas
-      summary: Recusa uma ligação (dados do evento CallOffer)
+      summary: Recusa uma ligação tocando (callId do evento CallRinging ou CallOffer)
       responses:
         '200':
           description: Sucesso
@@ -3138,8 +3139,428 @@ paths:
             schema:
               type: object
             example:
-              from: '5511999998888'
               callId: ABC123
+              from: '5511999998888'
+  /call/settings:
+    get:
+      tags:
+      - Chamadas
+      summary: Chamadas ligadas na instância? Recusa automática?
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+    post:
+      tags:
+      - Chamadas
+      summary: Liga ou desliga as chamadas (reconecta a instância sem QR Code)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              enabled: true
+  /call/ice-servers:
+    get:
+      tags:
+      - Chamadas
+      summary: STUN e TURN para o RTCPeerConnection do navegador (?agent=nome); a senha TURN é temporária
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /call/list:
+    get:
+      tags:
+      - Chamadas
+      summary: Histórico (?status=missed|ended|rejected|ringing|connected&number=&video=&since=<unix>&limit=50&offset=0)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /call/live:
+    get:
+      tags:
+      - Chamadas
+      summary: Chamadas tocando ou em andamento, com o atendente de cada uma
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /call/info/{callId}:
+    get:
+      tags:
+      - Chamadas
+      summary: Dados de uma chamada
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: callId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: callId da chamada
+  /call/start:
+    post:
+      tags:
+      - Chamadas
+      summary: 'Liga para um número pelo navegador: manda a oferta SDP e recebe a resposta'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              video: false
+              sdp: v=0...
+              agent: Ana
+  /call/answer:
+    post:
+      tags:
+      - Chamadas
+      summary: Atende no navegador (o primeiro atendente leva; os outros recebem 409)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+              sdp: v=0...
+              agent: Ana
+  /call/transfer:
+    post:
+      tags:
+      - Chamadas
+      summary: Passa a chamada para o navegador de outro atendente sem derrubar o contato
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+              sdp: v=0...
+              agent: Bruno
+  /call/hangup:
+    post:
+      tags:
+      - Chamadas
+      summary: Desliga
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+  /call/mute:
+    post:
+      tags:
+      - Chamadas
+      summary: Microfone do atendente (o contato ouve silêncio)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+              muted: true
+  /call/camera:
+    post:
+      tags:
+      - Chamadas
+      summary: Liga ou desliga a câmera (numa chamada de voz, pede para passar a vídeo)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+              'on': true
+  /call/ice:
+    post:
+      tags:
+      - Chamadas
+      summary: Candidato ICE extra do navegador (opcional; a oferta já leva os candidatos)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              callId: ABC123
+              candidate: candidate:...
+              sdpMid: '0'
+              sdpMLineIndex: 0
   /newsletter/create:
     post:
       tags:
@@ -6035,6 +6456,48 @@ paths:
               number: '5511999998888'
               labelId: '1'
               action: add
+  /call/offer/{instance}:
+    post:
+      tags:
+      - Padrão v2 · Chamadas
+      summary: Faz o número tocar por callDuration segundos e desliga (precisa das chamadas ligadas)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - chaveGlobal: []
+      - tokenInstancia: []
+      parameters:
+      - name: instance
+        in: path
+        required: true
+        schema:
+          type: string
+        description: nome da instância
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              isVideo: false
+              callDuration: 15
   /chatwoot/set:
     post:
       tags:

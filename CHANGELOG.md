@@ -1,5 +1,23 @@
 # Histórico de versões
 
+## 2.4.0 - 2026-11-08
+
+- **Chamadas de voz e vídeo pelo navegador**: atender, recusar, fazer ligações, desligar, microfone, câmera e
+  transferir para outro atendente sem derrubar o contato. Vários atendentes veem a chamada tocando e o primeiro
+  que atender leva (os outros recebem 409). Veja `docs/chamadas.md`.
+- Ponte WhatsApp <-> WebRTC com a meowcaller (MIT) e o Pion (MIT). Áudio em G.722 (codec próprio da BOB, 16 kHz,
+  sem reamostrar) com PCMU de reserva; vídeo H.264 passa sem recodificar.
+- **Histórico de chamadas** na tabela `bob_calls` (recebidas, feitas, atendidas, perdidas, recusadas, duração).
+  Áudio e vídeo nunca são gravados.
+- Rotas `/call/settings`, `/call/ice-servers`, `/call/list`, `/call/live`, `/call/info/{callId}`, `/call/start`,
+  `/call/answer`, `/call/transfer`, `/call/hangup`, `/call/mute`, `/call/camera`, `/call/ice`; `POST /call/reject`
+  recusa a chamada viva; `POST /call/offer/{instância}` (padrão v2) passa a fazer o número tocar.
+- Eventos `CallRinging`, `CallConnected`, `CallMedia` e `CallEnded` (categoria `CALL`).
+- Credencial TURN temporária (padrão TURN REST): o segredo nunca vai para o navegador.
+- Painel: página **Chamadas** com softphone, chamadas tocando e histórico.
+- Variáveis `WEBRTC_ICE_SERVERS`, `WEBRTC_UDP_MUX_PORT`, `WEBRTC_UDP_PORT_MIN/MAX`, `WEBRTC_PUBLIC_IP`,
+  `WEBRTC_TURN_SECRET` e `WEBRTC_TURN_TTL`; Docker publica a porta UDP 40000.
+
 ## 2.3.0 - 2026-11-08
 
 - **Webhook no padrão v2**: um endereço por evento (`URL/messages-upsert`, `URL/connection-update`...) e mídia em

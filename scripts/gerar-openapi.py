@@ -109,7 +109,21 @@ R += [
    {"last": "contacts", "online": "match_last_seen", "profile": "all", "status": "contacts", "readreceipts": "all", "groupadd": "contacts", "calladd": "all"}),
   ("Usuários", "delete", "/user/profilePicture", I, "Apaga a foto do perfil", None),
   ("Conexão", "post", "/instance/presence", I, "Mostra como online (available) ou offline (unavailable)", {"presence": "available"}),
-  ("Chamadas", "post", "/call/reject", I, "Recusa uma ligação (dados do evento CallOffer)", {"from": N, "callId": "ABC123"}),
+  ("Chamadas", "post", "/call/reject", I, "Recusa uma ligação tocando (callId do evento CallRinging ou CallOffer)", {"callId": "ABC123", "from": N}),
+  ("Chamadas", "get", "/call/settings", I, "Chamadas ligadas na instância? Recusa automática?", None),
+  ("Chamadas", "post", "/call/settings", I, "Liga ou desliga as chamadas (reconecta a instância sem QR Code)", {"enabled": True}),
+  ("Chamadas", "get", "/call/ice-servers", I, "STUN e TURN para o RTCPeerConnection do navegador (?agent=nome); a senha TURN é temporária", None),
+  ("Chamadas", "get", "/call/list", I, "Histórico (?status=missed|ended|rejected|ringing|connected&number=&video=&since=<unix>&limit=50&offset=0)", None),
+  ("Chamadas", "get", "/call/live", I, "Chamadas tocando ou em andamento, com o atendente de cada uma", None),
+  ("Chamadas", "get", "/call/info/{callId}", I, "Dados de uma chamada", None),
+  ("Chamadas", "post", "/call/start", I, "Liga para um número pelo navegador: manda a oferta SDP e recebe a resposta",
+   {"number": N, "video": False, "sdp": "v=0...", "agent": "Ana"}),
+  ("Chamadas", "post", "/call/answer", I, "Atende no navegador (o primeiro atendente leva; os outros recebem 409)", {"callId": "ABC123", "sdp": "v=0...", "agent": "Ana"}),
+  ("Chamadas", "post", "/call/transfer", I, "Passa a chamada para o navegador de outro atendente sem derrubar o contato", {"callId": "ABC123", "sdp": "v=0...", "agent": "Bruno"}),
+  ("Chamadas", "post", "/call/hangup", I, "Desliga", {"callId": "ABC123"}),
+  ("Chamadas", "post", "/call/mute", I, "Microfone do atendente (o contato ouve silêncio)", {"callId": "ABC123", "muted": True}),
+  ("Chamadas", "post", "/call/camera", I, "Liga ou desliga a câmera (numa chamada de voz, pede para passar a vídeo)", {"callId": "ABC123", "on": True}),
+  ("Chamadas", "post", "/call/ice", I, "Candidato ICE extra do navegador (opcional; a oferta já leva os candidatos)", {"callId": "ABC123", "candidate": "candidate:...", "sdpMid": "0", "sdpMLineIndex": 0}),
   ("Canais", "post", "/newsletter/create", I, "Cria um canal", {"name": "Novidades", "description": "Ofertas da semana", "picture": ""}),
   ("Canais", "post", "/newsletter/info", I, "Dados do canal pelo id ou link", {"newsletterId": "120363000000000000@newsletter"}),
   ("Canais", "post", "/newsletter/follow", I, "Segue o canal", {"newsletterId": "120363000000000000@newsletter"}),
@@ -193,6 +207,7 @@ V2 = [
   ("Grupos", "delete", "/group/leaveGroup/{instance}", V, "Sai do grupo (?groupJid=)", None),
   ("Etiquetas", "get", "/label/findLabels/{instance}", V, "Etiquetas", None),
   ("Etiquetas", "post", "/label/handleLabel/{instance}", V, "add ou remove", {"number": N, "labelId": "1", "action": "add"}),
+  ("Chamadas", "post", "/call/offer/{instance}", V, "Faz o número tocar por callDuration segundos e desliga (precisa das chamadas ligadas)", {"number": N, "isVideo": False, "callDuration": 15}),
 ]
 R += [("Padrão v2 · " + t, m, p, a, s_, b) for t, m, p, a, s_, b in V2]
 
@@ -223,6 +238,8 @@ for tag, method, path, auth, summary, body in R:
         op["parameters"] = [{"name": "id", "in": "path", "required": True, "schema": {"type": "string"}, "description": "id ou nome da instância"}]
     if "{instance}" in path:
         op["parameters"] = [{"name": "instance", "in": "path", "required": True, "schema": {"type": "string"}, "description": "nome da instância"}]
+    if "{callId}" in path:
+        op["parameters"] = [{"name": "callId", "in": "path", "required": True, "schema": {"type": "string"}, "description": "callId da chamada"}]
     if body is not None:
         op["requestBody"] = {"required": True, "content": {"application/json": {"schema": {"type": "object"}, "example": body}}}
     paths.setdefault(path, {})[method] = op

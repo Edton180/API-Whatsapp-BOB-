@@ -110,7 +110,7 @@ func TestV2InstanceFlow(t *testing.T) {
 	if r := call(t, h, "GET", "/group/participants/loja", key, nil); r.Code != 400 || !strings.Contains(r.Raw, "groupJid") {
 		t.Fatalf("participants sem groupJid: %d %s", r.Code, r.Raw)
 	}
-	if r := call(t, h, "POST", "/call/offer/loja", key, map[string]any{}); r.Code != 501 {
+	if r := call(t, h, "POST", "/call/offer/loja", key, map[string]any{}); r.Code != 400 {
 		t.Fatalf("call/offer: %d", r.Code)
 	}
 
