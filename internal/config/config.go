@@ -44,6 +44,18 @@ type Config struct {
 	// ReconnectIdleHours reconecta (sem QR Code) números conectados sem nenhum evento há N horas (0 = desliga)
 	ReconnectIdleHours int
 	Proxy              Proxy
+	WebRTC             WebRTC
+}
+
+// WebRTC é a configuração da ponte de chamadas entre o WhatsApp e o navegador.
+type WebRTC struct {
+	ICEServers []string // stun:host:porta ou turn:host:porta (WEBRTC_ICE_SERVERS, separados por vírgula)
+	PortMin    int      // faixa de portas UDP da mídia (WEBRTC_UDP_PORT_MIN e WEBRTC_UDP_PORT_MAX)
+	PortMax    int
+	UDPMux     int    // porta UDP única para todas as chamadas (WEBRTC_UDP_MUX_PORT, 0 = usa a faixa)
+	PublicIP   string // IP público anunciado ao navegador quando a BOB está atrás de NAT ou Docker
+	TURNSecret string // segredo compartilhado do TURN (credenciais temporárias, padrão TURN REST)
+	TURNTTL    int    // validade da credencial do TURN, em segundos
 }
 
 // Load lê o .env (se houver) e as variáveis de ambiente.
@@ -76,6 +88,15 @@ func Load() *Config {
 		StoreMessages:      envBool("STORE_MESSAGES", true),
 		StoreDays:          envInt("STORE_MESSAGES_DAYS", 0),
 		ReconnectIdleHours: envInt("RECONNECT_IDLE_HOURS", 6),
+		WebRTC: WebRTC{
+			ICEServers: splitList(env("WEBRTC_ICE_SERVERS", "stun:stun.l.google.com:19302")),
+			PortMin:    envInt("WEBRTC_UDP_PORT_MIN", 0),
+			PortMax:    envInt("WEBRTC_UDP_PORT_MAX", 0),
+			UDPMux:     envInt("WEBRTC_UDP_MUX_PORT", 0),
+			PublicIP:   strings.TrimSpace(env("WEBRTC_PUBLIC_IP", "")),
+			TURNSecret: env("WEBRTC_TURN_SECRET", ""),
+			TURNTTL:    envInt("WEBRTC_TURN_TTL", 600),
+		},
 		Proxy: Proxy{
 			Protocol: env("PROXY_PROTOCOL", ""),
 			Host:     env("PROXY_HOST", ""),
@@ -135,4 +156,14 @@ func loadDotEnv(path string) {
 			os.Setenv(k, v)
 		}
 	}
+}
+
+func splitList(v string) []string {
+	out := []string{}
+	for _, p := range strings.Split(v, ",") {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }

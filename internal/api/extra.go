@@ -193,6 +193,13 @@ func (s *Server) callReject(c *gin.Context) {
 	if !bind(c, &req) {
 		return
 	}
+	// Com as chamadas ligadas, a chamada viva é recusada pelo motor de chamadas.
+	if s.Calls != nil && req.CallID != "" {
+		if err := s.Calls.Reject(current(c).Id, req.CallID); err == nil {
+			ok(c, gin.H{"ok": true})
+			return
+		}
+	}
 	from := req.From
 	if from == "" {
 		from = req.CallCreator

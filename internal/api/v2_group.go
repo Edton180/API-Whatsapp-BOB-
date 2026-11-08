@@ -3,13 +3,16 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.mau.fi/whatsmeow/types"
 
+	"github.com/edton180/api-whatsapp-bob/internal/calls"
 	"github.com/edton180/api-whatsapp-bob/internal/engine"
 )
 
@@ -386,7 +389,31 @@ func (s *Server) v2HandleLabel(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"numberJid": req.Number, "labelId": req.LabelID, "add": req.Action == "add", "remove": req.Action == "remove"})
 }
 
-// v2CallOffer: o protocolo do WhatsApp Web não permite fazer ligações.
+// v2CallOffer: POST /call/offer/:instance {"number": "5511...", "isVideo": false, "callDuration": 15}
+// faz o número tocar pelo tempo pedido e desliga (sem atendente). Precisa das chamadas ligadas
+// na instância (/call/settings). Para conversar, use /call/start com o navegador.
 func (s *Server) v2CallOffer(c *gin.Context) {
-	v2Fail(c, http.StatusNotImplemented, "o WhatsApp Web não permite fazer ligações; use /call/reject e o evento CallOffer para recebidas")
+	var req struct {
+		Number       string `json:"number"`
+		IsVideo      bool   `json:"isVideo"`
+		CallDuration int    `json:"callDuration"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || req.Number == "" {
+		v2Fail(c, http.StatusBadRequest, "informe number")
+		return
+	}
+	if s.Calls == nil {
+		v2Fail(c, http.StatusServiceUnavailable, "chamadas indisponíveis neste servidor")
+		return
+	}
+	call, err := s.Calls.Ring(c.Request.Context(), s.session(c), req.Number, req.IsVideo, time.Duration(req.CallDuration)*time.Second)
+	if err != nil {
+		if errors.Is(err, calls.ErrDisabled) {
+			v2Fail(c, http.StatusPreconditionFailed, err.Error())
+			return
+		}
+		v2Engine(c, err)
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"id": call["callId"], "status": "ringing", "isVideo": req.IsVideo, "number": req.Number, "call": call})
 }

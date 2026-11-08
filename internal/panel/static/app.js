@@ -60,7 +60,7 @@
   $("#logout").addEventListener("click", logout);
 
   // ------------------------------------------------------------ navegação
-  const titles = { instancias: "Instâncias", enviar: "Enviar mensagem", eventos: "Eventos ao vivo", servidor: "Servidor", apoie: "Apoie o projeto" };
+  const titles = { instancias: "Instâncias", enviar: "Enviar mensagem", chamadas: "Chamadas", eventos: "Eventos ao vivo", servidor: "Servidor", apoie: "Apoie o projeto" };
   function go() {
     const page = (location.hash || "#instancias").slice(1);
     const name = titles[page] ? page : "instancias";
@@ -72,6 +72,7 @@
     if (name === "eventos") openSocket();
     if (name === "apoie") loadPix();
     if (name === "enviar") fillSelect($("#send-instance"), false);
+    if (name === "chamadas") openCalls(); else stopCalls();
   }
   window.addEventListener("hashchange", go);
   $("#menu").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
@@ -389,6 +390,215 @@
       toast("Mensagem enviada");
     });
   });
+
+
+  // ------------------------------------------------------------ chamadas (softphone)
+  // O navegador manda a oferta WebRTC já com todos os candidatos (sem "trickle") e recebe a
+  // resposta da BOB na mesma requisição. A oferta sempre leva uma linha de vídeo: a câmera
+  // liga e desliga no meio da chamada sem renegociar.
+  let callTimer = null, phone = null;
+  const CALL_STATUS = { ringing: ["Tocando", "warn"], connected: ["Em andamento", "ok"], ended: ["Encerrada", ""], missed: ["Perdida", "bad"], rejected: ["Recusada", "bad"] };
+  const callInst = () => $("#call-instance").value;
+  const fmtNum = (c) => (c.number || c.remoteJid || "").replace(/@.*/, "");
+  const fmtDur = (s) => (s >= 3600 ? Math.floor(s / 3600) + ":" : "") + String(Math.floor((s % 3600) / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+
+  function stopCalls() { clearInterval(callTimer); callTimer = null; }
+  async function openCalls() {
+    fillSelect($("#call-instance"), false);
+    await loadCallSettings();
+    stopCalls();
+    callTimer = setInterval(pollCalls, 2000);
+    pollCalls();
+    loadHistory();
+  }
+  $("#call-instance").addEventListener("change", () => { loadCallSettings(); pollCalls(); loadHistory(); });
+  $("#call-filter").addEventListener("change", loadHistory);
+
+  async function loadCallSettings() {
+    const inst = callInst();
+    if (!inst) { $("#call-state").textContent = "crie uma instância"; return; }
+    const st = await api("GET", "/call/settings", undefined, inst).catch((e) => ({ error: e.message }));
+    const pill = $("#call-state");
+    if (st.error || !st.available) { pill.textContent = st.error || "indisponível no servidor"; pill.className = "pill bad"; return; }
+    $("#call-enabled").checked = !!st.enabled;
+    pill.textContent = st.active ? "recebendo chamadas" : st.enabled ? "ligadas (aguardando conexão)" : "desligadas";
+    pill.className = "pill " + (st.active ? "ok" : st.enabled ? "warn" : "");
+    if (st.rejectCall && st.enabled) { pill.textContent += " · recusa automática ativa"; pill.className = "pill warn"; }
+  }
+  $("#call-enabled").addEventListener("change", (e) => run(null, async () => {
+    const r = await api("POST", "/call/settings", { enabled: e.target.checked }, callInst());
+    toast(r.enabled ? "Chamadas ligadas" + (r.reconnected ? " (instância reconectada)" : "") : "Chamadas desligadas");
+    setTimeout(loadCallSettings, 1500);
+  }).finally(loadCallSettings));
+
+  function callRow(c, live) {
+    const [label, cls] = CALL_STATUS[c.status] || [c.status, ""];
+    const kind = c.isVideo ? "📹" : "📞";
+    const dir = c.fromMe ? "↗" : "↙";
+    const when = new Date(c.startedAt * 1000).toLocaleString("pt-BR");
+    let actions = "";
+    if (live && c.status === "ringing" && !c.fromMe && !c.browser) {
+      actions = `<button class="btn primary small" data-call="answer" data-id="${esc(c.callId)}">Atender</button>` +
+        `<button class="btn small" data-call="answer-video" data-id="${esc(c.callId)}">Atender com vídeo</button>` +
+        `<button class="btn danger small" data-call="reject" data-id="${esc(c.callId)}">Recusar</button>`;
+    } else if (live) {
+      actions = (phone && phone.id === c.callId ? "" : `<button class="btn small" data-call="transfer" data-id="${esc(c.callId)}">Puxar para este navegador</button>`) +
+        `<button class="btn danger small" data-call="hangup" data-id="${esc(c.callId)}">Desligar</button>`;
+    }
+    const agent = c.agent ? ` · ${esc(c.agent)}` : "";
+    return `<div class="call-row ${live && c.status === "ringing" ? "ringing" : ""}"><span>${kind} ${dir}</span><div class="who"><strong>${esc(fmtNum(c))}</strong><div class="muted small">${when}${agent}${c.durationSec ? " · " + fmtDur(c.durationSec) : ""}${c.reason ? " · " + esc(c.reason) : ""}</div></div><span class="pill ${cls}">${esc(label)}</span>${actions}</div>`;
+  }
+
+  async function pollCalls() {
+    const inst = callInst();
+    if (!inst) return;
+    const r = await api("GET", "/call/live", undefined, inst).catch(() => null);
+    if (!r) return;
+    const list = r.calls || [];
+    $("#call-live").innerHTML = list.length ? list.map((c) => callRow(c, true)).join("") : '<p class="muted">Nenhuma chamada em andamento.</p>';
+    if (phone) {
+      const mine = list.find((c) => c.callId === phone.id);
+      if (mine) phoneStatus(mine);
+      else if (phone.id) { endPhone("Chamada encerrada"); loadHistory(); }
+    }
+  }
+
+  async function loadHistory() {
+    const inst = callInst();
+    if (!inst) return;
+    const st = $("#call-filter").value;
+    const r = await api("GET", "/call/list?limit=30" + (st ? "&status=" + st : ""), undefined, inst).catch((e) => ({ error: e.message }));
+    if (r.error) { $("#call-history").innerHTML = `<p class="error">${esc(r.error)}</p>`; return; }
+    $("#call-history").innerHTML = r.calls.length ? r.calls.map((c) => callRow(c, false)).join("") : '<p class="muted">Nenhuma chamada registrada ainda.</p>';
+  }
+
+  // Monta o RTCPeerConnection, espera os candidatos e devolve a oferta pronta.
+  async function preparePhone(video) {
+    if (!window.RTCPeerConnection || !navigator.mediaDevices) throw new Error("Este navegador não faz chamadas WebRTC (use HTTPS ou localhost).");
+    if (phone) throw new Error("Já existe uma chamada neste navegador.");
+    const ice = await api("GET", "/call/ice-servers?agent=painel", undefined, callInst());
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }, video: video ? { width: 640, height: 480 } : false });
+    const pc = new RTCPeerConnection({ iceServers: ice.iceServers || [] });
+    const p = { pc, stream, id: "", muted: false, camera: !!video, since: 0 };
+    phone = p;
+    pc.addTrack(stream.getAudioTracks()[0], stream);
+    p.videoSender = pc.addTransceiver("video", { direction: "sendrecv" }).sender;
+    if (video) await p.videoSender.replaceTrack(stream.getVideoTracks()[0]);
+    pc.ontrack = (e) => {
+      if (e.track.kind === "audio") $("#phone-audio").srcObject = new MediaStream([e.track]);
+      else $("#phone-remote").srcObject = new MediaStream([e.track]);
+    };
+    pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") toast("A conexão de áudio falhou (confira o TURN no servidor)", true); };
+    $("#phone-local").srcObject = video ? stream : null;
+    await pc.setLocalDescription(await pc.createOffer());
+    await new Promise((ok) => {
+      if (pc.iceGatheringState === "complete") return ok();
+      const t = setTimeout(ok, 4000);
+      pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); ok(); } });
+    });
+    return pc.localDescription.sdp;
+  }
+
+  async function connectPhone(path, body) {
+    try {
+      const r = await api("POST", path, body, callInst());
+      phone.id = r.call.callId;
+      await phone.pc.setRemoteDescription({ type: "answer", sdp: r.sdp });
+      $("#phone").classList.remove("hidden");
+      phoneStatus(r.call);
+      return r;
+    } catch (e) {
+      endPhone();
+      throw e;
+    }
+  }
+
+  function phoneStatus(c) {
+    $("#phone-peer").textContent = fmtNum(c);
+    const [label, cls] = CALL_STATUS[c.status] || [c.status, ""];
+    $("#phone-status").textContent = label;
+    $("#phone-status").className = "pill " + cls;
+    if (c.status === "connected" && !phone.since) phone.since = c.answeredAt ? c.answeredAt * 1000 : Date.now();
+    $("#phone-timer").textContent = phone.since ? fmtDur(Math.max(0, Math.round((Date.now() - phone.since) / 1000))) : "";
+    $("#phone-mute").className = "btn " + (phone.muted ? "off" : "on");
+    $("#phone-camera").className = "btn " + (phone.camera ? "on" : "");
+  }
+
+  function endPhone(msg) {
+    if (!phone) return;
+    phone.stream.getTracks().forEach((t) => t.stop());
+    phone.pc.close();
+    phone = null;
+    $("#phone").classList.add("hidden");
+    $("#phone-remote").srcObject = null;
+    $("#phone-local").srcObject = null;
+    if (msg) toast(msg);
+  }
+
+  $("#call-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const video = $("#call-video").checked;
+    run(e.submitter, async () => {
+      const sdp = await preparePhone(video);
+      await connectPhone("/call/start", { number: $("#call-number").value.trim(), video, sdp, agent: "painel" });
+      toast("Chamando…");
+    });
+  });
+
+  $("#page-chamadas").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-call]");
+    if (!b) return;
+    const id = b.dataset.id, act = b.dataset.call;
+    run(b, async () => {
+      if (act === "answer" || act === "answer-video") {
+        const sdp = await preparePhone(act === "answer-video");
+        await connectPhone("/call/answer", { callId: id, sdp, agent: "painel" });
+        if (act === "answer-video") await api("POST", "/call/camera", { callId: id, on: true }, callInst()).catch(() => {});
+      } else if (act === "transfer") {
+        const sdp = await preparePhone(false);
+        await connectPhone("/call/transfer", { callId: id, sdp, agent: "painel" });
+        toast("Chamada neste navegador");
+      } else if (act === "reject") {
+        await api("POST", "/call/reject", { callId: id }, callInst());
+      } else if (act === "hangup") {
+        await api("POST", "/call/hangup", { callId: id }, callInst());
+      }
+      pollCalls();
+    });
+  });
+
+  $("#phone-hangup").addEventListener("click", (e) => run(e.target, async () => {
+    if (phone && phone.id) await api("POST", "/call/hangup", { callId: phone.id }, callInst()).catch(() => {});
+    endPhone("Chamada encerrada");
+    loadHistory();
+  }));
+  $("#phone-mute").addEventListener("click", (e) => run(e.target, async () => {
+    if (!phone) return;
+    phone.muted = !phone.muted;
+    phone.stream.getAudioTracks().forEach((t) => (t.enabled = !phone.muted));
+    await api("POST", "/call/mute", { callId: phone.id, muted: phone.muted }, callInst());
+    $("#phone-mute").className = "btn " + (phone.muted ? "off" : "on");
+  }));
+  $("#phone-camera").addEventListener("click", (e) => run(e.target, async () => {
+    if (!phone) return;
+    const on = !phone.camera;
+    if (on) {
+      let track = phone.stream.getVideoTracks()[0];
+      if (!track) {
+        const cam = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+        track = cam.getVideoTracks()[0];
+        phone.stream.addTrack(track);
+      }
+      await phone.videoSender.replaceTrack(track);
+      $("#phone-local").srcObject = phone.stream;
+    } else {
+      await phone.videoSender.replaceTrack(null);
+      $("#phone-local").srcObject = null;
+    }
+    await api("POST", "/call/camera", { callId: phone.id, on }, callInst());
+    phone.camera = on;
+    $("#phone-camera").className = "btn " + (on ? "on" : "");
+  }));
 
   // ------------------------------------------------------------ eventos ao vivo
   let ws = null, paused = false;

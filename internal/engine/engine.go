@@ -53,6 +53,19 @@ type Engine struct {
 
 	mu       sync.RWMutex
 	sessions map[string]*Session
+
+	// Calls liga as chamadas de voz e vídeo (pacote calls). Fica nil quando não há chamadas.
+	Calls CallHooks
+}
+
+// CallHooks é o que o motor precisa do gerenciador de chamadas.
+type CallHooks interface {
+	// Attach roda com o cliente novo, antes do Connect (a biblioteca de chamadas exige isso).
+	Attach(s *Session, cli *whatsmeow.Client)
+	// Handles diz se as chamadas da instância passam pelo gerenciador (ele atende ou recusa).
+	Handles(instanceID string) bool
+	// Detach encerra as chamadas da instância (logout ou exclusão).
+	Detach(instanceID string)
 }
 
 // New abre o banco das sessões do WhatsApp e prepara o motor.
@@ -178,6 +191,9 @@ func (e *Engine) drop(id string) {
 	e.mu.Lock()
 	delete(e.sessions, id)
 	e.mu.Unlock()
+	if e.Calls != nil {
+		e.Calls.Detach(id)
+	}
 }
 
 // Stats resume o servidor para o painel.
@@ -332,6 +348,9 @@ func (s *Session) start() error {
 		cli.EnableAutoReconnect = true
 		cli.AutoTrustIdentity = true
 		cli.AddEventHandler(s.handle)
+		if s.e.Calls != nil {
+			s.e.Calls.Attach(s, cli)
+		}
 		if err := applyProxy(cli, proxyFor(s.e.Cfg, inst.Proxy)); err != nil {
 			s.logf("WARN", "proxy ignorado: %v", err)
 		}
@@ -515,6 +534,25 @@ func (s *Session) Reconnect() error {
 	return s.start()
 }
 
+// Rebuild troca o cliente do WhatsApp por um novo com a mesma sessão salva (sem QR Code).
+// Ligar ou desligar as chamadas precisa disso: o módulo de chamadas entra antes da conexão.
+func (s *Session) Rebuild() error {
+	s.stopQR()
+	if c := s.client(); c != nil {
+		c.Disconnect()
+	}
+	if s.e.Calls != nil {
+		s.e.Calls.Detach(s.ID)
+	}
+	s.mu.Lock()
+	s.cli = nil
+	s.mu.Unlock()
+	if fresh, err := s.e.Repo.ByID(s.ID); err == nil {
+		s.setInstance(fresh)
+	}
+	return s.start()
+}
+
 // Logout encerra o login no celular (vai precisar de novo QR Code).
 func (s *Session) Logout(ctx context.Context) error {
 	s.stopQR()
@@ -530,6 +568,9 @@ func (s *Session) Logout(ctx context.Context) error {
 	s.mu.Lock()
 	s.cli = nil
 	s.mu.Unlock()
+	if s.e.Calls != nil {
+		s.e.Calls.Detach(s.ID)
+	}
 	_ = s.e.Repo.Update(s.ID, map[string]any{"jid": "", "connected": false, "qrcode": ""})
 	s.logf("INFO", "sessão encerrada (logout)")
 	return nil
@@ -562,6 +603,12 @@ func (s *Session) logf(level, format string, args ...any) {
 	inst := s.Instance()
 	log.Printf("[%s] %s: %s", inst.Name, level, msg)
 }
+
+// Emit envia um evento da instância (usado pelo gerenciador de chamadas).
+func (s *Session) Emit(name string, data any) { s.emit(name, data) }
+
+// Logf grava uma linha no histórico da instância.
+func (s *Session) Logf(level, format string, args ...any) { s.logf(level, format, args...) }
 
 // emit envia um evento para o webhook, o WebSocket e as integrações.
 func (s *Session) emit(name string, data any) {

@@ -31,6 +31,7 @@
     <nav>
       <a href="#instancias" data-page="instancias"><span>📱</span> Instâncias</a>
       <a href="#enviar" data-page="enviar"><span>✉️</span> Enviar mensagem</a>
+      <a href="#chamadas" data-page="chamadas"><span>📞</span> Chamadas</a>
       <a href="#eventos" data-page="eventos"><span>⚡</span> Eventos ao vivo</a>
       <a href="#servidor" data-page="servidor"><span>🖥️</span> Servidor</a>
       <a href="/swagger/index.html" target="_blank" rel="noopener"><span>📘</span> Documentação da API</a>
@@ -94,6 +95,48 @@
         <div class="actions"><button class="btn primary" type="submit">Enviar</button></div>
         <pre id="send-result" class="result hidden"></pre>
       </form>
+    </section>
+
+    <section class="page hidden" id="page-chamadas">
+      <div class="toolbar">
+        <select id="call-instance" aria-label="Instância"></select>
+        <label class="check switch"><input id="call-enabled" type="checkbox"> Chamadas ligadas nesta instância</label>
+        <span id="call-state" class="pill">…</span>
+      </div>
+      <div class="grid two calls">
+        <div class="card">
+          <h3>Softphone</h3>
+          <p class="muted small">Atenda e faça ligações de voz e vídeo do WhatsApp por este navegador. O áudio e o vídeo passam pela BOB em tempo real e não são gravados.</p>
+          <form id="call-form" class="row">
+            <label>Número (com DDI e DDD) <input id="call-number" placeholder="5511999998888" required></label>
+            <label class="check"><input id="call-video" type="checkbox"> Com vídeo</label>
+            <div class="actions"><button class="btn primary" type="submit">📞 Ligar</button></div>
+          </form>
+          <div id="phone" class="phone hidden">
+            <div class="phone-head"><strong id="phone-peer"></strong><span id="phone-status" class="pill"></span><span id="phone-timer" class="muted"></span></div>
+            <div class="phone-videos">
+              <video id="phone-remote" autoplay playsinline></video>
+              <video id="phone-local" autoplay playsinline muted></video>
+            </div>
+            <audio id="phone-audio" autoplay></audio>
+            <div class="actions">
+              <button class="btn" id="phone-mute">🎙️ Microfone</button>
+              <button class="btn" id="phone-camera">📷 Câmera</button>
+              <button class="btn danger" id="phone-hangup">⏹ Desligar</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Tocando agora</h3>
+          <div id="call-live" class="call-list"><p class="muted">Nenhuma chamada em andamento.</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="toolbar"><h3>Histórico</h3><span class="spacer"></span>
+          <select id="call-filter" aria-label="Filtro"><option value="">Todas</option><option value="missed">Perdidas</option><option value="ended">Atendidas e encerradas</option><option value="rejected">Recusadas</option></select>
+        </div>
+        <div id="call-history" class="call-list"></div>
+      </div>
     </section>
 
     <section class="page hidden" id="page-eventos">

@@ -105,6 +105,10 @@ Depois, `sudo certbot --nginx -d bob.seudominio.com.br`.
 | `STORE_MESSAGES` | `true` | Guarda o histórico de mensagens e conversas no banco |
 | `STORE_MESSAGES_DAYS` | `0` | Apaga do histórico mensagens com mais de N dias (`0` = nunca) |
 | `RECONNECT_IDLE_HOURS` | `6` | Reconecta (sem QR Code) números conectados sem nenhum evento há N horas (`0` = desliga) |
+| `WEBRTC_UDP_MUX_PORT` | `0` | Porta UDP das chamadas de voz e vídeo (`40000` no Docker). Veja [chamadas.md](chamadas.md) |
+| `WEBRTC_PUBLIC_IP` | vazio | IP público para as chamadas (obrigatório no Docker e atrás de NAT) |
+| `WEBRTC_ICE_SERVERS` | `stun:stun.l.google.com:19302` | STUN/TURN entregues ao navegador |
+| `WEBRTC_TURN_SECRET` / `WEBRTC_TURN_TTL` | vazio / `600` | Segredo do TURN e validade da senha temporária |
 | `EVENT_IGNORE_GROUP` | `false` | Ignora mensagens de grupos em todas as instâncias |
 | `EVENT_IGNORE_STATUS` | `true` | Ignora status (stories) |
 | `QRCODE_MAX_COUNT` | `5` | QR Codes gerados antes de desistir |

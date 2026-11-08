@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/edton180/api-whatsapp-bob/internal/api"
+	"github.com/edton180/api-whatsapp-bob/internal/calls"
 	"github.com/edton180/api-whatsapp-bob/internal/config"
 	"github.com/edton180/api-whatsapp-bob/internal/engine"
 	"github.com/edton180/api-whatsapp-bob/internal/events"
@@ -44,6 +45,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Chamadas de voz e vídeo (ligadas por instância em /call/settings).
+	callMgr, err := calls.New(eng, repo, cfg.WebRTC)
+	if err != nil {
+		log.Printf("chamadas de voz e vídeo desligadas: %v", err)
+		callMgr = nil
+	} else {
+		eng.Calls = callMgr
+	}
+
 	intStore, err := integrations.NewGormStore(db)
 	if err != nil {
 		log.Fatal(err)
@@ -59,7 +69,7 @@ func main() {
 		}
 	})
 
-	srv := &api.Server{Engine: eng, Repo: repo, Integrations: mgr}
+	srv := &api.Server{Engine: eng, Repo: repo, Integrations: mgr, Calls: callMgr}
 	httpSrv := &http.Server{Addr: ":" + cfg.Port, Handler: srv.Router(), ReadHeaderTimeout: 15 * time.Second}
 
 	go eng.Start()
@@ -77,6 +87,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = httpSrv.Shutdown(ctx)
+	if callMgr != nil {
+		_ = callMgr.Close()
+	}
 	eng.Stop()
 }
 

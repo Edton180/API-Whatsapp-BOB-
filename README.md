@@ -30,6 +30,7 @@ Chatwoot, Typebot e N8N. Não precisa de licença nem de ativação.
 | ![Instâncias](docs/imagens/telas/02-instancias.jpg) **Instâncias** | ![Conectar](docs/imagens/telas/03-conectar-qr.jpg) **Conectar por QR Code ou código** |
 | ![Webhook](docs/imagens/telas/04-webhook.jpg) **Webhook e eventos** | ![Comportamento](docs/imagens/telas/05-comportamento.jpg) **Comportamento** |
 | ![Integrações](docs/imagens/telas/06-integracoes.jpg) **Chatwoot, Typebot e N8N** | ![Enviar](docs/imagens/telas/07-enviar.jpg) **Envio de teste** |
+| ![Chamadas](docs/imagens/telas/11-chamadas.jpg) **Chamadas de voz e vídeo** | ![Eventos](docs/imagens/telas/12-eventos.jpg) **Eventos ao vivo** |
 | ![Servidor](docs/imagens/telas/08-servidor.jpg) **Servidor** | ![Documentação](docs/imagens/telas/10-documentacao.jpg) **Documentação da API** |
 | ![Entrada](docs/imagens/telas/01-entrada.jpg) **Entrada** | <img src="docs/imagens/telas/02-instancias-celular.jpg" width="220" alt="Celular"> **No celular** |
 
@@ -47,7 +48,7 @@ As capturas foram feitas com dados de exemplo.
 | Conversas | Arquivar, fixar, silenciar, marcar como lida ou não lida |
 | Grupos | Listar, dados, criar, participantes, nome, descrição, foto, convite, ver convite sem entrar, entrar, sair, quem envia e quem edita, aprovação de entrada e pedidos, mensagens temporárias |
 | Comunidades e canais | Criar comunidade e ligar grupos; criar canal, ver, seguir, silenciar e ler mensagens |
-| Chamadas | Recusar ligação (automático ou pela API) |
+| Chamadas | **Atender e fazer ligações de voz e vídeo pelo navegador** (WebRTC), vários atendentes, transferir, microfone e câmera, histórico de chamadas e perdidas, recusar (automático ou pela API) |
 | Etiquetas | Listar, etiquetar conversa ou mensagem, criar e editar (WhatsApp Business) |
 | Eventos | Webhook com fila e novas tentativas, WebSocket, mídia recebida em base64 |
 | Integrações | Chatwoot, Typebot e N8N nativos |
@@ -94,6 +95,7 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 | [docs/painel.md](docs/painel.md) | Telas do painel |
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
 | [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
+| [docs/chamadas.md](docs/chamadas.md) | Chamadas de voz e vídeo pelo navegador: rede, TURN, rotas e eventos |
 | [docs/historico.md](docs/historico.md) | Histórico de mensagens e conversas, status de entrega e votos de enquete |
 | [docs/padrao-v2.md](docs/padrao-v2.md) | Rotas `/message/sendText/{instância}`... para sistemas feitos no padrão Evolution API v2 |
 | [docs/atualizacao.md](docs/atualizacao.md) | Atualizar sem perder números conectados |
@@ -106,6 +108,7 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 cmd/bob/              início do servidor
 internal/engine/      motor: sessões do WhatsApp, eventos, envios e ações
 internal/api/         rotas HTTP
+internal/calls/       chamadas de voz e vídeo (ponte WhatsApp <-> WebRTC, codec G.722)
 internal/events/      webhook e WebSocket
 internal/integrations Chatwoot, Typebot e N8N
 internal/panel/       painel web e documentação (embutidos no programa)

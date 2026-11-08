@@ -9,6 +9,10 @@ são baixados na compilação, cada um com a sua licença):
 
 - whatsmeow (https://github.com/tulir/whatsmeow), de Tulir Asokan, Mozilla Public
   License 2.0: biblioteca do protocolo do WhatsApp Web usada pelo motor da BOB.
+- meowcaller (https://github.com/purpshell/meowcaller), licença MIT: protocolo de
+  chamadas de voz e vídeo do WhatsApp sobre a whatsmeow.
+- Pion WebRTC, ICE, RTP e RTCP (https://github.com/pion), licença MIT: ponte das
+  chamadas com o navegador.
 - Gin, GORM, gorilla/websocket, go-qrcode, chai2010/webp, mimetype, lib/pq,
   go-sqlite3 e golang.org/x: licenças MIT, BSD ou Apache 2.0.
 

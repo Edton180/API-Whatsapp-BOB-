@@ -14,6 +14,7 @@ Entre com a `GLOBAL_API_KEY`. Marque "Lembrar neste navegador" só em computador
 | **Configurar › Acesso** | ID, token e exemplo de envio com `curl`. |
 | **Registro** | O que aconteceu com a instância desde o último início (conexão, erros, ligações recusadas). |
 | **Enviar mensagem** | Teste de texto, mídia, figurinha, localização e enquete. |
+| **Chamadas** | Liga as chamadas de voz e vídeo na instância, mostra as chamadas tocando (atender, atender com vídeo, recusar, puxar para este navegador, desligar), softphone para ligar para um número, microfone, câmera e o histórico (perdidas, atendidas, recusadas). Veja [chamadas.md](chamadas.md). |
 | **Eventos ao vivo** | Tudo o que chega e sai, em tempo real (WebSocket). |
 | **Servidor** | Versão, commit, tempo no ar, memória, banco, ffmpeg e links. |
 | **Documentação da API** | Todas as rotas com exemplos, em `/swagger/index.html`. |

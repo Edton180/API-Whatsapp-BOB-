@@ -30,7 +30,7 @@ Lista vazia ou `ALL` envia tudo.
 | `CONNECTION` | `Connected`, `PairSuccess`, `LoggedOut`, `Disconnected`, `ConnectFailure`, `TemporaryBan`, `StreamReplaced`... |
 | `QRCODE` | `QRCode` (`data.qrcode` é a imagem PNG em data URI), `QRTimeout`, `QRSuccess` |
 | `PRESENCE` / `CHAT_PRESENCE` | online/offline e "digitando..." |
-| `CALL` | `CallOffer`, `CallAccept`, `CallTerminate`... |
+| `CALL` | `CallRinging`, `CallConnected`, `CallMedia`, `CallEnded` (chamadas pelo navegador, veja [chamadas.md](chamadas.md)), `CallOffer`, `CallAccept`, `CallTerminate`... |
 | `CONTACT` | `Contact`, `PushName`, `Picture`, `BusinessName` |
 | `GROUP` | `GroupInfo`, `JoinedGroup` |
 | `LABEL` | `LabelEdit`, `LabelAssociationChat`, `LabelAssociationMessage` |
@@ -72,7 +72,7 @@ ligado (painel › Configurar › Webhook, ou `byEvents: true` em `/instance/{id
 | `QRCode`, `QRTimeout` | `URL/qrcode-updated` |
 | `Presence`, `ChatPresence` | `URL/presence-update` |
 | `GroupInfo` / `JoinedGroup` | `URL/group-update` / `URL/groups-upsert` |
-| `CallOffer`... | `URL/call` |
+| `CallRinging`, `CallEnded`, `CallOffer`... | `URL/call` |
 
 O corpo continua no formato da BOB. A **mídia em base64** pode ser ligada ou desligada por
 instância (`base64: true/false`); sem escolha, vale `WEBHOOK_FILES`.

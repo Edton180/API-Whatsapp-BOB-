@@ -140,6 +140,11 @@ func (s *Session) onConnected() {
 
 func (s *Session) onCall(v *events.CallOffer) {
 	inst := s.Instance()
+	if s.e.Calls != nil && s.e.Calls.Handles(s.ID) {
+		// Chamadas ligadas: o gerenciador registra, toca para os atendentes ou recusa.
+		s.emit("CallOffer", v)
+		return
+	}
 	if inst.RejectCall {
 		if c := s.client(); c != nil {
 			_ = c.RejectCall(context.Background(), v.From, v.CallID)
