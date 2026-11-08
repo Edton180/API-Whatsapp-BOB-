@@ -41,7 +41,9 @@ type Config struct {
 	PublicURL        string
 	StoreMessages    bool // guarda o histórico de mensagens e conversas no banco
 	StoreDays        int  // apaga do histórico as mensagens mais antigas que N dias (0 = nunca)
-	Proxy            Proxy
+	// ReconnectIdleHours reconecta (sem QR Code) números conectados sem nenhum evento há N horas (0 = desliga)
+	ReconnectIdleHours int
+	Proxy              Proxy
 }
 
 // Load lê o .env (se houver) e as variáveis de ambiente.
@@ -54,25 +56,26 @@ func Load() *Config {
 		}
 	}
 	return &Config{
-		Port:             env("SERVER_PORT", "8080"),
-		APIKey:           env("GLOBAL_API_KEY", ""),
-		AuthDB:           env("POSTGRES_AUTH_DB", ""),
-		UsersDB:          env("POSTGRES_USERS_DB", ""),
-		DataDir:          data,
-		ClientName:       env("CLIENT_NAME", "bob"),
-		OSName:           env("OS_NAME", "API WhatsApp BOB"),
-		LogLevel:         strings.ToUpper(env("WADEBUG", env("LOG_LEVEL", "WARN"))),
-		ConnectOnStartup: envBool("CONNECT_ON_STARTUP", true),
-		WebhookFiles:     envBool("WEBHOOK_FILES", true),
-		GlobalWebhook:    env("WEBHOOK_URL", ""),
-		IgnoreGroups:     envBool("EVENT_IGNORE_GROUP", false),
-		IgnoreStatus:     envBool("EVENT_IGNORE_STATUS", true),
-		QRMaxCount:       envInt("QRCODE_MAX_COUNT", 5),
-		CheckUserExists:  envBool("CHECK_USER_EXISTS", true),
-		PanelEnabled:     envBool("PANEL_ENABLED", true),
-		PublicURL:        strings.TrimRight(env("PUBLIC_URL", ""), "/"),
-		StoreMessages:    envBool("STORE_MESSAGES", true),
-		StoreDays:        envInt("STORE_MESSAGES_DAYS", 0),
+		Port:               env("SERVER_PORT", "8080"),
+		APIKey:             env("GLOBAL_API_KEY", ""),
+		AuthDB:             env("POSTGRES_AUTH_DB", ""),
+		UsersDB:            env("POSTGRES_USERS_DB", ""),
+		DataDir:            data,
+		ClientName:         env("CLIENT_NAME", "bob"),
+		OSName:             env("OS_NAME", "API WhatsApp BOB"),
+		LogLevel:           strings.ToUpper(env("WADEBUG", env("LOG_LEVEL", "WARN"))),
+		ConnectOnStartup:   envBool("CONNECT_ON_STARTUP", true),
+		WebhookFiles:       envBool("WEBHOOK_FILES", true),
+		GlobalWebhook:      env("WEBHOOK_URL", ""),
+		IgnoreGroups:       envBool("EVENT_IGNORE_GROUP", false),
+		IgnoreStatus:       envBool("EVENT_IGNORE_STATUS", true),
+		QRMaxCount:         envInt("QRCODE_MAX_COUNT", 5),
+		CheckUserExists:    envBool("CHECK_USER_EXISTS", true),
+		PanelEnabled:       envBool("PANEL_ENABLED", true),
+		PublicURL:          strings.TrimRight(env("PUBLIC_URL", ""), "/"),
+		StoreMessages:      envBool("STORE_MESSAGES", true),
+		StoreDays:          envInt("STORE_MESSAGES_DAYS", 0),
+		ReconnectIdleHours: envInt("RECONNECT_IDLE_HOURS", 6),
 		Proxy: Proxy{
 			Protocol: env("PROXY_PROTOCOL", ""),
 			Host:     env("PROXY_HOST", ""),

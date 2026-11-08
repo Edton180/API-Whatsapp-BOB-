@@ -120,6 +120,11 @@ func (d *Dispatcher) AddHook(h Hook) { d.hooks = append(d.hooks, h) }
 
 // Emit envia o evento para o webhook (se houver), para o WebSocket e para os hooks.
 func (d *Dispatcher) Emit(p Payload, webhookURL string, subscribed string) {
+	d.EmitTo(p, Target{URL: webhookURL, Subscribed: subscribed})
+}
+
+// EmitTo é o Emit com as opções de webhook da instância (um endereço por evento).
+func (d *Dispatcher) EmitTo(p Payload, t Target) {
 	if p.Date == "" {
 		p.Date = time.Now().Format(time.RFC3339)
 	}
@@ -131,12 +136,12 @@ func (d *Dispatcher) Emit(p Payload, webhookURL string, subscribed string) {
 	for _, h := range d.hooks {
 		h(p.InstanceID, body)
 	}
-	if !Allowed(subscribed, p.Event) {
+	if !Allowed(t.Subscribed, p.Event) {
 		return
 	}
 	d.Hub.Publish(p.InstanceID, body)
-	if webhookURL != "" {
-		d.enqueue(webhookURL, body)
+	if url := t.URLFor(p.Event); url != "" {
+		d.enqueue(url, body)
 	}
 }
 

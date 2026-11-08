@@ -20,6 +20,7 @@ import (
 
 // handle recebe os eventos da whatsmeow e publica no formato da BOB.
 func (s *Session) handle(raw any) {
+	s.touch()
 	switch v := raw.(type) {
 	case *events.Message:
 		s.onMessage(v)
@@ -62,7 +63,7 @@ func (s *Session) handle(raw any) {
 		s.logf("ERROR", "banimento temporário: %s até %s", v.Code.String(), v.Expire.String())
 		s.emit("TemporaryBan", map[string]any{"reason": v.Code.String(), "expire": v.Expire.String()})
 	case *events.ClientOutdated:
-		s.logf("ERROR", "o WhatsApp diz que a versão do cliente está desatualizada")
+		s.onOutdated()
 		s.emit("ClientOutdated", map[string]any{})
 	case *events.CallOffer:
 		s.onCall(v)
@@ -182,7 +183,7 @@ func (s *Session) onMessage(v *events.Message) {
 		_ = json.Unmarshal(b, &data)
 	}
 	delete(data, "RawMessage")
-	if s.e.Cfg.WebhookFiles {
+	if inst.Base64(s.e.Cfg.WebhookFiles) {
 		if msg, ok := data["Message"].(map[string]any); ok {
 			if c := s.client(); c != nil {
 				if file, mime := downloadMedia(c, v.Message); file != nil {

@@ -104,6 +104,7 @@ Depois, `sudo certbot --nginx -d bob.seudominio.com.br`.
 | `WEBHOOK_URL` | vazio | Webhook padrão para instâncias sem webhook |
 | `STORE_MESSAGES` | `true` | Guarda o histórico de mensagens e conversas no banco |
 | `STORE_MESSAGES_DAYS` | `0` | Apaga do histórico mensagens com mais de N dias (`0` = nunca) |
+| `RECONNECT_IDLE_HOURS` | `6` | Reconecta (sem QR Code) números conectados sem nenhum evento há N horas (`0` = desliga) |
 | `EVENT_IGNORE_GROUP` | `false` | Ignora mensagens de grupos em todas as instâncias |
 | `EVENT_IGNORE_STATUS` | `true` | Ignora status (stories) |
 | `QRCODE_MAX_COUNT` | `5` | QR Codes gerados antes de desistir |

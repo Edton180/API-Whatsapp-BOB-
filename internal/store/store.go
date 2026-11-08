@@ -46,6 +46,32 @@ type Instance struct {
 	ReadMessages  bool   `json:"readMessages" gorm:"default:false"`
 	IgnoreGroups  bool   `json:"ignoreGroups" gorm:"default:false"`
 	IgnoreStatus  bool   `json:"ignoreStatus" gorm:"default:false"`
+
+	// Webhook no padrão v2: um endereço por evento (URL/messages-upsert...) e mídia em base64.
+	WebhookByEvents bool   `json:"webhookByEvents" gorm:"default:false"`
+	WebhookBase64   string `json:"webhookBase64" gorm:"size:8;default:''"` // "" segue WEBHOOK_FILES; "on" ou "off"
+}
+
+// Base64 diz se a mídia recebida vai em base64 no webhook desta instância.
+func (m *Instance) Base64(global bool) bool {
+	switch m.WebhookBase64 {
+	case "on":
+		return true
+	case "off":
+		return false
+	}
+	return global
+}
+
+// Base64Setting converte o valor recebido pela API (true, false ou vazio) no que fica salvo.
+func Base64Setting(v *bool) string {
+	if v == nil {
+		return ""
+	}
+	if *v {
+		return "on"
+	}
+	return "off"
 }
 
 func (Instance) TableName() string { return "instances" }
