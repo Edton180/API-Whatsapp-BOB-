@@ -45,6 +45,7 @@ func (s *Server) view(inst *store.Instance) map[string]any {
 		out["phone"] = strings.SplitN(strings.SplitN(inst.Jid, "@", 2)[0], ":", 2)[0]
 	}
 	out["advancedSettings"] = inst.Settings()
+	out["webhookFilesDefault"] = s.Engine.Cfg.WebhookFiles
 	return out
 }
 
@@ -56,6 +57,8 @@ type createRequest struct {
 	Events           []string                `json:"events"`
 	AdvancedSettings *store.AdvancedSettings `json:"advancedSettings"`
 	Proxy            map[string]any          `json:"proxy"`
+	WebhookByEvents  bool                    `json:"webhookByEvents"`
+	WebhookBase64    *bool                   `json:"webhookBase64"`
 }
 
 func (s *Server) instanceCreate(c *gin.Context) {
@@ -73,6 +76,7 @@ func (s *Server) instanceCreate(c *gin.Context) {
 	if req.AdvancedSettings != nil {
 		inst.Apply(*req.AdvancedSettings)
 	}
+	inst.WebhookByEvents, inst.WebhookBase64 = req.WebhookByEvents, store.Base64Setting(req.WebhookBase64)
 	if len(req.Proxy) > 0 {
 		b, _ := json.Marshal(req.Proxy)
 		inst.Proxy = string(b)
@@ -227,19 +231,34 @@ func (s *Server) webhookSet(c *gin.Context) {
 	var req struct {
 		Webhook   string   `json:"webhook"`
 		Subscribe []string `json:"subscribe"`
+		ByEvents  *bool    `json:"byEvents"`
+		Base64    *bool    `json:"base64"`
 	}
 	if !bind(c, &req) {
 		return
 	}
 	events := strings.Join(req.Subscribe, ",")
-	if err := s.Repo.Update(inst.Id, map[string]any{"webhook": strings.TrimSpace(req.Webhook), "events": events}); err != nil {
+	fields := map[string]any{"webhook": strings.TrimSpace(req.Webhook), "events": events}
+	if req.ByEvents != nil {
+		fields["webhook_by_events"] = *req.ByEvents
+	}
+	if req.Base64 != nil {
+		fields["webhook_base64"] = store.Base64Setting(req.Base64)
+	}
+	if err := s.Repo.Update(inst.Id, fields); err != nil {
 		fail(c, http.StatusInternalServerError, err)
 		return
 	}
-	if fresh, err := s.Repo.ByID(inst.Id); err == nil && s.Engine.Lookup(inst.Id) != nil {
+	fresh, err := s.Repo.ByID(inst.Id)
+	if err != nil {
+		fail(c, http.StatusInternalServerError, err)
+		return
+	}
+	if s.Engine.Lookup(inst.Id) != nil {
 		s.Engine.Session(fresh)
 	}
-	ok(c, gin.H{"webhook": strings.TrimSpace(req.Webhook), "events": events})
+	ok(c, gin.H{"webhook": fresh.Webhook, "events": fresh.Events, "byEvents": fresh.WebhookByEvents,
+		"base64": fresh.Base64(s.Engine.Cfg.WebhookFiles)})
 }
 
 // ---------------------------------------------------------------- conexão

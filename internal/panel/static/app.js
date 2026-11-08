@@ -265,6 +265,8 @@
         <label>URL do webhook <input name="webhook" type="url" value="${esc(fresh.webhook)}" placeholder="https://seu-sistema.com/webhook"></label>
         <p class="muted small">Eventos enviados (nenhum marcado = todos):</p>
         <div class="checks">${EVENTS.map((e) => `<label class="check"><input type="checkbox" name="ev" value="${e}" ${chosen.includes(e) || chosen.includes("ALL") ? "checked" : ""}> ${e}</label>`).join("")}</div>
+        <label class="check"><input type="checkbox" name="byEvents" ${fresh.webhookByEvents ? "checked" : ""}> Um endereço por evento (URL/messages-upsert, URL/connection-update...)</label>
+        <label class="check"><input type="checkbox" name="base64" ${fresh.webhookBase64 === "off" ? "" : fresh.webhookBase64 === "on" || fresh.webhookFilesDefault ? "checked" : ""}> Mídia recebida em base64 no webhook</label>
         <div class="actions"><button class="btn primary" type="submit">Salvar webhook</button></div>
       </form>
       <form data-pane="comportamento" id="f-adv" class="hidden">
@@ -306,7 +308,7 @@
     $("#f-webhook", body).addEventListener("submit", (e) => {
       e.preventDefault();
       const f = new FormData(e.target);
-      run(e.submitter, async () => { await api("POST", `/instance/${inst.id}/webhook`, { webhook: f.get("webhook"), subscribe: f.getAll("ev") }); toast("Webhook salvo"); refresh(); });
+      run(e.submitter, async () => { await api("POST", `/instance/${inst.id}/webhook`, { webhook: f.get("webhook"), subscribe: f.getAll("ev"), byEvents: f.get("byEvents") === "on", base64: f.get("base64") === "on" }); toast("Webhook salvo"); refresh(); });
     });
     $("#f-adv", body).addEventListener("submit", (e) => {
       e.preventDefault();

@@ -88,3 +88,22 @@ func TestHistoryOff(t *testing.T) {
 		t.Fatalf("histórico desligado: %d %s", r.Code, r.Raw)
 	}
 }
+
+func TestV2WebhookByEventsAndBase64(t *testing.T) {
+	h := newServer(t)
+	call(t, h, "POST", "/instance/create", key, map[string]any{"name": "wh", "token": "TOKEN-WH"})
+	r := call(t, h, "POST", "/webhook/set/wh", "TOKEN-WH", map[string]any{"webhook": map[string]any{
+		"enabled": true, "url": "https://exemplo.com/hook", "byEvents": true, "base64": false, "events": []string{"MESSAGES_UPSERT"},
+	}})
+	if r.Code != 201 || r.Body["byEvents"] != true || r.Body["base64"] != false {
+		t.Fatalf("webhook/set: %d %s", r.Code, r.Raw)
+	}
+	if r := call(t, h, "GET", "/webhook/find/wh", "TOKEN-WH", nil); r.Body["webhookByEvents"] != true || r.Body["webhookBase64"] != false {
+		t.Fatalf("webhook/find: %s", r.Raw)
+	}
+	// rota nativa do painel
+	r = call(t, h, "POST", "/instance/wh/webhook", key, map[string]any{"webhook": "https://exemplo.com/hook", "subscribe": []string{"MESSAGE"}, "byEvents": false, "base64": true})
+	if r.Code != 200 || data(r)["byEvents"] != false || data(r)["base64"] != true {
+		t.Fatalf("webhook nativo: %d %s", r.Code, r.Raw)
+	}
+}

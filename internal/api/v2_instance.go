@@ -148,23 +148,27 @@ func (s *Server) v2CreateOrNative(native gin.HandlerFunc) gin.HandlerFunc {
 
 func (s *Server) v2Create(c *gin.Context) {
 	var req struct {
-		InstanceName  string `json:"instanceName"`
-		Token         string `json:"token"`
-		Number        string `json:"number"`
-		Qrcode        bool   `json:"qrcode"`
-		RejectCall    bool   `json:"rejectCall"`
-		MsgCall       string `json:"msgCall"`
-		GroupsIgnore  bool   `json:"groupsIgnore"`
-		AlwaysOnline  bool   `json:"alwaysOnline"`
-		ReadMessages  bool   `json:"readMessages"`
-		ProxyHost     string `json:"proxyHost"`
-		ProxyPort     string `json:"proxyPort"`
-		ProxyProtocol string `json:"proxyProtocol"`
-		ProxyUsername string `json:"proxyUsername"`
-		ProxyPassword string `json:"proxyPassword"`
-		Webhook       *struct {
-			URL    string   `json:"url"`
-			Events []string `json:"events"`
+		InstanceName    string `json:"instanceName"`
+		Token           string `json:"token"`
+		Number          string `json:"number"`
+		Qrcode          bool   `json:"qrcode"`
+		RejectCall      bool   `json:"rejectCall"`
+		MsgCall         string `json:"msgCall"`
+		GroupsIgnore    bool   `json:"groupsIgnore"`
+		AlwaysOnline    bool   `json:"alwaysOnline"`
+		ReadMessages    bool   `json:"readMessages"`
+		ProxyHost       string `json:"proxyHost"`
+		ProxyPort       string `json:"proxyPort"`
+		ProxyProtocol   string `json:"proxyProtocol"`
+		ProxyUsername   string `json:"proxyUsername"`
+		ProxyPassword   string `json:"proxyPassword"`
+		WebhookByEvents bool   `json:"webhookByEvents"`
+		WebhookBase64   *bool  `json:"webhookBase64"`
+		Webhook         *struct {
+			URL      string   `json:"url"`
+			Events   []string `json:"events"`
+			ByEvents *bool    `json:"byEvents"`
+			Base64   *bool    `json:"base64"`
 		} `json:"webhook"`
 	}
 	if !v2Bind(c, &req) {
@@ -186,9 +190,16 @@ func (s *Server) v2Create(c *gin.Context) {
 		AlwaysOnline: req.AlwaysOnline, RejectCall: req.RejectCall, MsgRejectCall: req.MsgCall,
 		ReadMessages: req.ReadMessages, IgnoreGroups: req.GroupsIgnore,
 	})
+	inst.WebhookByEvents, inst.WebhookBase64 = req.WebhookByEvents, store.Base64Setting(req.WebhookBase64)
 	if req.Webhook != nil && strings.TrimSpace(req.Webhook.URL) != "" {
 		inst.Webhook = strings.TrimSpace(req.Webhook.URL)
 		inst.Events = strings.Join(v2ToCategories(req.Webhook.Events), ",")
+		if req.Webhook.ByEvents != nil {
+			inst.WebhookByEvents = *req.Webhook.ByEvents
+		}
+		if req.Webhook.Base64 != nil {
+			inst.WebhookBase64 = store.Base64Setting(req.Webhook.Base64)
+		}
 	}
 	if req.ProxyHost != "" {
 		b, _ := json.Marshal(map[string]string{
@@ -207,7 +218,7 @@ func (s *Server) v2Create(c *gin.Context) {
 		"settings": v2Settings(inst),
 	}
 	if inst.Webhook != "" {
-		out["webhook"] = gin.H{"url": inst.Webhook, "events": v2FromCategories(inst.Events)}
+		out["webhook"] = s.v2Webhook(inst)
 	}
 	if req.Qrcode || req.Number != "" {
 		sess, err := s.Engine.Connect(inst, engine.ConnectOptions{})
@@ -395,9 +406,13 @@ func (s *Server) v2SettingsFind(c *gin.Context) { c.JSON(http.StatusOK, v2Settin
 
 func (s *Server) v2WebhookSet(c *gin.Context) {
 	type hook struct {
-		Enabled *bool    `json:"enabled"`
-		URL     string   `json:"url"`
-		Events  []string `json:"events"`
+		Enabled         *bool    `json:"enabled"`
+		URL             string   `json:"url"`
+		Events          []string `json:"events"`
+		ByEvents        *bool    `json:"byEvents"`
+		Base64          *bool    `json:"base64"`
+		WebhookByEvents *bool    `json:"webhookByEvents"`
+		WebhookBase64   *bool    `json:"webhookBase64"`
 	}
 	var req struct {
 		Webhook *hook `json:"webhook"`
@@ -420,24 +435,53 @@ func (s *Server) v2WebhookSet(c *gin.Context) {
 		}
 		events = strings.Join(v2ToCategories(h.Events), ",")
 	}
-	if err := s.Repo.Update(inst.Id, map[string]any{"webhook": url, "events": events}); err != nil {
+	fields := map[string]any{"webhook": url, "events": events}
+	if v := firstBool(h.ByEvents, h.WebhookByEvents); v != nil {
+		fields["webhook_by_events"] = *v
+	}
+	if v := firstBool(h.Base64, h.WebhookBase64); v != nil {
+		fields["webhook_base64"] = store.Base64Setting(v)
+	}
+	if err := s.Repo.Update(inst.Id, fields); err != nil {
 		v2Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	inst.Webhook, inst.Events = url, events
+	fresh, err := s.Repo.ByID(inst.Id)
+	if err != nil {
+		v2Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	if s.Engine.Lookup(inst.Id) != nil {
-		if fresh, err := s.Repo.ByID(inst.Id); err == nil {
-			s.Engine.Session(fresh)
+		s.Engine.Session(fresh)
+	}
+	c.JSON(http.StatusCreated, s.v2Webhook(fresh))
+}
+
+func firstBool(list ...*bool) *bool {
+	for _, v := range list {
+		if v != nil {
+			return v
 		}
 	}
-	c.JSON(http.StatusCreated, v2Webhook(inst))
+	return nil
 }
 
-func v2Webhook(inst *store.Instance) gin.H {
-	return gin.H{"enabled": inst.Webhook != "", "url": inst.Webhook, "events": v2FromCategories(inst.Events)}
+func (s *Server) v2Webhook(inst *store.Instance) gin.H {
+	return gin.H{
+		"enabled": inst.Webhook != "", "url": inst.Webhook, "events": v2FromCategories(inst.Events),
+		"byEvents": inst.WebhookByEvents, "base64": inst.Base64(s.Engine.Cfg.WebhookFiles),
+		"webhookByEvents": inst.WebhookByEvents, "webhookBase64": inst.Base64(s.Engine.Cfg.WebhookFiles),
+	}
 }
 
-func (s *Server) v2WebhookFind(c *gin.Context) { c.JSON(http.StatusOK, v2Webhook(current(c))) }
+func (s *Server) v2WebhookFind(c *gin.Context) {
+	inst, err := s.Repo.ByID(current(c).Id)
+	if err != nil {
+		v2Engine(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, s.v2Webhook(inst))
+}
 
 func (s *Server) v2ProxySet(c *gin.Context) {
 	var req struct {

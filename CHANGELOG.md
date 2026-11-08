@@ -1,5 +1,15 @@
 # Histórico de versões
 
+## 2.3.0 - 2026-11-08
+
+- **Webhook no padrão v2**: um endereço por evento (`URL/messages-upsert`, `URL/connection-update`...) e mídia em
+  base64 ligada ou desligada por instância (`byEvents` e `base64` em `/webhook/set`, `/instance/create` e no painel).
+- **Versão do WhatsApp Web renovada sozinha**: a cada 6 horas e quando o WhatsApp recusa o cliente (erro 405,
+  "cliente desatualizado"), que fazia o QR Code não aparecer. A sessão reconecta sozinha depois.
+- **Números "zumbis"**: quem aparece conectado mas fica sem nenhum evento há mais de `RECONNECT_IDLE_HOURS`
+  (padrão 6) é reconectado, sem QR Code.
+- Prints do painel e da documentação atualizados.
+
 ## 2.2.0 - 2026-11-07
 
 - **Histórico de mensagens e conversas** no banco: recebidas, enviadas e sincronizadas do celular, com status de

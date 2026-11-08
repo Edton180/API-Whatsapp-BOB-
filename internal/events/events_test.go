@@ -94,3 +94,19 @@ func TestHub(t *testing.T) {
 		t.Fatal("Unsubscribe")
 	}
 }
+
+func TestV2Names(t *testing.T) {
+	cases := map[string]string{"Message": "messages-upsert", "Connected": "connection-update", "QRCode": "qrcode-updated", "Receipt": "messages-update", "SendMessage": "send-message"}
+	for ev, path := range cases {
+		if got := V2Path(ev); got != path {
+			t.Errorf("%s: %s, esperado %s", ev, got, path)
+		}
+	}
+	tgt := Target{URL: "https://x.com/hook/", ByEvents: true}
+	if u := tgt.URLFor("Message"); u != "https://x.com/hook/messages-upsert" {
+		t.Fatalf("url por evento: %s", u)
+	}
+	if u := (Target{URL: "https://x.com/hook"}).URLFor("Message"); u != "https://x.com/hook" {
+		t.Fatalf("url única: %s", u)
+	}
+}

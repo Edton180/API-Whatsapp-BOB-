@@ -74,10 +74,16 @@ Nas rotas de grupo, o grupo vai em `?groupJid=`, e o convite em `?inviteCode=`.
 `CHATS_UPDATE`, `MESSAGES_SET`, `CHATS_SET` (ou `ALL`) e converte para as categorias da BOB
 (veja [eventos.md](eventos.md)). O corpo enviado ao webhook segue o formato da BOB.
 
+Também aceita, em `/webhook/set` e em `/instance/create`:
+
+- `byEvents` (ou `webhookByEvents`): um endereço por evento. A BOB envia para
+  `URL/messages-upsert`, `URL/connection-update`, `URL/qrcode-updated`, `URL/messages-update`...
+- `base64` (ou `webhookBase64`): mídia recebida em base64 dentro do webhook (`Message.base64`).
+  Sem informar, vale a variável `WEBHOOK_FILES`.
+
 ## Limites conhecidos
 
-- `readStatus`, `syncFullHistory`, `webhookByEvents` e `webhookBase64` ainda não existem e
-  voltam `false`. Para mídia em base64 no webhook use `WEBHOOK_FILES=true`.
+- `readStatus` e `syncFullHistory` ainda não existem e voltam `false`.
 - `getBase64FromMediaMessage` precisa do conteúdo da mensagem (`message.message`, como veio no
   webhook) ou do id de uma mensagem do histórico.
 - `findMessages`, `findChats` e `findStatusMessage` leem o histórico guardado no banco (veja

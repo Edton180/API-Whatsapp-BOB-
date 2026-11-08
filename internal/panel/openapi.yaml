@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.2.0
+  version: 2.3.0
   description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
 
 
@@ -540,6 +540,8 @@ paths:
               - MESSAGE
               - READ_RECEIPT
               - CONNECTION
+              byEvents: false
+              base64: true
   /instance/connect:
     post:
       tags:
@@ -3829,6 +3831,8 @@ paths:
               webhook:
                 enabled: true
                 url: https://seu-sistema/webhook
+                byEvents: false
+                base64: true
                 events:
                 - MESSAGES_UPSERT
                 - MESSAGES_UPDATE

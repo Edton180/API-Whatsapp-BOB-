@@ -57,6 +57,26 @@ Mídia: o nó é `imageMessage`, `videoMessage`, `audioMessage`, `documentMessag
 
 Quando o contato usa endereço oculto (`@lid`), o número aparece em `Info.SenderAlt` ou `Info.RecipientAlt`.
 
+## Um endereço por evento e mídia em base64
+
+Cada instância pode receber cada evento num endereço próprio. Com **um endereço por evento**
+ligado (painel › Configurar › Webhook, ou `byEvents: true` em `/instance/{id}/webhook` e
+`/webhook/set/{instância}`), a BOB envia para `URL/<evento>` com o nome do padrão v2:
+
+| Evento da BOB | Endereço |
+|---|---|
+| `Message` | `URL/messages-upsert` |
+| `Receipt`, `PollVote` | `URL/messages-update` |
+| `SendMessage` | `URL/send-message` |
+| `Connected`, `LoggedOut`, `Disconnected`... | `URL/connection-update` |
+| `QRCode`, `QRTimeout` | `URL/qrcode-updated` |
+| `Presence`, `ChatPresence` | `URL/presence-update` |
+| `GroupInfo` / `JoinedGroup` | `URL/group-update` / `URL/groups-upsert` |
+| `CallOffer`... | `URL/call` |
+
+O corpo continua no formato da BOB. A **mídia em base64** pode ser ligada ou desligada por
+instância (`base64: true/false`); sem escolha, vale `WEBHOOK_FILES`.
+
 ## WebSocket
 
 ```

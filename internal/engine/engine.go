@@ -116,7 +116,11 @@ func refreshVersion() {
 // Start lê a versão atual do WhatsApp Web e reconecta as instâncias que já tinham sessão.
 func (e *Engine) Start() {
 	refreshVersion()
+	versionMu.Lock()
+	versionAt = time.Now()
+	versionMu.Unlock()
 	go e.purgeLoop()
+	go e.maintain()
 	if !e.Cfg.ConnectOnStartup {
 		return
 	}
@@ -259,9 +263,10 @@ type Session struct {
 	qrCount  int
 	qrCancel context.CancelFunc
 
-	logs   *ring
-	recent *messageCache
-	jids   sync.Map // número -> JID confirmado (cache do /user/check)
+	logs      *ring
+	recent    *messageCache
+	lastEvent int64    // unix do último evento do WhatsApp (números "zumbis")
+	jids      sync.Map // número -> JID confirmado (cache do /user/check)
 }
 
 func newSession(e *Engine, inst *bobstore.Instance) *Session {
@@ -411,6 +416,10 @@ func (s *Session) watchQR(ch <-chan whatsmeow.QRChannelItem) {
 			s.clearQR()
 			s.emit("QRTimeout", map[string]any{"reason": "tempo do QR Code esgotado"})
 		default:
+			if item.Event == "err-client-outdated" {
+				// o evento ClientOutdated cuida de renovar a versão e reconectar
+				s.logf("ERROR", "QR Code recusado: versão do cliente desatualizada")
+			}
 			if strings.HasPrefix(item.Event, "err") {
 				msg := item.Event
 				if item.Error != nil {
@@ -565,9 +574,9 @@ func (s *Session) emit(name string, data any) {
 	if hook == "" {
 		hook = s.e.Cfg.GlobalWebhook
 	}
-	s.e.Events.Emit(events.Payload{
+	s.e.Events.EmitTo(events.Payload{
 		Event: name, InstanceID: inst.Id, InstanceName: inst.Name, InstanceToken: inst.Token, Data: data,
-	}, hook, inst.Events)
+	}, events.Target{URL: hook, Subscribed: inst.Events, ByEvents: inst.WebhookByEvents})
 }
 
 // ---------------------------------------------------------------- proxy
