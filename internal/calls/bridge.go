@@ -215,6 +215,24 @@ func (b *bridge) onTrack(t *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
 	}
 }
 
+func (b *bridge) isConnected() bool {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.connected
+}
+
+// selectedPair descreve o caminho escolhido pelo ICE (vai para o registro, ajuda a achar NAT e firewall).
+func (b *bridge) selectedPair() string {
+	for _, tr := range b.pc.GetTransceivers() {
+		if s := tr.Sender(); s != nil && s.Transport() != nil {
+			if p, err := s.Transport().ICETransport().GetSelectedCandidatePair(); err == nil && p != nil {
+				return fmt.Sprintf("BOB %s:%d <-> navegador %s:%d", p.Local.Address, p.Local.Port, p.Remote.Address, p.Remote.Port)
+			}
+		}
+	}
+	return "caminho desconhecido"
+}
+
 // RequestKeyframe pede ao navegador um quadro completo (o WhatsApp pediu, ou o vídeo começou).
 func (b *bridge) RequestKeyframe() {
 	b.mu.Lock()

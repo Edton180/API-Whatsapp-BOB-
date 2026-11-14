@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.4.1
+  version: 2.4.2
   description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
 
 
