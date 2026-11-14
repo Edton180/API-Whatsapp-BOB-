@@ -38,10 +38,10 @@ func (s *Server) home(c *gin.Context) {
 // O uso comercial depende de licença comercial (LICENCA-COMERCIAL.md), sem bloqueio no programa.
 func (s *Server) license(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "active",
-		"mode":    "free",
-		"message": "A API WhatsApp BOB não tem ativação. Uso não comercial é gratuito; uso comercial requer licença comercial do autor.",
-		"license": "PolyForm-Noncommercial-1.0.0",
+		"status":     "active",
+		"mode":       "free",
+		"message":    "A API WhatsApp BOB não tem ativação. Uso não comercial é gratuito; uso comercial requer licença comercial do autor.",
+		"license":    "PolyForm-Noncommercial-1.0.0",
 		"commercial": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENCA-COMERCIAL.md",
 	})
 }

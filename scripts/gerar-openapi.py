@@ -87,6 +87,14 @@ R = [
   ("Grupos", "post", "/group/invitelink", I, "Link de convite (reset gera outro)", {"groupJid": "120363000000000000@g.us", "reset": False}),
   ("Grupos", "post", "/group/join", I, "Entra pelo link ou código", {"code": "https://chat.whatsapp.com/XXXX"}),
   ("Grupos", "post", "/group/leave", I, "Sai do grupo", {"groupJid": "120363000000000000@g.us"}),
+  ("Grupos", "post", "/group/members", I, "Extrai os membros do grupo (número, JID, administrador). format=csv devolve a planilha", {"groupJid": "120363000000000000@g.us", "format": "json"}),
+  ("Grupos", "post", "/group/members/copy", I, "Adiciona em outro grupo os membros que ainda não estão nele (tarefa em segundo plano; o número precisa ser administrador do destino). batch: 1 a 10 por vez; delay: segundos entre os lotes (mínimo 5)",
+   {"fromGroupJid": "120363000000000000@g.us", "toGroupJid": "120363000000000001@g.us", "skipAdmins": False, "batch": 5, "delay": 15, "limit": 0}),
+  ("Grupos", "post", "/group/members/send", I, "Envia a mensagem no privado de cada membro de um ou mais grupos (tarefa em segundo plano). delay: segundos entre as mensagens (mínimo 3). Com url ou base64 o text vira legenda",
+   {"groupJids": ["120363000000000000@g.us"], "text": "Olá! Temos novidades.", "skipAdmins": False, "delay": 8, "limit": 0}),
+  ("Grupos", "get", "/group/jobs", I, "Tarefas de membros de grupos da instância (cópia e envio)", None),
+  ("Grupos", "get", "/group/job/{id}", I, "Progresso e resultado por membro de uma tarefa", None),
+  ("Grupos", "post", "/group/job/{id}/cancel", I, "Cancela a tarefa (o que já foi feito fica feito)", None),
   ("Canais", "get", "/newsletter/list", I, "Canais (newsletters) seguidos", None),
 ]
 # complementos da API nativa
