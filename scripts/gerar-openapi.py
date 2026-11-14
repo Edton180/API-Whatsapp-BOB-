@@ -10,7 +10,7 @@ R = [
   ("Servidor", "get", "/", A, "Identificação da API (versão, commit, links)", None),
   ("Servidor", "get", "/server/ok", A, "Saúde da API (healthcheck)", None),
   ("Servidor", "get", "/server/info", G, "Resumo do servidor: versão, uptime, instâncias, memória", None),
-  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não exige licença)", None),
+  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não tem ativação; uso comercial requer licença comercial)", None),
   ("Servidor", "get", "/donate/pix", A, "Dados de doação ao projeto (Pix)", None),
   ("Instâncias", "post", "/instance/create", G, "Cria uma instância (um número de WhatsApp)",
    {"name": "atendimento", "token": "TOKEN-OPCIONAL", "webhook": "https://seu-sistema/webhook", "events": ["MESSAGE", "CONNECTION"],
@@ -247,13 +247,14 @@ for tag, method, path, auth, summary, body in R:
 spec = {
   "openapi": "3.0.3",
   "info": {"title": "API WhatsApp BOB", "version": pathlib.Path("VERSION").read_text().strip(),
-           "description": "API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+           "description": "API de WhatsApp escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+             "**Licença**: uso não comercial gratuito (PolyForm Noncommercial 1.0.0). Uso comercial requer licença comercial do autor: veja LICENCA-COMERCIAL.md no repositório.\n\n"
              "**Autenticação**: cabeçalho `apikey`. A chave global (GLOBAL_API_KEY) cria e gerencia instâncias; o token da instância "
              "envia mensagens e conecta. Com a chave global também dá para usar as rotas da instância informando o cabeçalho `instance` (id ou nome).\n\n"
              "**Padrão v2**: as rotas `/<módulo>/<ação>/{instance}` seguem o formato da Evolution API v2, para sistemas já feitos nesse padrão. "
              "Use a chave global ou o token da instância no `apikey`.\n\n"
              "**Eventos**: webhook (POST JSON `{event, instanceId, instanceName, instanceToken, data}`) e WebSocket em `/ws?token=`.",
-           "license": {"name": "Apache 2.0", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
+           "license": {"name": "PolyForm Noncommercial 1.0.0 (uso comercial requer licença comercial)", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
   "servers": [{"url": "/"}],
   "tags": [{"name": t} for t in dict.fromkeys(r[0] for r in R)],
   "paths": paths,

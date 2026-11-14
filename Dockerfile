@@ -18,7 +18,7 @@ FROM alpine:3.21
 RUN apk add --no-cache tzdata ffmpeg libwebp ca-certificates wget
 WORKDIR /app
 COPY --from=build /build/bob ./bob
-COPY --from=build /build/VERSION /build/LICENSE /build/NOTICE ./
+COPY --from=build /build/VERSION /build/LICENSE /build/LICENCA-COMERCIAL.md /build/NOTICE ./
 # Commit compilado (o OmniFlow compara com o repositório para saber se há novidade)
 ARG COMMIT=""
 RUN printf '%s' "${COMMIT}" > /app/COMMIT && mkdir -p /app/dbdata /app/logs
