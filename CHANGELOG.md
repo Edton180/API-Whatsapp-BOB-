@@ -1,5 +1,14 @@
 # Histórico de versões
 
+## 2.4.2 - 2026-11-08
+
+- **Chamadas sem áudio**: com `WEBRTC_PUBLIC_IP` preenchido, a BOB anunciava ao navegador só o IP público.
+  O navegador na mesma rede (ou no mesmo computador) não alcançava esse IP e a chamada ficava muda nos dois
+  sentidos. Agora os IPs informados são somados aos endereços locais, e `WEBRTC_PUBLIC_IP` aceita uma lista
+  (ex.: `203.0.113.10,127.0.0.1`).
+- Diagnóstico de chamada muda no registro da instância: o caminho escolhido até o navegador e, no fim, quanto
+  áudio passou em cada sentido.
+
 ## 2.4.1 - 2026-11-08
 
 - **QR Code e código de pareamento voltaram a conectar**: no instante em que o celular lia o QR, a BOB fechava o

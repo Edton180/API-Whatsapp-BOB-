@@ -248,6 +248,10 @@ func (lc *liveCall) onEnd(reason string) {
 	if br != nil {
 		br.Close()
 	}
+	// Diagnóstico de chamada muda: mostra em que ponta o áudio parou
+	wa, out, in := audioStats(lc.src, lc.sink)
+	lc.sess.Logf("INFO", "áudio da chamada %s: %d quadros vindos do WhatsApp, %d pacotes entregues ao navegador, %d pacotes vindos do navegador (navegador conectado: %s)",
+		lc.id, wa, out, in, map[bool]string{true: "sim", false: "não"}[br != nil && br.isConnected()])
 	_ = lc.src.Close()
 	_ = lc.sink.Close()
 	lc.m.mu.Lock()
@@ -329,7 +333,7 @@ func (lc *liveCall) attach(agent, offer string) (string, error) {
 		audio: lc.src.push,
 		video: lc.videoFromBrowser,
 		connected: func() {
-			lc.sess.Logf("INFO", "navegador de %s ligado à chamada %s", agentName(agent), lc.id)
+			lc.sess.Logf("INFO", "navegador de %s ligado à chamada %s (%s)", agentName(agent), lc.id, br.selectedPair())
 		},
 		failed: func() {
 			// O navegador caiu ou a rede não deixou conectar: a chamada não fica muda para o contato.
