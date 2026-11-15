@@ -2,7 +2,7 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.4.2
+  version: 2.5.0
   description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
 
 
@@ -28,6 +28,7 @@ tags:
 - name: Mensagens
 - name: Usuários
 - name: Conversas
+- name: Cobranças
 - name: Etiquetas
 - name: Grupos
 - name: Canais
@@ -2083,6 +2084,322 @@ paths:
               type: object
             example:
               chat: '5511999998888'
+  /charge/settings:
+    get:
+      tags:
+      - Cobranças
+      summary: Pix e textos de cobrança da instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+    put:
+      tags:
+      - Cobranças
+      summary: Cadastra a chave Pix e os textos da cobrança e do recibo
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              pixKey: contato@loja.com
+              pixKeyType: email
+              pixName: Loja do Ze
+              pixCity: Manaus
+              message: Olá {nome}! Sua {descricao} de {valor} vence em {vencimento}.
+              receiptMessage: Recebemos {valor}. Obrigado!
+  /charge/create:
+    post:
+      tags:
+      - Cobranças
+      summary: Cria a cobrança e envia ao cliente (Pix da instância ou cobrança pronta de um gateway)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              number: '5511999998888'
+              customerName: Maria
+              description: Mensalidade de novembro
+              amount: 49.9
+              dueDate: '2026-11-20'
+              reference: fatura-123
+              pixCode: ''
+              paymentUrl: ''
+              boletoLine: ''
+              send: true
+  /charge/list:
+    get:
+      tags:
+      - Cobranças
+      summary: Lista as cobranças (?status=pending|paid|cancelled|overdue&number=&limit=&offset=)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /charge/{id}:
+    get:
+      tags:
+      - Cobranças
+      summary: Uma cobrança, pelo id da BOB ou pela referência do seu sistema
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id da cobrança ou a referência do seu sistema
+  /charge/{id}/qrcode:
+    get:
+      tags:
+      - Cobranças
+      summary: Imagem PNG do QR Code do Pix da cobrança
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id da cobrança ou a referência do seu sistema
+  /charge/{id}/send:
+    post:
+      tags:
+      - Cobranças
+      summary: Reenvia a cobrança ao cliente (lembrete)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id da cobrança ou a referência do seu sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              message: ''
+              delay: 0
+  /charge/{id}/pay:
+    post:
+      tags:
+      - Cobranças
+      summary: Dá baixa na cobrança e avisa o cliente
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id da cobrança ou a referência do seu sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              notify: true
+              message: ''
+  /charge/{id}/cancel:
+    post:
+      tags:
+      - Cobranças
+      summary: Cancela a cobrança
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id da cobrança ou a referência do seu sistema
   /label/list:
     get:
       tags:

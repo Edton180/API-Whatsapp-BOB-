@@ -1,5 +1,18 @@
 # Histórico de versões
 
+## 2.5.0 - 2026-11-15
+
+- **Cobranças pelo WhatsApp** (`/charge/...`): a BOB monta a cobrança, entrega ao cliente (QR Code
+  do Pix com o texto e o copia e cola numa mensagem à parte), reenvia lembretes, dá baixa com
+  recibo e cancela. Veja `docs/cobrancas.md`.
+- O Pix pode ser gerado pela própria BOB, com a chave da instância (`PUT /charge/settings`), ou vir
+  pronto de um gateway de pagamento (`pixCode`, `paymentUrl`, `boletoLine`). O dinheiro vai direto
+  para a conta de quem cobra: a BOB não intermedia pagamento nem guarda credencial de gateway.
+- Mesma `reference` não cria cobrança em dobro, a baixa vale uma vez só e cada instância só vê as
+  suas cobranças. Com a instância desconectada, criar e enviar responde 409 sem gravar nada.
+- Novos eventos `ChargeCreated`, `ChargeSent`, `ChargePaid` e `ChargeCancelled` (categoria
+  `CHARGE`), aba **Cobranças** no painel e o BR Code do Pix num pacote próprio (`internal/pix`).
+
 ## 2.4.2 - 2026-11-08
 
 - **Chamadas sem áudio**: com `WEBRTC_PUBLIC_IP` preenchido, a BOB anunciava ao navegador só o IP público.
