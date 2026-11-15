@@ -91,6 +91,8 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 
 | Documento | Assunto |
 |---|---|
+| [docs/grupos.md](docs/grupos.md) | Extrair membros de grupos, copiar para outro grupo e enviar a cada membro |
+| [LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md) | Uso não comercial gratuito e licença comercial para empresas |
 | [docs/instalacao.md](docs/instalacao.md) | Docker, sem Docker, OmniFlow, HTTPS, variáveis e backup |
 | [docs/painel.md](docs/painel.md) | Telas do painel |
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
