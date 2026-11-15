@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/edton180/api-whatsapp-bob/internal/media"
+	"github.com/edton180/api-whatsapp-bob/internal/pix"
 	"github.com/edton180/api-whatsapp-bob/internal/version"
 )
 
@@ -147,30 +148,14 @@ const (
 	pixCity = "BRASIL"
 )
 
-// PixPayload monta o BR Code estático (padrão EMV do Banco Central), com valor livre.
+// PixPayload monta o BR Code estático de apoio ao projeto, com valor livre.
 func PixPayload() string {
-	field := func(id, v string) string { return fmt.Sprintf("%s%02d%s", id, len(v), v) }
-	account := field("00", "br.gov.bcb.pix") + field("01", pixKey)
-	p := field("00", "01") + field("26", account) + field("52", "0000") + field("53", "986") +
-		field("58", "BR") + field("59", pixName) + field("60", pixCity) + field("62", field("05", "***")) + "6304"
-	return p + fmt.Sprintf("%04X", PixCRC16(p))
+	code, _ := pix.Code(pix.Params{Key: pixKey, KeyType: "cpf", Name: pixName, City: pixCity})
+	return code
 }
 
-// PixCRC16 calcula o CRC16-CCITT (inicial 0xFFFF, polinômio 0x1021) usado no BR Code.
-func PixCRC16(s string) uint16 {
-	crc := uint16(0xFFFF)
-	for i := 0; i < len(s); i++ {
-		crc ^= uint16(s[i]) << 8
-		for b := 0; b < 8; b++ {
-			if crc&0x8000 != 0 {
-				crc = crc<<1 ^ 0x1021
-			} else {
-				crc <<= 1
-			}
-		}
-	}
-	return crc
-}
+// PixCRC16 calcula o CRC16-CCITT usado no BR Code.
+func PixCRC16(s string) uint16 { return pix.CRC16(s) }
 
 // PixInfo devolve os dados de doação ao projeto.
 func PixInfo() map[string]string {
