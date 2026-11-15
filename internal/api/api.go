@@ -148,6 +148,7 @@ func (s *Server) Router() *gin.Engine {
 	s.registerExtra(r, inst)
 	s.registerCalls(r, inst)
 	s.registerHistory(r, inst, s.requireNamed())
+	s.registerCharges(r, inst)
 
 	// rotas no padrão da Evolution API v2 (/message/sendText/:instance...)
 	s.registerV2(r)
