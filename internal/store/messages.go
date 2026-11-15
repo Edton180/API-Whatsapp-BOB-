@@ -284,3 +284,22 @@ func deleteHistory(tx *gorm.DB, instanceID string) {
 	tx.Where("instance_id = ?", instanceID).Delete(&Chat{})
 	tx.Where("instance_id = ?", instanceID).Delete(&PollVote{})
 }
+
+// ActiveSender é quem escreveu numa conversa e quantas mensagens mandou.
+type ActiveSender struct {
+	Sender   string
+	PushName string
+	Messages int64
+	LastAt   int64
+}
+
+// ActiveSenders conta as mensagens recebidas por remetente numa conversa desde o instante dado
+// (em segundos), do mais ativo para o menos.
+func (r *Repo) ActiveSenders(instanceID, chat string, since int64) ([]ActiveSender, error) {
+	var out []ActiveSender
+	err := r.DB.Model(&Message{}).
+		Select("sender, MAX(push_name) AS push_name, COUNT(*) AS messages, MAX(timestamp) AS last_at").
+		Where("instance_id = ? AND chat = ? AND from_me = ? AND timestamp >= ? AND sender <> ''", instanceID, chat, false, since).
+		Group("sender").Order("messages DESC").Limit(5000).Scan(&out).Error
+	return out, err
+}
