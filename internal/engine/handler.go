@@ -189,6 +189,15 @@ func (s *Session) onMessage(v *events.Message) {
 		_ = json.Unmarshal(b, &data)
 	}
 	delete(data, "RawMessage")
+	// Conversa endereçada pelo identificador oculto (LID): informa o número em Info.ChatPN quando
+	// a BOB o conhece, para o sistema ligado ao webhook achar o contato pelo telefone.
+	if chat.Server == types.HiddenUserServer && !v.Info.IsGroup {
+		if info, ok := data["Info"].(map[string]any); ok {
+			if pn := s.chatPN(v.Info); pn != "" {
+				info["ChatPN"] = pn
+			}
+		}
+	}
 	if inst.Base64(s.e.Cfg.WebhookFiles) {
 		if msg, ok := data["Message"].(map[string]any); ok {
 			if c := s.client(); c != nil {
@@ -293,4 +302,21 @@ func (c *messageCache) get(id string) *waE2E.Message {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.data[id]
+}
+
+// chatPN devolve o JID com o número da conversa individual endereçada por LID, ou "".
+func (s *Session) chatPN(info types.MessageInfo) string {
+	for _, alt := range []types.JID{info.SenderAlt, info.RecipientAlt} {
+		if alt.Server == types.DefaultUserServer && !(info.IsFromMe && alt == info.SenderAlt) {
+			return alt.ToNonAD().String()
+		}
+	}
+	c := s.client()
+	if c == nil || c.Store == nil || c.Store.LIDs == nil {
+		return ""
+	}
+	if pn, err := c.Store.LIDs.GetPNForLID(context.Background(), info.Chat.ToNonAD()); err == nil && !pn.IsEmpty() {
+		return pn.ToNonAD().String()
+	}
+	return ""
 }

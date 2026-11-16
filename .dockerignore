@@ -6,4 +6,5 @@ dbdata
 logs
 *.md
 !README.md
+!LICENCA-COMERCIAL.md
 .env

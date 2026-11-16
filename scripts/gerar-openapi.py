@@ -10,7 +10,7 @@ R = [
   ("Servidor", "get", "/", A, "Identificação da API (versão, commit, links)", None),
   ("Servidor", "get", "/server/ok", A, "Saúde da API (healthcheck)", None),
   ("Servidor", "get", "/server/info", G, "Resumo do servidor: versão, uptime, instâncias, memória", None),
-  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não exige licença)", None),
+  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não tem ativação; uso comercial requer licença comercial)", None),
   ("Servidor", "get", "/donate/pix", A, "Dados de doação ao projeto (Pix)", None),
   ("Instâncias", "post", "/instance/create", G, "Cria uma instância (um número de WhatsApp)",
    {"name": "atendimento", "token": "TOKEN-OPCIONAL", "webhook": "https://seu-sistema/webhook", "events": ["MESSAGE", "CONNECTION"],
@@ -87,6 +87,14 @@ R = [
   ("Grupos", "post", "/group/invitelink", I, "Link de convite (reset gera outro)", {"groupJid": "120363000000000000@g.us", "reset": False}),
   ("Grupos", "post", "/group/join", I, "Entra pelo link ou código", {"code": "https://chat.whatsapp.com/XXXX"}),
   ("Grupos", "post", "/group/leave", I, "Sai do grupo", {"groupJid": "120363000000000000@g.us"}),
+  ("Grupos", "post", "/group/members", I, "Extrai os membros do grupo (número, JID, administrador). format=csv devolve a planilha", {"groupJid": "120363000000000000@g.us", "format": "json"}),
+  ("Grupos", "post", "/group/members/copy", I, "Adiciona em outro grupo os membros que ainda não estão nele (tarefa em segundo plano; o número precisa ser administrador do destino). batch: 1 a 10 por vez; delay: segundos entre os lotes (mínimo 5)",
+   {"fromGroupJid": "120363000000000000@g.us", "toGroupJid": "120363000000000001@g.us", "skipAdmins": False, "batch": 5, "delay": 15, "limit": 0}),
+  ("Grupos", "post", "/group/members/send", I, "Envia a mensagem no privado de cada membro de um ou mais grupos (tarefa em segundo plano). delay: segundos entre as mensagens (mínimo 3). Com url ou base64 o text vira legenda",
+   {"groupJids": ["120363000000000000@g.us"], "text": "Olá! Temos novidades.", "skipAdmins": False, "delay": 8, "limit": 0}),
+  ("Grupos", "get", "/group/jobs", I, "Tarefas de membros de grupos da instância (cópia e envio)", None),
+  ("Grupos", "get", "/group/job/{id}", I, "Progresso e resultado por membro de uma tarefa", None),
+  ("Grupos", "post", "/group/job/{id}/cancel", I, "Cancela a tarefa (o que já foi feito fica feito)", None),
   ("Canais", "get", "/newsletter/list", I, "Canais (newsletters) seguidos", None),
 ]
 # complementos da API nativa
@@ -247,13 +255,14 @@ for tag, method, path, auth, summary, body in R:
 spec = {
   "openapi": "3.0.3",
   "info": {"title": "API WhatsApp BOB", "version": pathlib.Path("VERSION").read_text().strip(),
-           "description": "API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+           "description": "API de WhatsApp escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+             "**Licença**: uso não comercial gratuito (PolyForm Noncommercial 1.0.0). Uso comercial requer licença comercial do autor: veja LICENCA-COMERCIAL.md no repositório.\n\n"
              "**Autenticação**: cabeçalho `apikey`. A chave global (GLOBAL_API_KEY) cria e gerencia instâncias; o token da instância "
              "envia mensagens e conecta. Com a chave global também dá para usar as rotas da instância informando o cabeçalho `instance` (id ou nome).\n\n"
              "**Padrão v2**: as rotas `/<módulo>/<ação>/{instance}` seguem o formato da Evolution API v2, para sistemas já feitos nesse padrão. "
              "Use a chave global ou o token da instância no `apikey`.\n\n"
              "**Eventos**: webhook (POST JSON `{event, instanceId, instanceName, instanceToken, data}`) e WebSocket em `/ws?token=`.",
-           "license": {"name": "Apache 2.0", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
+           "license": {"name": "PolyForm Noncommercial 1.0.0 (uso comercial requer licença comercial)", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
   "servers": [{"url": "/"}],
   "tags": [{"name": t} for t in dict.fromkeys(r[0] for r in R)],
   "paths": paths,

@@ -1,6 +1,6 @@
 # Como contribuir com a API WhatsApp BOB
 
-A BOB é livre e aberta. Toda ajuda conta: correção de bug, nova função, teste, documentação ou tradução.
+A BOB tem o código aberto. Toda ajuda conta: correção de bug, nova função, teste, documentação ou tradução.
 
 ## Passo a passo
 
@@ -27,7 +27,8 @@ A BOB é livre e aberta. Toda ajuda conta: correção de bug, nova função, tes
 
 ## Regras do projeto
 
-- **Licença:** contribuições entram sob a Apache 2.0 ([LICENSE](LICENSE)).
+- **Licença:** contribuições entram sob a licença do projeto ([LICENSE](LICENSE)). Ao contribuir, você autoriza
+  Edton Braz a distribuir a sua contribuição também sob a licença comercial ([LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md)).
 - **Código de terceiros:** não copie código de outros projetos de API de WhatsApp. Use a biblioteca whatsmeow e escreva a função na BOB.
 - **Nada de rota de mentira:** uma rota só entra se fizer o que diz (por exemplo, enviar a mensagem de verdade).
 - **Compatibilidade:** não mude nomes de rotas ou de campos já publicados. Se precisar, crie um campo novo.

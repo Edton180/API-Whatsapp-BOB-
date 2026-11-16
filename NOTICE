@@ -1,7 +1,9 @@
 API WhatsApp BOB
 Copyright 2026 Edton Braz (https://github.com/Edton180)
 
-Licenciada sob a Apache License 2.0 (arquivo LICENSE).
+A partir da versão 2.5.0: PolyForm Noncommercial License 1.0.0 (arquivo LICENSE). Uso comercial
+exige licença comercial do autor (arquivo LICENCA-COMERCIAL.md). As versões até a 2.4.2
+foram publicadas sob a Apache License 2.0 (LICENSES/Apache-2.0.txt).
 Desenvolvido por Edton Braz.
 
 Componentes de terceiros usados como dependência (não fazem parte do código da BOB,

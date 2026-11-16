@@ -1,5 +1,18 @@
 # Histórico de versões
 
+## 2.5.0 - 2026-11-15
+
+- **Licença**: a partir desta versão a BOB sai sob a PolyForm Noncommercial 1.0.0. O uso não comercial continua
+  gratuito; **empresas que usam a BOB comercialmente precisam adquirir a licença comercial com o autor**
+  ([LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md)). Não há ativação nem bloqueio no programa. As versões até a 2.4.2
+  continuam sob a Apache 2.0.
+- **Membros de grupos** ([docs/grupos.md](docs/grupos.md)): `POST /group/members` extrai os membros (JSON ou CSV),
+  `POST /group/members/copy` adiciona os membros de um grupo em outro e `POST /group/members/send` envia uma
+  mensagem no privado de cada membro. Copiar e enviar rodam em segundo plano, com pausas, progresso
+  (`GET /group/job/{id}`), cancelamento e o evento `GroupJob` ao terminar.
+- **Mensagem recebida por identificador oculto (LID)**: o evento `Message` traz `Info.ChatPN` com o número da
+  conversa quando a BOB o conhece, para o sistema ligado ao webhook achar o contato pelo telefone.
+
 ## 2.4.2 - 2026-11-08
 
 - **Chamadas sem áudio**: com `WEBRTC_PUBLIC_IP` preenchido, a BOB anunciava ao navegador só o IP público.
