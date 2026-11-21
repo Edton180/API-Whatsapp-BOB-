@@ -152,6 +152,7 @@ func (s *Server) Router() *gin.Engine {
 
 	// grupos, comunidades, canais, chamadas e perfil (complementos)
 	s.registerExtra(r, inst)
+	s.registerTools(r, inst)
 	s.registerCalls(r, inst)
 	s.registerHistory(r, inst, s.requireNamed())
 

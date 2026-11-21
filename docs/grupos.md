@@ -78,3 +78,9 @@ Copiar e enviar rodam em segundo plano. A resposta traz a tarefa, com o `id`:
 `status` é `running`, `done`, `cancelled` ou `failed` (por exemplo, se o número desconectar). Ao terminar, a BOB
 manda o evento `GroupJob` no webhook e no WebSocket. As tarefas ficam na memória: reiniciar a BOB interrompe as que
 estão em andamento, e as terminadas somem depois de 6 horas.
+
+## Listas de números e mais ferramentas
+
+Para extrair vários grupos de uma vez, ver quem está ativo, conferir números e links de convite, adicionar
+uma lista qualquer a um grupo com link de convite para quem recusa, ou pausar e retomar uma tarefa, veja
+[docs/ferramentas.md](ferramentas.md).
