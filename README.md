@@ -96,6 +96,7 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
 | [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
 | [docs/chamadas.md](docs/chamadas.md) | Chamadas de voz e vídeo pelo navegador: rede, TURN, rotas e eventos |
+| [docs/ferramentas.md](docs/ferramentas.md) | Extrair membros de grupos, conferir números e tarefas em massa (disparos, adicionar ao grupo) |
 | [docs/historico.md](docs/historico.md) | Histórico de mensagens e conversas, status de entrega e votos de enquete |
 | [docs/padrao-v2.md](docs/padrao-v2.md) | Rotas `/message/sendText/{instância}`... para sistemas feitos no padrão Evolution API v2 |
 | [docs/atualizacao.md](docs/atualizacao.md) | Atualizar sem perder números conectados |

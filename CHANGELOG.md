@@ -1,5 +1,26 @@
 # Histórico de versões
 
+## 2.5.0 - 2026-11-21
+
+- **Extração de membros de grupos**: `POST /tools/group/members` devolve os participantes de vários
+  grupos de uma vez, sem repetir quem está em mais de um, com nome, se é administrador e em que grupos
+  está. Participantes com número oculto (`@lid`) são contados em `hidden`, porque o WhatsApp não
+  entrega o telefone deles.
+- `POST /tools/group/active`: quem escreveu no grupo nos últimos N dias, com a quantidade de mensagens
+  (usa o histórico, pede `STORE_MESSAGES=true`).
+- `GET /tools/chat/contacts`: pessoas com quem a instância já tem conversa.
+- `POST /tools/number/filter` (até 5.000 números) e `POST /tools/invite/check` (até 50 links de
+  convite, sem entrar nos grupos).
+- `POST /tools/group/add`: adiciona uma pessoa e diz o que aconteceu com ela (`added`, `member`,
+  `refused`, `invited`, `failed`). Com `inviteFallback`, quem recusa a entrada direta recebe o link do
+  convite no privado.
+- **Tarefas em massa** `/bulk/*`: adicionar uma lista ao grupo, mandar a mesma mensagem para vários
+  números (`{{numero}}` na mensagem) e criar vários grupos. Um item por vez, com intervalo mínimo por
+  tipo (10 s, 3 s e 30 s), variação de 70% a 130% no intervalo e uma tarefa de cada tipo por instância.
+- Tarefa pausa, retoma, cancela e traz relatório item a item. Quando o WhatsApp limita o número
+  (`rate-overlimit`) ou a instância cai, a tarefa **pausa sozinha sem gastar o item**.
+- Nova página [docs/ferramentas.md](docs/ferramentas.md).
+
 ## 2.4.1 - 2026-11-08
 
 - **QR Code e código de pareamento voltaram a conectar**: no instante em que o celular lia o QR, a BOB fechava o
