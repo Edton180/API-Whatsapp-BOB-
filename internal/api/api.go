@@ -141,11 +141,18 @@ func (s *Server) Router() *gin.Engine {
 	gg.POST("/invitelink", s.groupInvite)
 	gg.POST("/join", s.groupJoin)
 	gg.POST("/leave", s.groupLeave)
+	gg.POST("/members", s.groupMembers)
+	gg.POST("/members/copy", s.groupMembersCopy)
+	gg.POST("/members/send", s.groupMembersSend)
+	gg.GET("/jobs", s.groupJobs)
+	gg.GET("/job/:id", s.groupJob)
+	gg.POST("/job/:id/cancel", s.groupJobCancel)
 
 	r.GET("/newsletter/list", inst, s.newsletterList)
 
 	// grupos, comunidades, canais, chamadas e perfil (complementos)
 	s.registerExtra(r, inst)
+	s.registerTools(r, inst)
 	s.registerCalls(r, inst)
 	s.registerHistory(r, inst, s.requireNamed())
 	s.registerCharges(r, inst)

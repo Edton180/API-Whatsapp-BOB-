@@ -10,7 +10,7 @@ R = [
   ("Servidor", "get", "/", A, "Identificação da API (versão, commit, links)", None),
   ("Servidor", "get", "/server/ok", A, "Saúde da API (healthcheck)", None),
   ("Servidor", "get", "/server/info", G, "Resumo do servidor: versão, uptime, instâncias, memória", None),
-  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não exige licença)", None),
+  ("Servidor", "get", "/license/status", A, "Compatibilidade: sempre 'active' (a BOB não tem ativação; uso comercial requer licença comercial)", None),
   ("Servidor", "get", "/donate/pix", A, "Dados de doação ao projeto (Pix)", None),
   ("Instâncias", "post", "/instance/create", G, "Cria uma instância (um número de WhatsApp)",
    {"name": "atendimento", "token": "TOKEN-OPCIONAL", "webhook": "https://seu-sistema/webhook", "events": ["MESSAGE", "CONNECTION"],
@@ -100,6 +100,14 @@ R = [
   ("Grupos", "post", "/group/invitelink", I, "Link de convite (reset gera outro)", {"groupJid": "120363000000000000@g.us", "reset": False}),
   ("Grupos", "post", "/group/join", I, "Entra pelo link ou código", {"code": "https://chat.whatsapp.com/XXXX"}),
   ("Grupos", "post", "/group/leave", I, "Sai do grupo", {"groupJid": "120363000000000000@g.us"}),
+  ("Grupos", "post", "/group/members", I, "Extrai os membros do grupo (número, JID, administrador). format=csv devolve a planilha", {"groupJid": "120363000000000000@g.us", "format": "json"}),
+  ("Grupos", "post", "/group/members/copy", I, "Adiciona em outro grupo os membros que ainda não estão nele (tarefa em segundo plano; o número precisa ser administrador do destino). batch: 1 a 10 por vez; delay: segundos entre os lotes (mínimo 5)",
+   {"fromGroupJid": "120363000000000000@g.us", "toGroupJid": "120363000000000001@g.us", "skipAdmins": False, "batch": 5, "delay": 15, "limit": 0}),
+  ("Grupos", "post", "/group/members/send", I, "Envia a mensagem no privado de cada membro de um ou mais grupos (tarefa em segundo plano). delay: segundos entre as mensagens (mínimo 3). Com url ou base64 o text vira legenda",
+   {"groupJids": ["120363000000000000@g.us"], "text": "Olá! Temos novidades.", "skipAdmins": False, "delay": 8, "limit": 0}),
+  ("Grupos", "get", "/group/jobs", I, "Tarefas de membros de grupos da instância (cópia e envio)", None),
+  ("Grupos", "get", "/group/job/{id}", I, "Progresso e resultado por membro de uma tarefa", None),
+  ("Grupos", "post", "/group/job/{id}/cancel", I, "Cancela a tarefa (o que já foi feito fica feito)", None),
   ("Canais", "get", "/newsletter/list", I, "Canais (newsletters) seguidos", None),
 ]
 # complementos da API nativa
@@ -144,6 +152,30 @@ R += [
   ("Canais", "post", "/newsletter/mute", I, "Silencia o canal", {"newsletterId": "120363000000000000@newsletter"}),
   ("Canais", "post", "/newsletter/unmute", I, "Tira o silêncio", {"newsletterId": "120363000000000000@newsletter"}),
   ("Canais", "post", "/newsletter/messages", I, "Últimas mensagens do canal", {"newsletterId": "120363000000000000@newsletter", "count": 20}),
+
+  ("Ferramentas", "post", "/tools/group/members", I,
+   "Extrai os participantes dos grupos numa lista só, sem repetir quem está em mais de um (sem groups, lê todos os grupos). Quem esconde o número entra na contagem hidden",
+   {"groups": ["120363000000000000@g.us"], "onlyAdmins": False, "excludeAdmins": False}),
+  ("Ferramentas", "post", "/tools/group/active", I, "Quem escreveu no grupo nos últimos dias (precisa do histórico ligado)",
+   {"groupJid": "120363000000000000@g.us", "days": 30}),
+  ("Ferramentas", "get", "/tools/chat/contacts", I, "Pessoas com quem a instância já conversou", None),
+  ("Ferramentas", "post", "/tools/number/filter", I, "Separa, em lotes, os números que têm WhatsApp dos que não têm", {"numbers": [N, "5511888887777"]}),
+  ("Ferramentas", "post", "/tools/invite/check", I, "Confere links de convite sem entrar nos grupos", {"links": ["https://chat.whatsapp.com/XXXX"]}),
+  ("Ferramentas", "post", "/tools/group/add", I,
+   "Adiciona uma pessoa ao grupo e diz o que aconteceu: added, member, invited ou refused. Com inviteFallback, quem não aceita ser adicionado recebe o link de convite",
+   {"groupJid": "120363000000000000@g.us", "number": N, "inviteFallback": True, "inviteText": "Entre no nosso grupo:"}),
+
+  ("Massa", "post", "/bulk/group/add", I,
+   "Adiciona uma lista de números ao grupo, um por vez (intervalo mínimo de 10 s). Uma tarefa deste tipo por instância",
+   {"groupJid": "120363000000000000@g.us", "numbers": [N], "intervalSeconds": 30, "inviteFallback": True, "inviteText": "", "label": "Clientes de novembro"}),
+  ("Massa", "post", "/bulk/send", I,
+   "Manda a mesma mensagem para vários números, um por vez (intervalo mínimo de 3 s). {{numero}} no texto vira o número de destino",
+   {"numbers": [N], "text": "Olá! 👋", "url": "", "type": "image", "filename": "", "intervalSeconds": 5, "label": "Promoção"}),
+  ("Massa", "post", "/bulk/group/create", I, "Cria vários grupos com os mesmos participantes",
+   {"names": ["Turma 1", "Turma 2"], "participants": [N], "description": "", "intervalSeconds": 30, "label": ""}),
+  ("Massa", "get", "/bulk/list", I, "Tarefas em massa da instância, da mais nova para a mais antiga", None),
+  ("Massa", "get", "/bulk/{id}", I, "Uma tarefa com o relatório item a item", None),
+  ("Massa", "post", "/bulk/{id}/{action}", I, "pause, resume ou cancel", None),
   ("Histórico", "get", "/chat/list", I, "Conversas salvas (?limit=100&offset=0), as mais recentes primeiro", None),
   ("Histórico", "get", "/chat/messages", I, "Mensagens de uma conversa (?chat=&limit=50&offset=0&before=&after=&fromMe=)", None),
   ("Histórico", "post", "/chat/history", I, "Pede ao celular mensagens mais antigas da conversa (chegam pelo evento HistorySync)", {"chat": N, "count": 50}),
@@ -261,13 +293,14 @@ for tag, method, path, auth, summary, body in R:
 spec = {
   "openapi": "3.0.3",
   "info": {"title": "API WhatsApp BOB", "version": pathlib.Path("VERSION").read_text().strip(),
-           "description": "API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+           "description": "API de WhatsApp escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.\n\n"
+             "**Licença**: uso não comercial gratuito (PolyForm Noncommercial 1.0.0). Uso comercial requer licença comercial do autor: veja LICENCA-COMERCIAL.md no repositório.\n\n"
              "**Autenticação**: cabeçalho `apikey`. A chave global (GLOBAL_API_KEY) cria e gerencia instâncias; o token da instância "
              "envia mensagens e conecta. Com a chave global também dá para usar as rotas da instância informando o cabeçalho `instance` (id ou nome).\n\n"
              "**Padrão v2**: as rotas `/<módulo>/<ação>/{instance}` seguem o formato da Evolution API v2, para sistemas já feitos nesse padrão. "
              "Use a chave global ou o token da instância no `apikey`.\n\n"
              "**Eventos**: webhook (POST JSON `{event, instanceId, instanceName, instanceToken, data}`) e WebSocket em `/ws?token=`.",
-           "license": {"name": "Apache 2.0", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
+           "license": {"name": "PolyForm Noncommercial 1.0.0 (uso comercial requer licença comercial)", "url": "https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE"}},
   "servers": [{"url": "/"}],
   "tags": [{"name": t} for t in dict.fromkeys(r[0] for r in R)],
   "paths": paths,

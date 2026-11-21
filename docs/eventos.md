@@ -32,7 +32,7 @@ Lista vazia ou `ALL` envia tudo.
 | `PRESENCE` / `CHAT_PRESENCE` | online/offline e "digitando..." |
 | `CALL` | `CallRinging`, `CallConnected`, `CallMedia`, `CallEnded` (chamadas pelo navegador, veja [chamadas.md](chamadas.md)), `CallOffer`, `CallAccept`, `CallTerminate`... |
 | `CONTACT` | `Contact`, `PushName`, `Picture`, `BusinessName` |
-| `GROUP` | `GroupInfo`, `JoinedGroup` |
+| `GROUP` | `GroupInfo`, `JoinedGroup`, `GroupJob` (fim de uma tarefa de membros de grupo, veja [grupos.md](grupos.md)) |
 | `LABEL` | `LabelEdit`, `LabelAssociationChat`, `LabelAssociationMessage` |
 | `CHAT` | `Archive`, `Pin`, `Mute`, `Star`, `DeleteChat`... |
 | `HISTORY_SYNC` | resumo da sincronização do histórico |
@@ -56,7 +56,8 @@ Mídia: o nó é `imageMessage`, `videoMessage`, `audioMessage`, `documentMessag
 `WEBHOOK_FILES=true`, o arquivo vem pronto em `Message.base64` e o tipo em `Message.mimetype`. Sem isso, use
 `POST /message/downloadmedia` com o campo `Message` recebido.
 
-Quando o contato usa endereço oculto (`@lid`), o número aparece em `Info.SenderAlt` ou `Info.RecipientAlt`.
+Quando o contato usa endereço oculto (`@lid`), o número aparece em `Info.ChatPN` (preenchido pela BOB quando ela
+conhece o número), `Info.SenderAlt` ou `Info.RecipientAlt`. Se nenhum vier, o WhatsApp não informou o número.
 
 ## Um endereço por evento e mídia em base64
 

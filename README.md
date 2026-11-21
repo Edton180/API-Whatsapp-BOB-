@@ -4,11 +4,11 @@
 
 # API WhatsApp BOB
 
-**API de WhatsApp livre, rápida e leve, com painel web próprio. Escrita em Go.**
+**API de WhatsApp rápida e leve, com painel web próprio e código aberto. Escrita em Go.**
 
 [![CI](https://github.com/Edton180/API-Whatsapp-BOB-/actions/workflows/ci.yml/badge.svg)](https://github.com/Edton180/API-Whatsapp-BOB-/actions/workflows/ci.yml)
 ![Go](https://img.shields.io/badge/Go-1.26-00ADD8)
-![Licença](https://img.shields.io/badge/licen%C3%A7a-Apache%202.0-39e15a)
+![Licença](https://img.shields.io/badge/licen%C3%A7a-n%C3%A3o%20comercial%20%2B%20comercial-39e15a)
 
 Desenvolvido por **Edton Braz** ([@Edton180](https://github.com/Edton180))
 
@@ -92,12 +92,15 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 
 | Documento | Assunto |
 |---|---|
+| [docs/grupos.md](docs/grupos.md) | Extrair membros de grupos, copiar para outro grupo e enviar a cada membro |
+| [LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md) | Uso não comercial gratuito e licença comercial para empresas |
 | [docs/instalacao.md](docs/instalacao.md) | Docker, sem Docker, OmniFlow, HTTPS, variáveis e backup |
 | [docs/painel.md](docs/painel.md) | Telas do painel |
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
 | [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
 | [docs/chamadas.md](docs/chamadas.md) | Chamadas de voz e vídeo pelo navegador: rede, TURN, rotas e eventos |
 | [docs/cobrancas.md](docs/cobrancas.md) | Cobranças pelo WhatsApp: Pix da instância, cobrança de gateway, lembretes e baixa |
+| [docs/ferramentas.md](docs/ferramentas.md) | Extrair membros de grupos, conferir números e tarefas em massa (disparos, adicionar ao grupo) |
 | [docs/historico.md](docs/historico.md) | Histórico de mensagens e conversas, status de entrega e votos de enquete |
 | [docs/padrao-v2.md](docs/padrao-v2.md) | Rotas `/message/sendText/{instância}`... para sistemas feitos no padrão Evolution API v2 |
 | [docs/atualizacao.md](docs/atualizacao.md) | Atualizar sem perder números conectados |
@@ -121,7 +124,7 @@ internal/media/       figurinhas, áudio, miniaturas
 
 ## Contribua
 
-A BOB é livre e aberta. Correções, novas funções e documentação são bem-vindas: leia o
+A BOB tem o código aberto. Correções, novas funções e documentação são bem-vindas: leia o
 [CONTRIBUTING.md](CONTRIBUTING.md), abra uma issue ou envie um pull request.
 
 ## Apoie o projeto (Pix)
@@ -136,7 +139,13 @@ Abra o app do seu banco, escolha **Pix › Ler QR Code** ou **Pix Copia e Cola**
 
 ## Licença
 
-[Apache License 2.0](LICENSE). Componentes de terceiros e créditos em [NOTICE](NOTICE). "WhatsApp" é marca da
+- **Uso não comercial** (pessoal, estudo, pesquisa, entidades sem fins lucrativos): gratuito, pela
+  [PolyForm Noncommercial 1.0.0](LICENSE).
+- **Uso comercial** (empresas, SaaS, revenda, serviços a clientes): requer uma **licença comercial** adquirida com
+  o autor, Edton Braz. Veja [LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md).
+
+Não há ativação nem chave de licença no programa. As versões até a 2.4.2 continuam sob a Apache 2.0.
+Componentes de terceiros e créditos em [NOTICE](NOTICE). "WhatsApp" é marca da
 Meta Platforms, Inc.; a BOB não é afiliada à Meta.
 
 ---

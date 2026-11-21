@@ -39,7 +39,7 @@ var categories = map[string][]string{
 	"CONNECTION": {"Connected", "PairSuccess", "PairError", "LoggedOut", "Disconnected", "ConnectFailure", "TemporaryBan", "StreamReplaced", "ClientOutdated", "KeepAliveTimeout", "KeepAliveRestored", "OfflineSyncCompleted"},
 	"QRCODE":     {"QRCode", "QRTimeout", "QRSuccess"},
 	"CONTACT":    {"Contact", "PushName", "Picture", "BusinessName", "UserAbout"},
-	"GROUP":      {"GroupInfo", "JoinedGroup"},
+	"GROUP":      {"GroupInfo", "JoinedGroup", "GroupJob"},
 	"LABEL":      {"LabelEdit", "LabelAssociationChat", "LabelAssociationMessage"},
 	"NEWSLETTER": {"NewsletterJoin", "NewsletterLeave", "NewsletterMuteChange", "NewsletterLiveUpdate"},
 	"CHAT":       {"Archive", "Pin", "Mute", "Star", "DeleteChat", "DeleteForMe", "MarkChatAsRead", "ClearChat"},

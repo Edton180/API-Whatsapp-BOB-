@@ -2,8 +2,12 @@
 openapi: 3.0.3
 info:
   title: API WhatsApp BOB
-  version: 2.5.0
-  description: 'API de WhatsApp livre, escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
+  version: 2.7.0
+  description: 'API de WhatsApp escrita em Go sobre a biblioteca whatsmeow. Desenvolvido por Edton Braz.
+
+
+    **Licença**: uso não comercial gratuito (PolyForm Noncommercial 1.0.0). Uso comercial requer licença comercial do autor: veja LICENCA-COMERCIAL.md
+    no repositório.
 
 
     **Autenticação**: cabeçalho `apikey`. A chave global (GLOBAL_API_KEY) cria e gerencia instâncias; o token da instância envia mensagens e conecta.
@@ -16,7 +20,7 @@ info:
 
     **Eventos**: webhook (POST JSON `{event, instanceId, instanceName, instanceToken, data}`) e WebSocket em `/ws?token=`.'
   license:
-    name: Apache 2.0
+    name: PolyForm Noncommercial 1.0.0 (uso comercial requer licença comercial)
     url: https://github.com/Edton180/API-Whatsapp-BOB-/blob/main/LICENSE
 servers:
 - url: /
@@ -34,6 +38,8 @@ tags:
 - name: Canais
 - name: Comunidades
 - name: Chamadas
+- name: Ferramentas
+- name: Massa
 - name: Histórico
 - name: Padrão v2 · Instâncias
 - name: Padrão v2 · Envio
@@ -117,7 +123,7 @@ paths:
     get:
       tags:
       - Servidor
-      summary: 'Compatibilidade: sempre ''active'' (a BOB não exige licença)'
+      summary: 'Compatibilidade: sempre ''active'' (a BOB não tem ativação; uso comercial requer licença comercial)'
       responses:
         '200':
           description: Sucesso
@@ -2946,6 +2952,213 @@ paths:
               type: object
             example:
               groupJid: 120363000000000000@g.us
+  /group/members:
+    post:
+      tags:
+      - Grupos
+      summary: Extrai os membros do grupo (número, JID, administrador). format=csv devolve a planilha
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              format: json
+  /group/members/copy:
+    post:
+      tags:
+      - Grupos
+      summary: 'Adiciona em outro grupo os membros que ainda não estão nele (tarefa em segundo plano; o número precisa ser administrador do destino).
+        batch: 1 a 10 por vez; delay: segundos entre os lotes (mínimo 5)'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              fromGroupJid: 120363000000000000@g.us
+              toGroupJid: 120363000000000001@g.us
+              skipAdmins: false
+              batch: 5
+              delay: 15
+              limit: 0
+  /group/members/send:
+    post:
+      tags:
+      - Grupos
+      summary: 'Envia a mensagem no privado de cada membro de um ou mais grupos (tarefa em segundo plano). delay: segundos entre as mensagens
+        (mínimo 3). Com url ou base64 o text vira legenda'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJids:
+              - 120363000000000000@g.us
+              text: Olá! Temos novidades.
+              skipAdmins: false
+              delay: 8
+              limit: 0
+  /group/jobs:
+    get:
+      tags:
+      - Grupos
+      summary: Tarefas de membros de grupos da instância (cópia e envio)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /group/job/{id}:
+    get:
+      tags:
+      - Grupos
+      summary: Progresso e resultado por membro de uma tarefa
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /group/job/{id}/cancel:
+    post:
+      tags:
+      - Grupos
+      summary: Cancela a tarefa (o que já foi feito fica feito)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
   /newsletter/list:
     get:
       tags:
@@ -4119,6 +4332,428 @@ paths:
             example:
               newsletterId: 120363000000000000@newsletter
               count: 20
+  /tools/group/members:
+    post:
+      tags:
+      - Ferramentas
+      summary: Extrai os participantes dos grupos numa lista só, sem repetir quem está em mais de um (sem groups, lê todos os grupos). Quem esconde
+        o número entra na contagem hidden
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groups:
+              - 120363000000000000@g.us
+              onlyAdmins: false
+              excludeAdmins: false
+  /tools/group/active:
+    post:
+      tags:
+      - Ferramentas
+      summary: Quem escreveu no grupo nos últimos dias (precisa do histórico ligado)
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              days: 30
+  /tools/chat/contacts:
+    get:
+      tags:
+      - Ferramentas
+      summary: Pessoas com quem a instância já conversou
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /tools/number/filter:
+    post:
+      tags:
+      - Ferramentas
+      summary: Separa, em lotes, os números que têm WhatsApp dos que não têm
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              numbers:
+              - '5511999998888'
+              - '5511888887777'
+  /tools/invite/check:
+    post:
+      tags:
+      - Ferramentas
+      summary: Confere links de convite sem entrar nos grupos
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              links:
+              - https://chat.whatsapp.com/XXXX
+  /tools/group/add:
+    post:
+      tags:
+      - Ferramentas
+      summary: 'Adiciona uma pessoa ao grupo e diz o que aconteceu: added, member, invited ou refused. Com inviteFallback, quem não aceita ser
+        adicionado recebe o link de convite'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              number: '5511999998888'
+              inviteFallback: true
+              inviteText: 'Entre no nosso grupo:'
+  /bulk/group/add:
+    post:
+      tags:
+      - Massa
+      summary: Adiciona uma lista de números ao grupo, um por vez (intervalo mínimo de 10 s). Uma tarefa deste tipo por instância
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              groupJid: 120363000000000000@g.us
+              numbers:
+              - '5511999998888'
+              intervalSeconds: 30
+              inviteFallback: true
+              inviteText: ''
+              label: Clientes de novembro
+  /bulk/send:
+    post:
+      tags:
+      - Massa
+      summary: Manda a mesma mensagem para vários números, um por vez (intervalo mínimo de 3 s). {{numero}} no texto vira o número de destino
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              numbers:
+              - '5511999998888'
+              text: Olá! 👋
+              url: ''
+              type: image
+              filename: ''
+              intervalSeconds: 5
+              label: Promoção
+  /bulk/group/create:
+    post:
+      tags:
+      - Massa
+      summary: Cria vários grupos com os mesmos participantes
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              names:
+              - Turma 1
+              - Turma 2
+              participants:
+              - '5511999998888'
+              description: ''
+              intervalSeconds: 30
+              label: ''
+  /bulk/list:
+    get:
+      tags:
+      - Massa
+      summary: Tarefas em massa da instância, da mais nova para a mais antiga
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+  /bulk/{id}:
+    get:
+      tags:
+      - Massa
+      summary: Uma tarefa com o relatório item a item
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
+  /bulk/{id}/{action}:
+    post:
+      tags:
+      - Massa
+      summary: pause, resume ou cancel
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resposta'
+        '400':
+          description: Pedido inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '401':
+          description: Chave inválida
+        '409':
+          description: Instância não conectada
+      security:
+      - tokenInstancia: []
+      - chaveGlobal: []
+        instancia: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: id ou nome da instância
   /chat/list:
     get:
       tags:

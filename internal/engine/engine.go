@@ -56,6 +56,9 @@ type Engine struct {
 
 	// Calls liga as chamadas de voz e vídeo (pacote calls). Fica nil quando não há chamadas.
 	Calls CallHooks
+
+	bulkOnce sync.Once
+	bulk     *Bulk
 }
 
 // CallHooks é o que o motor precisa do gerenciador de chamadas.

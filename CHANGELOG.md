@@ -1,6 +1,6 @@
 # Histórico de versões
 
-## 2.5.0 - 2026-11-15
+## 2.7.0 - 2026-11-21
 
 - **Cobranças pelo WhatsApp** (`/charge/...`): a BOB monta a cobrança, entrega ao cliente (QR Code
   do Pix com o texto e o copia e cola numa mensagem à parte), reenvia lembretes, dá baixa com
@@ -12,6 +12,42 @@
   suas cobranças. Com a instância desconectada, criar e enviar responde 409 sem gravar nada.
 - Novos eventos `ChargeCreated`, `ChargeSent`, `ChargePaid` e `ChargeCancelled` (categoria
   `CHARGE`), aba **Cobranças** no painel e o BR Code do Pix num pacote próprio (`internal/pix`).
+
+## 2.6.0 - 2026-11-21
+
+- **Extração de membros de grupos**: `POST /tools/group/members` devolve os participantes de vários
+  grupos de uma vez, sem repetir quem está em mais de um, com nome, se é administrador e em que grupos
+  está. Participantes com número oculto (`@lid`) são contados em `hidden`, porque o WhatsApp não
+  entrega o telefone deles.
+- `POST /tools/group/active`: quem escreveu no grupo nos últimos N dias, com a quantidade de mensagens
+  (usa o histórico, pede `STORE_MESSAGES=true`).
+- `GET /tools/chat/contacts`: pessoas com quem a instância já tem conversa.
+- `POST /tools/number/filter` (até 5.000 números) e `POST /tools/invite/check` (até 50 links de
+  convite, sem entrar nos grupos).
+- `POST /tools/group/add`: adiciona uma pessoa e diz o que aconteceu com ela (`added`, `member`,
+  `refused`, `invited`, `failed`). Com `inviteFallback`, quem recusa a entrada direta recebe o link do
+  convite no privado.
+- **Tarefas em massa** `/bulk/*`: adicionar uma lista ao grupo, mandar a mesma mensagem para vários
+  números (`{{numero}}` na mensagem) e criar vários grupos. Um item por vez, com intervalo mínimo por
+  tipo (10 s, 3 s e 30 s), variação de 70% a 130% no intervalo e uma tarefa de cada tipo por instância.
+- Tarefa pausa, retoma, cancela e traz relatório item a item. Quando o WhatsApp limita o número
+  (`rate-overlimit`) ou a instância cai, a tarefa **pausa sozinha sem gastar o item**.
+- Complementa as rotas `/group/members*` da 2.5.0 (um grupo, copiar e enviar aos membros): as `/tools/*` e
+  `/bulk/*` trabalham com listas quaisquer de números, e não só com os membros de um grupo.
+- Nova página [docs/ferramentas.md](docs/ferramentas.md).
+
+## 2.5.0 - 2026-11-15
+
+- **Licença**: a partir desta versão a BOB sai sob a PolyForm Noncommercial 1.0.0. O uso não comercial continua
+  gratuito; **empresas que usam a BOB comercialmente precisam adquirir a licença comercial com o autor**
+  ([LICENCA-COMERCIAL.md](LICENCA-COMERCIAL.md)). Não há ativação nem bloqueio no programa. As versões até a 2.4.2
+  continuam sob a Apache 2.0.
+- **Membros de grupos** ([docs/grupos.md](docs/grupos.md)): `POST /group/members` extrai os membros (JSON ou CSV),
+  `POST /group/members/copy` adiciona os membros de um grupo em outro e `POST /group/members/send` envia uma
+  mensagem no privado de cada membro. Copiar e enviar rodam em segundo plano, com pausas, progresso
+  (`GET /group/job/{id}`), cancelamento e o evento `GroupJob` ao terminar.
+- **Mensagem recebida por identificador oculto (LID)**: o evento `Message` traz `Info.ChatPN` com o número da
+  conversa quando a BOB o conhece, para o sistema ligado ao webhook achar o contato pelo telefone.
 
 ## 2.4.2 - 2026-11-08
 

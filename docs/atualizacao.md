@@ -11,6 +11,7 @@ refeito:
   `/group/*`, `/chatwoot/*`, `/typebot/*` e `/n8n/*` respondem como antes, e o webhook mantém o formato
   `{event, instanceId, instanceName, instanceToken, data}`.
 - **Licença:** não existe mais ativação. `/license/status` responde `active` só para sistemas antigos.
+  Da 2.5.0 em diante o uso comercial requer licença comercial do autor ([LICENCA-COMERCIAL.md](../LICENCA-COMERCIAL.md)).
   `EVOLUTION_OPERATOR_EMAIL` pode ser apagado do `.env`.
 - **Variáveis:** as mesmas (`GLOBAL_API_KEY`, `POSTGRES_AUTH_DB`, `POSTGRES_USERS_DB`, `SERVER_PORT`...).
   RabbitMQ, NATS e MinIO não fazem parte da 2.0: os eventos saem por webhook e WebSocket, e a mídia recebida vai
