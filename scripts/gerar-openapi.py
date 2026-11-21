@@ -71,6 +71,19 @@ R = [
 ] + [("Conversas", "post", f"/chat/{a}", I, d, {"chat": N}) for a, d in [
   ("archive", "Arquiva"), ("unarchive", "Desarquiva"), ("pin", "Fixa"), ("unpin", "Desafixa"), ("mute", "Silencia (duration em horas)"),
   ("unmute", "Tira o silêncio"), ("read", "Marca a conversa como lida"), ("unread", "Marca como não lida")]] + [
+  ("Cobranças", "get", "/charge/settings", I, "Pix e textos de cobrança da instância", None),
+  ("Cobranças", "put", "/charge/settings", I, "Cadastra a chave Pix e os textos da cobrança e do recibo",
+   {"pixKey": "contato@loja.com", "pixKeyType": "email", "pixName": "Loja do Ze", "pixCity": "Manaus",
+    "message": "Olá {nome}! Sua {descricao} de {valor} vence em {vencimento}.", "receiptMessage": "Recebemos {valor}. Obrigado!"}),
+  ("Cobranças", "post", "/charge/create", I, "Cria a cobrança e envia ao cliente (Pix da instância ou cobrança pronta de um gateway)",
+   {"number": N, "customerName": "Maria", "description": "Mensalidade de novembro", "amount": 49.9, "dueDate": "2026-11-20",
+    "reference": "fatura-123", "pixCode": "", "paymentUrl": "", "boletoLine": "", "send": True}),
+  ("Cobranças", "get", "/charge/list", I, "Lista as cobranças (?status=pending|paid|cancelled|overdue&number=&limit=&offset=)", None),
+  ("Cobranças", "get", "/charge/{id}", I, "Uma cobrança, pelo id da BOB ou pela referência do seu sistema", None),
+  ("Cobranças", "get", "/charge/{id}/qrcode", I, "Imagem PNG do QR Code do Pix da cobrança", None),
+  ("Cobranças", "post", "/charge/{id}/send", I, "Reenvia a cobrança ao cliente (lembrete)", {"message": "", "delay": 0}),
+  ("Cobranças", "post", "/charge/{id}/pay", I, "Dá baixa na cobrança e avisa o cliente", {"notify": True, "message": ""}),
+  ("Cobranças", "post", "/charge/{id}/cancel", I, "Cancela a cobrança", None),
   ("Etiquetas", "get", "/label/list", I, "Etiquetas do WhatsApp Business", None),
   ("Etiquetas", "post", "/label/chat", I, "Etiqueta uma conversa", {"jid": N, "labelId": "1"}),
   ("Etiquetas", "post", "/unlabel/chat", I, "Tira a etiqueta da conversa", {"jid": N, "labelId": "1"}),
@@ -267,7 +280,8 @@ for tag, method, path, auth, summary, body in R:
     else:
         op["security"] = [{"chaveGlobal": []}, {"tokenInstancia": []}]
     if "{id}" in path:
-        op["parameters"] = [{"name": "id", "in": "path", "required": True, "schema": {"type": "string"}, "description": "id ou nome da instância"}]
+        desc = "id da cobrança ou a referência do seu sistema" if path.startswith("/charge/") else "id ou nome da instância"
+        op["parameters"] = [{"name": "id", "in": "path", "required": True, "schema": {"type": "string"}, "description": desc}]
     if "{instance}" in path:
         op["parameters"] = [{"name": "instance", "in": "path", "required": True, "schema": {"type": "string"}, "description": "nome da instância"}]
     if "{callId}" in path:

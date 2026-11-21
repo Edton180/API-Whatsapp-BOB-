@@ -32,6 +32,7 @@
       <a href="#instancias" data-page="instancias"><span>📱</span> Instâncias</a>
       <a href="#enviar" data-page="enviar"><span>✉️</span> Enviar mensagem</a>
       <a href="#chamadas" data-page="chamadas"><span>📞</span> Chamadas</a>
+      <a href="#cobrancas" data-page="cobrancas"><span>💰</span> Cobranças</a>
       <a href="#eventos" data-page="eventos"><span>⚡</span> Eventos ao vivo</a>
       <a href="#servidor" data-page="servidor"><span>🖥️</span> Servidor</a>
       <a href="/swagger/index.html" target="_blank" rel="noopener"><span>📘</span> Documentação da API</a>
@@ -136,6 +137,51 @@
           <select id="call-filter" aria-label="Filtro"><option value="">Todas</option><option value="missed">Perdidas</option><option value="ended">Atendidas e encerradas</option><option value="rejected">Recusadas</option></select>
         </div>
         <div id="call-history" class="call-list"></div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="page-cobrancas">
+      <div class="toolbar">
+        <select id="charge-instance" aria-label="Instância"></select>
+        <span class="muted small">A BOB monta a cobrança, envia ao cliente pelo WhatsApp e guarda a situação. O dinheiro vai direto para a sua conta.</span>
+      </div>
+      <div class="grid two">
+        <form id="charge-form" class="card form">
+          <h3>Nova cobrança</h3>
+          <div class="row">
+            <label>Número do cliente (com DDI e DDD) <input id="charge-number" placeholder="5511999998888" required></label>
+            <label>Nome do cliente <input id="charge-name"></label>
+          </div>
+          <div class="row">
+            <label>Valor (R$) <input id="charge-amount" inputmode="decimal" placeholder="49,90" required></label>
+            <label>Vencimento <input id="charge-due" type="date"></label>
+          </div>
+          <label>Descrição <input id="charge-description" placeholder="Mensalidade de novembro"></label>
+          <label>Link de pagamento (opcional) <input id="charge-url" placeholder="https://..."></label>
+          <label class="check"><input id="charge-send" type="checkbox" checked> Enviar ao cliente agora</label>
+          <div class="actions"><button class="btn primary" type="submit">Criar cobrança</button></div>
+        </form>
+        <form id="charge-settings" class="card form">
+          <h3>Pix desta instância</h3>
+          <p class="muted small">Com a chave cadastrada, a BOB gera o Pix copia e cola e o QR Code de cada cobrança, já com o valor.</p>
+          <div class="row">
+            <label>Chave Pix <input id="charge-pix-key" placeholder="CPF, CNPJ, telefone, e-mail ou chave aleatória"></label>
+            <label>Tipo <select id="charge-pix-type"><option value="">Detectar</option><option value="cpf">CPF</option><option value="cnpj">CNPJ</option><option value="phone">Telefone</option><option value="email">E-mail</option><option value="random">Aleatória</option></select></label>
+          </div>
+          <div class="row">
+            <label>Nome do recebedor <input id="charge-pix-name" maxlength="25"></label>
+            <label>Cidade <input id="charge-pix-city" maxlength="15"></label>
+          </div>
+          <label>Texto da cobrança (opcional) <textarea id="charge-message" rows="2" placeholder="Olá {nome}! Sua {descricao} de {valor} vence em {vencimento}."></textarea></label>
+          <label>Texto do recibo (opcional) <textarea id="charge-receipt" rows="2" placeholder="Pagamento de {valor} confirmado. Obrigado!"></textarea></label>
+          <div class="actions"><button class="btn" type="submit">Salvar</button></div>
+        </form>
+      </div>
+      <div class="card">
+        <div class="toolbar"><h3>Cobranças</h3><span class="spacer"></span>
+          <select id="charge-filter" aria-label="Filtro"><option value="">Todas</option><option value="pending">Pendentes</option><option value="overdue">Vencidas</option><option value="paid">Pagas</option><option value="cancelled">Canceladas</option></select>
+        </div>
+        <div id="charge-list" class="call-list"></div>
       </div>
     </section>
 

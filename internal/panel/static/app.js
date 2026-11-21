@@ -60,7 +60,7 @@
   $("#logout").addEventListener("click", logout);
 
   // ------------------------------------------------------------ navegação
-  const titles = { instancias: "Instâncias", enviar: "Enviar mensagem", chamadas: "Chamadas", eventos: "Eventos ao vivo", servidor: "Servidor", apoie: "Apoie o projeto" };
+  const titles = { instancias: "Instâncias", enviar: "Enviar mensagem", chamadas: "Chamadas", cobrancas: "Cobranças", eventos: "Eventos ao vivo", servidor: "Servidor", apoie: "Apoie o projeto" };
   function go() {
     const page = (location.hash || "#instancias").slice(1);
     const name = titles[page] ? page : "instancias";
@@ -73,6 +73,7 @@
     if (name === "apoie") loadPix();
     if (name === "enviar") fillSelect($("#send-instance"), false);
     if (name === "chamadas") openCalls(); else stopCalls();
+    if (name === "cobrancas") openCharges();
   }
   window.addEventListener("hashchange", go);
   $("#menu").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
@@ -391,6 +392,91 @@
     });
   });
 
+
+  // ------------------------------------------------------------ cobranças
+  const CHARGE_STATUS = { pending: ["Pendente", "warn"], paid: ["Paga", "ok"], cancelled: ["Cancelada", ""] };
+  const chargeInst = () => $("#charge-instance").value;
+  const money = (v) => Number(v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const brDate = (d) => (d ? d.split("-").reverse().join("/") : "");
+
+  async function openCharges() {
+    fillSelect($("#charge-instance"), false);
+    await loadChargeSettings();
+    loadCharges();
+  }
+  $("#charge-instance").addEventListener("change", () => { loadChargeSettings(); loadCharges(); });
+  $("#charge-filter").addEventListener("change", loadCharges);
+
+  async function loadChargeSettings() {
+    const inst = chargeInst();
+    if (!inst) return;
+    const st = await api("GET", "/charge/settings", undefined, inst).catch(() => ({}));
+    $("#charge-pix-key").value = st.pixKey || "";
+    $("#charge-pix-type").value = st.pixKeyType || "";
+    $("#charge-pix-name").value = st.pixName || "";
+    $("#charge-pix-city").value = st.pixCity || "";
+    $("#charge-message").value = st.message || "";
+    $("#charge-receipt").value = st.receiptMessage || "";
+  }
+  $("#charge-settings").addEventListener("submit", (e) => {
+    e.preventDefault();
+    run(e.submitter, async () => {
+      await api("PUT", "/charge/settings", {
+        pixKey: $("#charge-pix-key").value, pixKeyType: $("#charge-pix-type").value, pixName: $("#charge-pix-name").value,
+        pixCity: $("#charge-pix-city").value, message: $("#charge-message").value, receiptMessage: $("#charge-receipt").value,
+      }, chargeInst());
+      toast("Pix da instância salvo");
+    });
+  });
+
+  function chargeRow(c) {
+    const [label, cls] = c.overdue ? ["Vencida", "bad"] : CHARGE_STATUS[c.status] || [c.status, ""];
+    const actions = c.status === "pending"
+      ? `<button class="btn small" data-charge="send">Reenviar</button><button class="btn small primary" data-charge="pay">Dar baixa</button><button class="btn small danger" data-charge="cancel">Cancelar</button>`
+      : "";
+    return `<div class="call-row" data-id="${esc(c.id)}">
+      <div><strong>${esc(c.customerName || c.number)}</strong> <span class="muted small">${esc(c.customerName ? c.number : "")}</span>
+        <div class="muted small">${esc(c.description || "Cobrança")}${c.dueDate ? " · vence " + esc(brDate(c.dueDate)) : ""}${c.sentCount ? " · enviada " + c.sentCount + "x" : " · não enviada"}</div></div>
+      <span class="spacer"></span><strong>${esc(money(c.amount))}</strong><span class="pill ${cls}">${label}</span>
+      ${c.pixCode ? '<button class="btn small" data-charge="copy">Copiar Pix</button>' : ""}${actions}</div>`;
+  }
+  let charges = [];
+  async function loadCharges() {
+    const inst = chargeInst();
+    if (!inst) { $("#charge-list").innerHTML = '<p class="muted">Crie uma instância para cobrar.</p>'; return; }
+    const f = $("#charge-filter").value;
+    const r = await api("GET", "/charge/list?limit=100" + (f ? "&status=" + f : ""), undefined, inst).catch((e) => { toast(e.message, true); return { charges: [] }; });
+    charges = r.charges || [];
+    $("#charge-list").innerHTML = charges.length ? charges.map(chargeRow).join("") : '<p class="muted">Nenhuma cobrança aqui.</p>';
+  }
+  $("#charge-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const amount = parseFloat($("#charge-amount").value.replace(/\./g, "").replace(",", "."));
+    if (!(amount > 0)) return toast("Informe o valor da cobrança", true);
+    run(e.submitter, async () => {
+      const r = await api("POST", "/charge/create", {
+        number: $("#charge-number").value.trim(), customerName: $("#charge-name").value.trim(), amount,
+        dueDate: $("#charge-due").value, description: $("#charge-description").value.trim(),
+        paymentUrl: $("#charge-url").value.trim(), send: $("#charge-send").checked,
+      }, chargeInst());
+      toast(r.sendError ? "Cobrança criada, mas não foi enviada: " + r.sendError : r.sent ? "Cobrança enviada ao cliente" : "Cobrança criada", !!r.sendError);
+      $("#charge-amount").value = ""; $("#charge-description").value = ""; $("#charge-url").value = "";
+      loadCharges();
+    });
+  });
+  $("#charge-list").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-charge]");
+    if (!btn) return;
+    const c = charges.find((x) => x.id === btn.closest("[data-id]").dataset.id);
+    if (!c) return;
+    const act = btn.dataset.charge;
+    if (act === "copy") return navigator.clipboard.writeText(c.pixCode).then(() => toast("Pix copia e cola copiado"), () => toast("Não foi possível copiar", true));
+    run(btn, async () => {
+      await api("POST", `/charge/${c.id}/${act}`, {}, chargeInst());
+      toast({ send: "Cobrança reenviada", pay: "Baixa registrada e cliente avisado", cancel: "Cobrança cancelada" }[act]);
+      loadCharges();
+    });
+  });
 
   // ------------------------------------------------------------ chamadas (softphone)
   // O navegador manda a oferta WebRTC já com todos os candidatos (sem "trickle") e recebe a

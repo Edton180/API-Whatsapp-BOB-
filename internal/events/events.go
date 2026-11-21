@@ -44,13 +44,14 @@ var categories = map[string][]string{
 	"NEWSLETTER": {"NewsletterJoin", "NewsletterLeave", "NewsletterMuteChange", "NewsletterLiveUpdate"},
 	"CHAT":       {"Archive", "Pin", "Mute", "Star", "DeleteChat", "DeleteForMe", "MarkChatAsRead", "ClearChat"},
 	"BLOCKLIST":  {"Blocklist"},
+	"CHARGE":     {"ChargeCreated", "ChargeSent", "ChargePaid", "ChargeCancelled"},
 }
 
 // Categories devolve os nomes de categoria aceitos.
 func Categories() []string {
 	out := make([]string, 0, len(categories)+1)
 	out = append(out, "ALL")
-	for _, k := range []string{"MESSAGE", "SEND_MESSAGE", "READ_RECEIPT", "PRESENCE", "CHAT_PRESENCE", "HISTORY_SYNC", "CALL", "CONNECTION", "QRCODE", "CONTACT", "GROUP", "LABEL", "NEWSLETTER", "CHAT", "BLOCKLIST"} {
+	for _, k := range []string{"MESSAGE", "SEND_MESSAGE", "READ_RECEIPT", "PRESENCE", "CHAT_PRESENCE", "HISTORY_SYNC", "CALL", "CONNECTION", "QRCODE", "CONTACT", "GROUP", "LABEL", "NEWSLETTER", "CHAT", "BLOCKLIST", "CHARGE"} {
 		out = append(out, k)
 	}
 	return out
