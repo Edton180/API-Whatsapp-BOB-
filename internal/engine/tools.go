@@ -122,9 +122,9 @@ func (s *Session) contactName(ctx context.Context, c *whatsmeow.Client) func(typ
 	}
 }
 
-// GroupMembers extrai os membros dos grupos informados (todos os grupos da instância quando a
+// MembersOfGroups extrai os membros dos grupos informados (todos os grupos da instância quando a
 // lista vem vazia), sem repetir quem está em mais de um.
-func (s *Session) GroupMembers(ctx context.Context, groups []string, opt MembersOptions) (*MembersResult, error) {
+func (s *Session) MembersOfGroups(ctx context.Context, groups []string, opt MembersOptions) (*MembersResult, error) {
 	c, err := s.Client()
 	if err != nil {
 		return nil, err

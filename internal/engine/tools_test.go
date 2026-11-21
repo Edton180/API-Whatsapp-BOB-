@@ -158,3 +158,37 @@ func TestBulkSoAceitaTiposConhecidos(t *testing.T) {
 		t.Fatal("lista vazia")
 	}
 }
+
+// Cancelar enquanto um item roda e ele volta com erro de limite: a tarefa termina cancelada, não pausada
+// nem concluída.
+func TestBulkCancelarDuranteLimiteContinuaCancelada(t *testing.T) {
+	b := bulkTest()
+	started := make(chan struct{})
+	job, err := b.Start("inst-4", BulkSend, "", []string{"1", "2"}, 0, func(ctx context.Context, _ string) (string, error) {
+		close(started)
+		<-ctx.Done()
+		return "", errors.New("rate-overlimit")
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	<-started
+	if _, err := b.Control("inst-4", job.ID, "cancel"); err != nil {
+		t.Fatal(err)
+	}
+	var full *BulkJob
+	for i := 0; i < 200; i++ {
+		if full, _ = b.Get("inst-4", job.ID); full.FinishedAt != 0 {
+			break
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	if full.Status != "cancelled" || full.FinishedAt == 0 || full.Pending != 2 {
+		t.Fatalf("cancelada: %+v", full)
+	}
+	for _, it := range full.Items {
+		if it.Status != "cancelled" {
+			t.Fatalf("itens que faltavam devem ficar cancelled: %+v", full.Items)
+		}
+	}
+}

@@ -174,6 +174,11 @@ func (b *Bulk) run(ctx context.Context, st *bulkState) {
 		b.mu.Lock()
 		it := &st.job.Items[i]
 		it.At = time.Now().Unix()
+		if err != nil && (ctx.Err() != nil || st.job.Status == "cancelled") {
+			// cancelada enquanto o item rodava: o item fica como estava e a tarefa termina cancelada
+			b.mu.Unlock()
+			break
+		}
 		var soft bulkFailure
 		switch {
 		case err == nil:

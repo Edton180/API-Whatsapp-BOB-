@@ -46,7 +46,7 @@ func (s *Server) toolsGroupMembers(c *gin.Context) {
 	if !bindOptional(c, &req) {
 		return
 	}
-	res, err := s.session(c).GroupMembers(c.Request.Context(), req.Groups,
+	res, err := s.session(c).MembersOfGroups(c.Request.Context(), req.Groups,
 		engine.MembersOptions{OnlyAdmins: req.OnlyAdmins, ExcludeAdmins: req.ExcludeAdmins})
 	reply(c, res, err)
 }

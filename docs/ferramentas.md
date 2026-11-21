@@ -9,6 +9,10 @@ item por vez, com intervalo entre eles.
 > o telefone de alguém. As rotas abaixo não contornam isso: elas só deixam o ritmo controlado e o
 > relatório claro. Use com lista de quem autorizou o contato.
 
+Para extrair um grupo só (também em CSV), copiar os membros de um grupo para outro ou mandar mensagem aos
+membros de um grupo, veja também [docs/grupos.md](grupos.md). As rotas desta página trabalham com listas
+quaisquer de números e grupos.
+
 ## Ferramentas de extração
 
 Token da instância no `apikey`.

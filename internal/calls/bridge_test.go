@@ -4,10 +4,12 @@ package calls
 
 import (
 	"bytes"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/pion/ice/v4"
 	"github.com/pion/webrtc/v4"
 	"github.com/pion/webrtc/v4/pkg/media"
 
@@ -26,6 +28,12 @@ type fakeBrowser struct {
 }
 
 func newFakeBrowser(t *testing.T, mime string) *fakeBrowser {
+	return newFakeBrowserMDNS(t, mime, false)
+}
+
+// newFakeBrowserMDNS com mdns = true esconde os IPs locais atrás de nomes .local, como o Chrome
+// faz: a BOB não resolve esses nomes e só o navegador consegue iniciar a conexão.
+func newFakeBrowserMDNS(t *testing.T, mime string, mdns bool) *fakeBrowser {
 	t.Helper()
 	m := &webrtc.MediaEngine{}
 	if err := m.RegisterCodec(webrtc.RTPCodecParameters{RTPCodecCapability: webrtc.RTPCodecCapability{MimeType: mime, ClockRate: 8000, Channels: 1}, PayloadType: map[string]webrtc.PayloadType{webrtc.MimeTypeG722: 9, webrtc.MimeTypePCMU: 0}[mime]}, webrtc.RTPCodecTypeAudio); err != nil {
@@ -36,6 +44,9 @@ func newFakeBrowser(t *testing.T, mime string) *fakeBrowser {
 	}
 	se := webrtc.SettingEngine{}
 	se.SetNetworkTypes([]webrtc.NetworkType{webrtc.NetworkTypeUDP4})
+	if mdns {
+		se.SetICEMulticastDNSMode(ice.MulticastDNSModeQueryAndGather)
+	}
 	pc, err := webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithSettingEngine(se)).NewPeerConnection(webrtc.Configuration{})
 	if err != nil {
 		t.Fatal(err)
@@ -198,5 +209,48 @@ func TestBridgeRejectsBadOffer(t *testing.T) {
 	defer closer()
 	if _, _, err := newBridge(api, nil, "v=0\r\nm=video 9 UDP/TLS/RTP/SAVPF 102\r\n", bridgeHooks{}); err == nil {
 		t.Fatal("deveria recusar")
+	}
+}
+
+// Com WEBRTC_PUBLIC_IP preenchido (servidor atrás de NAT ou Docker), o navegador na mesma rede
+// ainda precisa conectar pelos endereços locais. Antes o IP público substituía todos os
+// candidatos e a chamada ficava muda quando o navegador não alcançava esse IP.
+func TestBridgeKeepsLocalCandidatesWithPublicIP(t *testing.T) {
+	api, closer, err := newAPI(config.WebRTC{UDPMux: 46123, PublicIP: "203.0.113.10"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer closer()
+	browser := newFakeBrowserMDNS(t, webrtc.MimeTypeG722, true)
+	defer browser.pc.Close()
+	connected := make(chan struct{}, 1)
+	offer := browser.offer(t)
+	if !strings.Contains(offer, ".local") {
+		t.Skip("sem mDNS neste ambiente")
+	}
+	br, answer, err := newBridge(api, nil, offer, bridgeHooks{connected: func() { connected <- struct{}{} }})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer br.Close()
+	for _, want := range []string{"203.0.113.10 46123"} {
+		if !strings.Contains(answer, want) {
+			t.Fatalf("a resposta não anuncia %q:\n%s", want, answer)
+		}
+	}
+	if err := browser.pc.SetRemoteDescription(webrtc.SessionDescription{Type: webrtc.SDPTypeAnswer, SDP: answer}); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-connected:
+	case <-time.After(10 * time.Second):
+		t.Fatal("o navegador não conectou pelos endereços locais")
+	}
+}
+
+func TestPublicIPs(t *testing.T) {
+	got := strings.Join(publicIPs(" 203.0.113.10, 127.0.0.1 ,inválido,,::1"), "|")
+	if got != "203.0.113.10|127.0.0.1|::1" {
+		t.Fatalf("publicIPs = %q", got)
 	}
 }

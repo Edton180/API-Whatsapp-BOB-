@@ -122,6 +122,7 @@ type liveSource struct {
 	buf    []float32
 	muted  bool
 	closed bool
+	pushed int // pacotes de áudio recebidos do navegador (diagnóstico)
 }
 
 func (l *liveSource) push(samples []float32) {
@@ -130,6 +131,7 @@ func (l *liveSource) push(samples []float32) {
 	if l.closed {
 		return
 	}
+	l.pushed++
 	l.buf = append(l.buf, samples...)
 	if over := len(l.buf) - maxBuffered; over > 0 {
 		l.buf = l.buf[over:]
@@ -175,11 +177,16 @@ type browserSink struct {
 	codec   audioCodec
 	pending []int16
 	closed  bool
+	frames  int // quadros de áudio recebidos do WhatsApp (diagnóstico)
+	sent    int // pacotes entregues ao navegador
 }
 
 func (b *browserSink) WriteFrame(frame []float32) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
+	if !b.closed {
+		b.frames++
+	}
 	if b.closed || b.track == nil {
 		return nil
 	}
@@ -190,6 +197,7 @@ func (b *browserSink) WriteFrame(frame []float32) error {
 		if err := b.track.WriteSample(media.Sample{Data: pkt, Duration: 20 * time.Millisecond}); err != nil {
 			return nil // navegador saiu: a chamada é encerrada pelo estado da conexão
 		}
+		b.sent++
 	}
 	return nil
 }
@@ -208,4 +216,15 @@ func (b *browserSink) Close() error {
 	b.closed = true
 	b.mu.Unlock()
 	return nil
+}
+
+// audioStats resume quanto áudio passou em cada sentido (vai para o registro da instância).
+func audioStats(src *liveSource, sink *browserSink) (fromWhatsApp, toBrowser, fromBrowser int) {
+	sink.mu.Lock()
+	fromWhatsApp, toBrowser = sink.frames, sink.sent
+	sink.mu.Unlock()
+	src.mu.Lock()
+	fromBrowser = src.pushed
+	src.mu.Unlock()
+	return
 }

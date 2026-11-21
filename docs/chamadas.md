@@ -47,7 +47,7 @@ O navegador precisa alcançar a BOB por UDP.
 |---|---|---|
 | `WEBRTC_UDP_MUX_PORT` | `0` (`40000` no Docker) | Porta UDP única para todas as chamadas. Libere no firewall |
 | `WEBRTC_UDP_PORT_MIN` / `WEBRTC_UDP_PORT_MAX` | `0` | Faixa de portas UDP, no lugar da porta única |
-| `WEBRTC_PUBLIC_IP` | vazio | IP público do servidor. **Obrigatório no Docker** e atrás de NAT |
+| `WEBRTC_PUBLIC_IP` | vazio | IPs anunciados ao navegador, separados por vírgula, **somados** aos endereços da própria máquina. Na VPS: o IP público. No computador com Docker: `127.0.0.1` |
 | `WEBRTC_ICE_SERVERS` | `stun:stun.l.google.com:19302` | STUN e TURN entregues ao navegador, separados por vírgula |
 | `WEBRTC_TURN_SECRET` | vazio | Segredo compartilhado com o TURN (coturn com `use-auth-secret`) |
 | `WEBRTC_TURN_TTL` | `600` | Validade, em segundos, da senha TURN entregue ao navegador |
@@ -64,6 +64,27 @@ WEBRTC_TURN_SECRET=um-segredo-longo
 ```bash
 sudo ufw allow 40000/udp
 ```
+
+No computador (Docker Desktop ou Docker no Ubuntu, com o navegador na mesma máquina), use
+`WEBRTC_PUBLIC_IP=127.0.0.1`: a porta 40000/udp publicada pelo Docker atende no próprio computador.
+
+Até a 2.4.1 o IP informado **substituía** os endereços locais. Um navegador na mesma rede do servidor
+(ou no mesmo computador) não alcançava o IP público sem redirecionamento no roteador e a chamada
+ficava muda nos dois sentidos. Desde a 2.4.2 os IPs são somados.
+
+### Chamada muda
+
+No fim de cada chamada o registro da instância (Instâncias › Registro) mostra quanto áudio passou em
+cada sentido e se o navegador conectou:
+
+```
+áudio da chamada ABC123: 350 quadros vindos do WhatsApp, 1050 pacotes entregues ao navegador, 1040 pacotes vindos do navegador (navegador conectado: sim)
+```
+
+- `navegador conectado: não`: o navegador não alcançou a porta UDP. Confira `WEBRTC_PUBLIC_IP`, o firewall
+  e, em redes que bloqueiam UDP, configure um TURN.
+- `0 quadros vindos do WhatsApp`: o áudio do contato não chegou à BOB.
+- `0 pacotes vindos do navegador`: o microfone do atendente não mandou áudio (permissão ou dispositivo).
 
 **TURN** é recomendado para atendentes em redes que bloqueiam UDP (empresas, hotéis, 4G com CGNAT). Com o coturn:
 

@@ -132,11 +132,14 @@ func newAPI(cfg config.WebRTC) (*webrtc.API, func() error, error) {
 			return nil, nil, fmt.Errorf("faixa de portas UDP das chamadas: %w", err)
 		}
 	}
-	if cfg.PublicIP != "" {
+	if ips := publicIPs(cfg.PublicIP); len(ips) > 0 {
+		// Soma (não troca) os IPs informados aos candidatos da própria máquina. Trocar deixava só o
+		// IP público: um navegador na mesma rede (ou no mesmo computador) não alcança o IP público
+		// sem redirecionamento no roteador, e a chamada ficava muda nos dois sentidos.
 		if err := se.SetICEAddressRewriteRules(webrtc.ICEAddressRewriteRule{
-			External:        []string{cfg.PublicIP},
+			External:        ips,
 			AsCandidateType: webrtc.ICECandidateTypeHost,
-			Mode:            webrtc.ICEAddressRewriteReplace,
+			Mode:            webrtc.ICEAddressRewriteAppend,
 		}); err != nil {
 			return nil, nil, fmt.Errorf("WEBRTC_PUBLIC_IP: %w", err)
 		}
@@ -149,4 +152,17 @@ func newAPI(cfg config.WebRTC) (*webrtc.API, func() error, error) {
 		return nil, nil, err
 	}
 	return webrtc.NewAPI(webrtc.WithMediaEngine(m), webrtc.WithSettingEngine(se), webrtc.WithInterceptorRegistry(reg)), closer, nil
+}
+
+// publicIPs lê WEBRTC_PUBLIC_IP: um ou mais IPs separados por vírgula (ex.: o IP público do
+// servidor e 127.0.0.1 para o navegador no mesmo computador). Entradas inválidas são ignoradas.
+func publicIPs(v string) []string {
+	var out []string
+	for _, p := range strings.Split(v, ",") {
+		p = strings.TrimSpace(p)
+		if ip := net.ParseIP(p); ip != nil {
+			out = append(out, ip.String())
+		}
+	}
+	return out
 }
