@@ -49,6 +49,7 @@ As capturas foram feitas com dados de exemplo.
 | Grupos | Listar, dados, criar, participantes, nome, descrição, foto, convite, ver convite sem entrar, entrar, sair, quem envia e quem edita, aprovação de entrada e pedidos, mensagens temporárias |
 | Comunidades e canais | Criar comunidade e ligar grupos; criar canal, ver, seguir, silenciar e ler mensagens |
 | Chamadas | **Atender e fazer ligações de voz e vídeo pelo navegador** (WebRTC), vários atendentes, transferir, microfone e câmera, histórico de chamadas e perdidas, recusar (automático ou pela API) |
+| Cobranças | **Cobrar clientes pelo WhatsApp**: Pix copia e cola e QR Code gerados pela própria BOB (chave da instância) ou cobrança pronta de um gateway, lembretes, baixa com recibo, cancelamento e eventos |
 | Etiquetas | Listar, etiquetar conversa ou mensagem, criar e editar (WhatsApp Business) |
 | Eventos | Webhook com fila e novas tentativas, WebSocket, mídia recebida em base64 |
 | Integrações | Chatwoot, Typebot e N8N nativos |
@@ -98,6 +99,7 @@ curl -X POST http://localhost:8080/send/text -H "apikey: TOKEN" \
 | [docs/eventos.md](docs/eventos.md) | Webhook, categorias de eventos e WebSocket |
 | [docs/integracoes.md](docs/integracoes.md) | Chatwoot, Typebot e N8N |
 | [docs/chamadas.md](docs/chamadas.md) | Chamadas de voz e vídeo pelo navegador: rede, TURN, rotas e eventos |
+| [docs/cobrancas.md](docs/cobrancas.md) | Cobranças pelo WhatsApp: Pix da instância, cobrança de gateway, lembretes e baixa |
 | [docs/ferramentas.md](docs/ferramentas.md) | Extrair membros de grupos, conferir números e tarefas em massa (disparos, adicionar ao grupo) |
 | [docs/historico.md](docs/historico.md) | Histórico de mensagens e conversas, status de entrega e votos de enquete |
 | [docs/padrao-v2.md](docs/padrao-v2.md) | Rotas `/message/sendText/{instância}`... para sistemas feitos no padrão Evolution API v2 |
@@ -112,6 +114,7 @@ cmd/bob/              início do servidor
 internal/engine/      motor: sessões do WhatsApp, eventos, envios e ações
 internal/api/         rotas HTTP
 internal/calls/       chamadas de voz e vídeo (ponte WhatsApp <-> WebRTC, codec G.722)
+internal/pix/         BR Code do Pix (padrão EMV do Banco Central)
 internal/events/      webhook e WebSocket
 internal/integrations Chatwoot, Typebot e N8N
 internal/panel/       painel web e documentação (embutidos no programa)

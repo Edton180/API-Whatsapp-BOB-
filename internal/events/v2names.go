@@ -21,7 +21,8 @@ var v2Names = map[string]string{
 	"Archive": "CHATS_UPDATE", "Pin": "CHATS_UPDATE", "Mute": "CHATS_UPDATE", "Star": "CHATS_UPDATE",
 	"MarkChatAsRead": "CHATS_UPDATE", "ClearChat": "CHATS_UPDATE", "DeleteChat": "CHATS_DELETE",
 	"NewsletterJoin": "NEWSLETTER", "NewsletterLeave": "NEWSLETTER", "NewsletterMuteChange": "NEWSLETTER", "NewsletterLiveUpdate": "NEWSLETTER",
-	"Blocklist": "BLOCKLIST",
+	"Blocklist":     "BLOCKLIST",
+	"ChargeCreated": "CHARGE", "ChargeSent": "CHARGE", "ChargePaid": "CHARGE", "ChargeCancelled": "CHARGE",
 }
 
 // V2Name devolve o nome do evento no padrão v2 (MESSAGES_UPSERT, CONNECTION_UPDATE...).

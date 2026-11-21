@@ -36,6 +36,7 @@ Lista vazia ou `ALL` envia tudo.
 | `LABEL` | `LabelEdit`, `LabelAssociationChat`, `LabelAssociationMessage` |
 | `CHAT` | `Archive`, `Pin`, `Mute`, `Star`, `DeleteChat`... |
 | `HISTORY_SYNC` | resumo da sincronização do histórico |
+| `CHARGE` | `ChargeCreated`, `ChargeSent`, `ChargePaid`, `ChargeCancelled` (cobranças, veja [cobrancas.md](cobrancas.md)) |
 | `NEWSLETTER`, `BLOCKLIST` | canais e lista de bloqueio |
 
 ## Mensagem recebida (`Message`)
